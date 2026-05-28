@@ -15,7 +15,7 @@ function Cork() {
 function Pin({ position }: { position: [number, number, number] }) {
   return (
     <mesh position={position} castShadow>
-      <sphereGeometry args={[0.14, 24, 24]} />
+      <sphereGeometry args={[0.22, 24, 24]} />
       <meshStandardMaterial color="#c0392b" metalness={0.3} roughness={0.2} />
     </mesh>
   );
@@ -53,8 +53,8 @@ function Yarn({
 
   return (
     <mesh castShadow>
-      <tubeGeometry args={[curve, 96, 0.038, 10, false]} />
-      <meshStandardMaterial color="#7a1c1c" roughness={0.97} metalness={0} />
+      <tubeGeometry args={[curve, 96, 0.07, 12, false]} />
+      <meshStandardMaterial color="#8b1a1a" roughness={0.75} metalness={0} />
     </mesh>
   );
 }
@@ -66,15 +66,15 @@ export default function Scene() {
       camera={{ position: [0, 0, 18], fov: 48 }}
       style={{ width: "100%", height: "100%", background: "#1a1714" }}
     >
-      {/* warm ambient fill — very dim so the spot does the work */}
-      <ambientLight intensity={0.12} color="#ffaa55" />
+      {/* warm ambient fill */}
+      <ambientLight intensity={0.5} color="#ffcc88" />
 
       {/* the lamp — top-left, warm, soft shadows */}
       <spotLight
         position={[-5, 7, 12]}
-        angle={0.55}
-        penumbra={0.9}
-        intensity={4}
+        angle={0.9}
+        penumbra={0.6}
+        intensity={25}
         color="#ffd49a"
         castShadow
         shadow-mapSize={[2048, 2048]}
@@ -82,9 +82,9 @@ export default function Scene() {
       />
 
       <Cork />
-      <Pin position={[-5, 2.5, 0.08]} />
-      <Pin position={[4, -1.5, 0.08]} />
-      <Yarn from={[-5, 2.5, 0.08]} to={[4, -1.5, 0.08]} />
+      <Pin position={[-5, 2.5, 0.1]} />
+      <Pin position={[4, -1.5, 0.1]} />
+      <Yarn from={[-5, 2.5, 0.1]} to={[4, -1.5, 0.1]} />
 
       {/* pan + zoom only, no rotation — the board is flat */}
       <OrbitControls enableRotate={false} enablePan enableZoom />
