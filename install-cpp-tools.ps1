@@ -1,20 +1,21 @@
-# Run this as Administrator (right-click → Run with PowerShell, or from an admin terminal)
-# Installs VS C++ Build Tools — required for Tauri/Rust on Windows
+# Self-elevating — will UAC-prompt if not already admin
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Start-Process PowerShell -ArgumentList "-ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs -Wait
+    exit
+}
 
 $installer = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\setup.exe"
 
-Write-Host "Installing C++ Build Tools..." -ForegroundColor Cyan
+Write-Host "Installing C++ Build Tools (10-15 min, progress window will appear)..." -ForegroundColor Cyan
 
 & $installer install `
   --productId Microsoft.VisualStudio.Product.BuildTools `
+  --channelId VisualStudio.17.Release `
   --add Microsoft.VisualStudio.Workload.VCTools `
   --includeRecommended `
   --passive `
   --norestart
 
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "Done! Open a new terminal and run: pnpm tauri dev" -ForegroundColor Green
-} else {
-    Write-Host "Exit code: $LASTEXITCODE" -ForegroundColor Red
-    Write-Host "If a progress window appeared and finished, it may have worked anyway — try pnpm tauri dev in a new terminal." -ForegroundColor Yellow
-}
+Write-Host "Exit code: $LASTEXITCODE" -ForegroundColor Yellow
+Write-Host "Open a new terminal and run: pnpm tauri dev" -ForegroundColor Green
+Read-Host "Press Enter to close"
