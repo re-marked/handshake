@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Data layer is complete and live-verified** — engine + Rust IO + watcher + session; the full load → external-edit → reload loop confirmed in a running Tauri window (which caught + fixed the gray-matter/WebView2 bug). Remaining choice: (a) BFS `route` — the last pure-engine piece, testable today against the fixture graph, or (b) hand to the UI rebuild. AI stays last.
+**Phase 2 · The clean graph.** Aesthetic pivoted to "Obsidian for your network" — clean, monochrome + rose accent, graph as the hero (UX.md fully rewritten). First build target: a clean force-directed graph (d3-force + canvas) of the fixture cast, bound to `VaultSession` — "the graph is the new string," so prove it feels alive before wrapping any chrome. Data layer is complete + live-verified. AI stays last; BFS `route` deferred.
 
 ---
 
@@ -26,12 +26,13 @@ The engine is **Switchboard** — pure TS in `src/switchboard/`, zero Tauri/Reac
 - [ ] BFS pathfinding: `route(sb, from, to)` — deferred to end (data-consuming)
 - [x] Fixture vault for tests (`src/switchboard/__tests__/fixtures/`); real people seeded later
 
-## Phase 2 — Board (after real data exists)
-- [ ] R3F canvas + orthographic camera
-- [ ] Cork plane — settle visual language once there's content to look at
-- [ ] Polaroid cards from vault index
-- [ ] Pins + yarn between people
-- [ ] Drag → write position to `.handshake/layout.json`
+## Phase 2 — The graph (clean era — see rewritten UX.md)
+- [ ] App shell: Obsidian three-pane workspace (shadcn/Radix), dark-first, rose accent
+- [ ] Clean force-directed graph (d3-force + canvas): people = nodes, handshakes = edges
+- [ ] React binding to `VaultSession` (read switchboard, commit diffs, reload on watcher)
+- [ ] Node drag + pan/zoom → positions/viewport to `.handshake/layout.json`
+- [ ] Staleness (desaturate/dim) + warmth indicator, driven by the engine
+- [ ] Strip dead WebGL deps: `@react-three/*`, `three`, `postprocessing`, `public/textures/`
 
 ## Phase 3 — Capture
 - [ ] Global hotkey (Tauri) → quick-add overlay
@@ -55,3 +56,4 @@ The engine is **Switchboard** — pure TS in `src/switchboard/`, zero Tauri/Reac
 - YAML via js-yaml JSON_SCHEMA (no "Norway problem", no auto-dates); fixed key order + verbatim body → byte-stable rewrites.
 - AI is the lowest priority — built last, never load-bearing. Not an AI-native product.
 - Frontend/engine is browser-only (WebView2 — no Node `fs`/`Buffer`/`process`). gray-matter was dropped for needing them; parse.ts hand-rolls the frontmatter split + js-yaml. Verify data-layer changes by running the app, not just vitest (Node globals mask browser-incompatible deps).
+- **Aesthetic pivot (2026-05):** photoreal corkboard / WebGL / PBR / R3F is RETIRED → clean "Obsidian for your network" (monochrome + one rose accent, graph hero, shadcn/Radix, dark-first). UX.md rewritten top-to-bottom. SPEC §Tech-stack/Frontend + Board visual language are now stale (need a follow-up reconciliation). Dead deps to strip: `@react-three/fiber|drei|postprocessing`, `three`, `postprocessing`, `public/textures/`.

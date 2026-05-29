@@ -1,415 +1,310 @@
 # Handshake — UX & Aesthetic North Star
 
 This document is co-equal with [SPEC.md](./SPEC.md), not subordinate to it. SPEC.md
-says what Handshake *does*; this says what it *feels like* — and feel is not polish
-here, it is the product. Handshake is **an aesthetic game more than a production tool,
-while remaining genuinely both.** The corkboard is a small world you want to live in;
-the CRM is the substance underneath that makes living in it worthwhile. A beautiful
-board you open every day is the entire mechanism by which the tool succeeds. So every
-decision below is load-bearing.
+says what Handshake *does*; this says what it *feels like*. The two are read together.
 
-This is the full vision. It describes the destination, not a build order — the order
-things get built is a separate conversation (see SPEC.md's build plan).
+> **↳ Full rewrite (2026-05), aesthetic pivot — reasoning preserved, not silently
+> overwritten.** The original north star was a photorealistic corkboard: polaroids,
+> brass pins, sagging red yarn, lit by one warm lamp, rendered in WebGL/PBR. It was a
+> beautiful, specific vision — and it was the project's two biggest risks fused into
+> one ("the aesthetic is hard to get right" + "I'll over-engineer instead of using
+> it"). A real attempt proved the game-grade realism wasn't reachable in a webview at
+> the bar it demanded, and a *half*-real corkboard is worse than none — it lands in the
+> exact "stickers on a JPEG" kitsch the old doc warned against. So the direction turns:
+> **from a tactile object you dwell in, to a clean instrument you reach for.** The data
+> layer never cared — it was built UI-agnostic precisely so this could happen. Nothing
+> below depends on WebGL, Three.js, R3F, or PBR; those are retired.
+
+This is the destination, not a build order (see SPEC.md's build plan).
 
 ---
 
 ## 1. The north star
 
-**A corkboard in a dimly-lit study, lit by a single warm lamp.**
+**Obsidian for your network — a mature Obsidian plugin that grew up into its own app.**
 
-When you open Handshake, you should feel like you've walked into a quiet room at night
-where one warm light falls on a pinboard covered in faces and red thread. The board is
-a real, physical, *touchable* object. It has weight, depth, and grain. Light falls on
-it from one direction. Things pinned to it cast shadows. Thread sags under gravity.
-Photos yellow with age. It is the opposite of a flat dashboard — it is a place.
+When you open Handshake it should feel like opening Obsidian or Linear: a quiet,
+precise, fast, keyboard-driven tool that respects your attention and gets out of your
+way. Local files underneath, a clean graph of people on top, everything one keystroke
+away. Calm and monochrome, with a single accent doing real work.
 
-The emotional target is **calm, tactile, slightly nostalgic, and yours.** Not a
-detective-meme "crazy wall" (that's the kitsch failure mode); a beloved personal
-artifact — the wall of someone who cares about the people on it.
+**The thesis inverts from the old vision, on purpose.** The corkboard's premise was
+"beauty is the retention mechanism — you log because the board is gorgeous." The new
+premise is **"frictionlessness is the retention mechanism — you log because it costs
+nothing and the result is instantly legible."** That's the proven model: Linear,
+Obsidian, and Height are monochrome and restrained, and people open them every day not
+because they're pretty objects but because they're *effortless and clear*. The craft is
+still load-bearing — a clean tool done carelessly is just bland — but the craft now
+lives in speed, density-without-clutter, consistency, and typographic calm, not in
+skeuomorphic warmth.
 
----
-
-## 2. The two aesthetics, and why the chrome is dark
-
-Handshake holds two looks in deliberate tension:
-
-- **The board** — warm, lit, textured, physical. The corkboard world.
-- **The chrome** — the sidebar, editor, settings, and quick-add bar. Dark, quiet,
-  restrained, monospace-adjacent. Obsidian-flavored.
-
-These are not arbitrary. **The dark chrome exists to make the warm board glow.** A
-warm, lit object reads as precious only against a dark surround — the way a real
-pinboard looks when it's the one lit thing on a wall at night. The chrome recedes; the
-board advances. When the board is on screen, it is unmistakably the subject, lit like
-a focal object in a dark room.
-
-The board is *never* "dark mode." A corkboard is a warm physical thing; it stays warm.
-Dark mode is a property of the chrome only.
+The emotional target: **calm, exact, trustworthy, fast.** Quietly premium.
 
 ---
 
-## 3. The color grammar
+## 2. The identity, and what it implies
 
-Beneath the cork-and-string look is a disciplined **two-color semantic system on a
-neutral ground.** This single rule settles a hundred downstream decisions.
+"A mature Obsidian plugin gone standalone" is generative — it settles most decisions
+before they're asked:
 
-- **Neutral warm ground — the field.** Cork, walnut, paper, and the photo frames all
-  live in a family of desaturated warm neutrals: greige, tan, cream, aged wood. This
-  is the calm backdrop. It carries texture but almost no saturation.
-- **Red — connection and attention.** The pins, the string, and pathfinding pulses are
-  the *only* truly saturated color on the board. Red means "this is a link" or "look
-  here." Because red is otherwise absent, lighting up a red path during pathfinding
-  reads instantly and feels like the board is pointing.
-- **Yellow — your intentions.** Goal stickies are the one other color: Post-it yellow.
-  Red is the world's relationships; yellow is what *you* want from it. A small, clear
-  grammar: **red = the network, yellow = your will.**
-
-Everything else stays warm-neutral. Two signal colors, one field. If a new element
-needs a color, it must justify itself against this grammar or stay neutral.
+- **A workspace, not a website.** Resizable panes, not pages: a left rail, a center
+  pane, a right panel. You arrange your space.
+- **The command palette is the spine.** `Ctrl-P` reaches every action; `Ctrl-K`
+  jumps to any person. Capture, navigation, and commands are keyboard-first. The mouse
+  is for the graph; the keyboard is for everything else.
+- **The markdown note is first-class.** Each person is frontmatter (structured) plus a
+  free prose body — edited in-app the way you'd edit a note in Obsidian.
+- **The graph is the home view.** Your network as a clean force-directed graph is the
+  thing you land on, the thing that makes Handshake *Handshake*.
+- **Local-first, plain files, yours.** The vault is a folder of markdown you can open in
+  Obsidian itself. Handshake is a *lens* on that folder, not a silo.
 
 ---
 
-## 4. Light & physical consistency — the one-lamp rule
+## 3. Monochrome + one accent — the color discipline
 
-The single thing that separates "tactile and real" from "stickers stacked on a JPEG"
-is **physical consistency under one light source.**
+The whole look rests on one rule: **a neutral monochrome scale, plus exactly one brand
+accent.** This single constraint is what makes it read as crafted rather than busy.
 
-- There is **one warm lamp**, positioned top and slightly left. Warm color temperature —
-  a desk lamp, not noon daylight.
-- **Everything pinned to the board casts a shadow consistent with that light** — soft,
-  directional, offset down-and-right. Polaroids, pins, stickies, string, chips: all
-  agree on where the light is.
-- **Depth is real.** Cards lift a few millimeters off the cork: the pin holds the top,
-  so the card sags slightly forward and its shadow is tighter at the top, softer and
-  larger at the bottom.
-- A faint **warm vignette / bloom** falls off toward the frame edges, so the board reads
-  as *lit by a lamp*, not flatly illuminated. The center is brightest.
-- The uncanny-valley failure is mixing "physical" and "flat-UI" elements. If one thing
-  casts a shadow, everything does. No element may opt out of the physics.
+- **The neutral scale — the entire surface.** Backgrounds, panels, borders, text, icons,
+  graph nodes and edges at rest: all live on a single near-neutral gray ramp (a hair
+  warm, never cold-blue). Dark-first (see below). This is ~95% of every pixel.
+- **The accent — `rose`.** One saturated color, used deliberately. **Rose means
+  connection, brand, and primary action** — the selected node, a found path, the focused
+  control, the one button that matters. Because it's the only saturation on screen, it
+  draws the eye exactly where intended.
+  - *The shade:* a deep, dusty, magenta-leaning rose — desaturated, never hot-pink,
+    never baby-pink. It sits on the red↔magenta border. It lives in a single token
+    (`--primary` in the shadcn theme), so the exact value is tuned live against a real
+    screen, in one place, app-wide.
+  - *Why rose over red:* red is already spoken for in any clean UI — it's the universal
+    "destructive / danger" signal. Making red the brand accent means every primary
+    button flirts with looking like a delete button. Rose frees the split cleanly:
+    **rose = brand + connection, red = danger.** Rose is also simply rarer as a product
+    accent, which helps Handshake feel like itself.
+- **Functional state colors, used as state, never decoration.** Red for destructive
+  confirmation. A muted amber *only* for time pressure (a goal past its deadline). These
+  are system signals, sparse and earned — not part of the palette you decorate with.
 
----
+If a new element wants color, it is rose (and therefore it must mean connection/primary)
+or it is neutral. There is no third brand color. (This is the disciplined descendant of
+the old "two signal colors" rule — red+yellow collapses to one accent.)
 
-## 5. The rendering model — React Three Fiber + real PBR lighting
-
-The board is rendered with **React Three Fiber** (R3F) — the React reconciler for
-Three.js WebGL. This is a deliberate choice for realism, not convenience: CSS can
-approximate 70% of the look, but the last 30% — the thing that makes it feel like a
-real physical object — requires real lighting on real geometry. A `SpotLight` casting
-soft shadows across a normal-mapped cork plane, PBR materials making the grain actually
-catch the light, pins as sphere geometries with metalness/roughness, string as a tube
-along a catenary curve. None of that is achievable in CSS. All of it is native Three.js.
-
-The board is geometrically simple — a flat surface with objects resting on it — so you
-get full PBR realism without paying for it in scene complexity.
-
-**The scene structure:**
-
-- **One `SpotLight`** (warm color temperature, ~2700K), positioned top and slightly
-  left. `PCFSoftShadowMap` on the renderer. Everything on the board casts real soft
-  directional shadows onto the cork. The one-lamp rule (§4) is enforced at the renderer
-  level, not faked in CSS.
-- **Cork** — one large `PlaneGeometry`. `MeshStandardMaterial` with albedo + **normal
-  map** + roughness map (Poly Haven, CC0). The normal map is the key: it makes the
-  SpotLight physically catch the grain texture as a 3D surface. This is the capability
-  that justifies WebGL — it is impossible in CSS.
-- **Frame** — `BoxGeometry` with walnut PBR textures. Shadow casting enabled.
-- **Polaroid cards** — thin `PlaneGeometry`, elevated ~2mm off the cork, euler rotation
-  derived from person id. `MeshStandardMaterial` with photo as texture. Shadow casting
-  from the SpotLight gives the characteristic polaroid shadow (tighter at top, softer at
-  bottom) automatically.
-- **Pins** — `SphereGeometry`, `MeshStandardMaterial` (`metalness: 0.3, roughness: 0.2`
-  for glossy enamel). The specular highlight from the SpotLight comes for free from PBR.
-- **String** — `CatmullRomCurve3` (the catenary), extruded as `TubeGeometry`. A real
-  3D cylinder catches the light as thread does, with a highlight on its upper surface and
-  a shadow below. Custom shader or rope texture for the fibrous twist.
-- **Stickies** — `PlaneGeometry` + Post-it yellow material + paper grain texture. Corner
-  curl as geometry displacement.
-
-**Card interactivity — the Drei `<Html>` model.**
-
-Card content (name, tags, channel icons, tape strip) is rendered as real DOM via
-`@react-three/drei`'s `<Html>` — actual HTML elements tracked to a 3D world position.
-The card *surface* is a real lit 3D plane; the label content on it is HTML (crisp at any
-zoom, trivially interactive, styled with Tailwind). Click targets and drag handles use
-R3F raycasting; the HTML overlay handles the label content. This is the clean split.
-
-**Postprocessing.**
-
-`@react-three/postprocessing` adds two passes over the rendered frame:
-
-1. **Film grain** — the global binder, now as a postprocessing effect over the entire
-   rendered scene. Makes every element read as one photographed surface.
-2. **Vignette** — the warm falloff toward the frame edges.
-
-**Camera and navigation.**
-
-`OrthographicCamera` top-down (no perspective distortion on the cards — they sit flat on
-the board). Pan and zoom are camera movements, not DOM transforms — smoother, physically
-correct, and simpler to implement than react-flow's coordinate system. react-flow drops
-entirely; R3F replaces its whole function.
-
-**The chrome stays DOM.**
-
-Sidebar, editor, quick-add, settings — React + Tailwind + shadcn/ui, outside the R3F
-canvas. The canvas is one component inside the layout; the dark chrome surrounds it.
-No DOM/WebGL mixing in the chrome.
-
-**The discipline stays the same.** Textures are quiet; light is the drama. Every
-texture brought into the warm-neutral palette before use — desaturated, toned, contrast
-knocked down. The SpotLight supplies the drama; the materials supply the surface. A loud
-texture wrecks it even in PBR.
-
-**Texture source.** Poly Haven and ambientCG (both CC0). Pull the full PBR set for each
-material: albedo + normal map + roughness map. Tone the albedo into palette; use the
-normal and roughness maps as-is.
+**Dark-first.** The default theme is dark — Obsidian's instinct, and the ground on which
+a rose accent looks most precise and premium. A light theme is supported for free
+through the same tokens (shadcn/Tailwind), but dark is the face of the product.
 
 ---
 
-## 6. The materials
+## 4. The graph — the hero
 
-Each material below names: the look, whether it's raster or procedural, its physics,
-and its states.
+The connections graph is the centerpiece and the make-or-break element. In the old
+vision the warning was "prototype the string first — if it doesn't feel like thread, the
+premise wobbles." The clean-era equivalent: **the graph is the new string. Get it
+feeling alive — calm, legible, responsive — before any chrome wraps it.**
 
-### Cork (the field)
-
-- **Look:** slightly aged cork — warm, desaturated greige-tan, fine granular speckle,
-  low contrast, subtle tonal variation. Reads as cork on close inspection; *functions*
-  as a calm backdrop, like good wallpaper.
-- **Aged, lightly:** a faint scatter of old empty pin-holes (history), slightly worn
-  near the frame edges. Restraint is everything — aging adds soul, but a hair too much
-  tips into kitsch.
-- **Three.js `MeshStandardMaterial`** with albedo + normal map + roughness map (Poly
-  Haven, CC0). The normal map is what makes this material work — the SpotLight
-  physically catches each grain ridge as a 3D surface. Toned into warm-neutral palette
-  before use. Because the board is bounded, one large texture tiles zero times.
-
-### The frame (walnut)
-
-- **Look:** dark walnut, real wood grain, warm. It makes the board feel like an object
-  hung on a wall — a realistic workspace, bounded and owned, not an infinite plane.
-- **`BoxGeometry`** with walnut PBR textures (albedo + normal + roughness). Shadow
-  casting enabled. The frame sits proud of the cork plane — its inner-edge shadow falls
-  onto the cork naturally from the SpotLight, no faking needed.
-
-### Polaroids (people)
-
-- **Look:** ~140×180px. Cream-white frame (aged a hair, never pure white), the classic
-  thick bottom strip. The name is written on that bottom strip **in marker** — this is
-  the real way polaroids are labeled, so handwriting earns its place here (a restrained
-  marker hand, never loopy script). One tag below. A small colored tape strip in a
-  corner encodes warmth.
-- **Rotation:** each card sits at a stable ±2–3°, **derived deterministically from the
-  person's id** so it never jitters on reload and never needs storing. Slight, organic,
-  gridless.
-- **Depth:** lifted off the cork, soft directional shadow (tighter top, softer bottom).
-  On the photo area, a subtle paper grain overlay.
-- **Thin `PlaneGeometry`** elevated ~2mm off the cork. `MeshStandardMaterial` with the
-  person's photo composited onto a cream polaroid frame as a texture. Shadow casting
-  enabled — the SpotLight gives the characteristic shadow (tighter at top, softer at
-  bottom) for free from the geometry. Card label content (name, tags, channel icons,
-  tape strip) rendered as a `@react-three/drei` `<Html>` overlay tracked to the card's
-  3D position: the surface is real lit geometry; the label is real DOM.
-- **States:** see §7 (warmth & staleness). The photo fades with neglect.
-
-### The self card
-
-- **Look:** larger, thicker frame, the **most vividly lit and most saturated** card on
-  the board — the lamp is effectively centered on you. A brass corner detail sets it
-  apart. You are the center of your own world, rendered as light.
-
-### Red pins
-
-- **Look:** glossy red enamel dome through the top-center of each card, catching one
-  tiny specular dot from the lamp and throwing its own small shadow. Uniform red across
-  all cards — it's the iconic element and a constant visual rhythm; warmth is encoded
-  elsewhere (tape strip), not in pin color.
-- **`SphereGeometry`** with `MeshStandardMaterial` (`metalness: 0.3, roughness: 0.2`).
-  The specular highlight from the SpotLight comes for free from PBR — one bright dot,
-  consistent with the lamp position, no faking. Shadow casting enabled. The pin is the
-  most "manufactured" object on the board and PBR renders it that way correctly.
-- **Interactive:** raycasted click to unpin/archive a card.
-
-### Red string (yarn)
-
-- **Look:** aged crimson thread (not fire-engine red), fibrous fuzzy edge, ~2px, with a
-  **catenary sag** — it hangs under gravity between two pins; straight lines read as
-  digital UI, sag reads as real thread. Longer spans sag more. Tied off under the pin
-  heads. A thin, soft shadow on the cork, offset by the lamp.
-- **`CatmullRomCurve3`** computed as a catenary between the two pin world positions,
-  extruded as `TubeGeometry`. A real 3D cylinder — it catches the SpotLight as thread
-  does, with a highlight on its upper surface and a soft shadow cast onto the cork below.
-  For the fibrous twist: a custom shader material or a thin rope texture mapped along the
-  tube's UV coordinates. The geometry is rebuilt on change (drag, new handshake,
-  pathfinding) — the catenary curve recomputed in JS, `TubeGeometry` recreated.
-- **States:**
-  - *Active* — aged crimson, full presence.
-  - *Dormant* — thinner, faded grey-red.
-  - *On a found path* — saturates to vivid red, and a **pulse travels along it from you
-    → target** while every other strand gently dims. Quick and cinematic, then it
-    relaxes back.
-- **This is the make-or-break element.** Prototype it as a standalone toy before
-  committing the aesthetic — if the string doesn't feel like thread, the whole premise
-  wobbles. Get it right before building anything on top of it.
-
-### Yellow stickies (goals)
-
-- **Look:** Post-it yellow with a **lifted, curling bottom corner** casting its own
-  small shadow — the curl is the detail that sells "stuck on, peeling." Slight rotation.
-  Goal text **handwritten** (unambiguously right here — you scrawl on a sticky). A red
-  string can run from the sticky to its target card.
-- **`PlaneGeometry`** slightly elevated, slight euler rotation. `MeshStandardMaterial`
-  with Post-it yellow color + paper grain texture. Shadow casting enabled. The curling
-  corner: a second thin geometry piece or a displacement shader lifting the bottom corner
-  — it casts its own small shadow onto the cork.
-- Yellow = your intentions (§3). Stickies are the only yellow on the board.
-
-### Channel icons
-
-- **Look:** a row of small, favicon-sized marks beneath the name — Twitter, LinkedIn,
-  email, Telegram, Discord, GitHub, Zoom — rendered as tiny glossy sticker-dots so they
-  don't break the physical metaphor. The **primary channel** is slightly larger and
-  carries a touch of color; the rest are quiet.
-- **Interactive:** click an icon to open that profile/conversation in the browser.
-
-### Origin chips
-
-- **Look:** for relationships born online, a tiny torn-paper chip pinned beside the card
-  — a little evidence label showing the originating tweet/thread, like a receipt scrap.
-  Optional, but lovely when present. Click to open the artifact.
-
-### Margin notes
-
-- Sparse handwritten annotations directly on the cork near clusters — a red china-marker
-  scrawl. Personal, restrained, never crowded. A later delight, not a v0.1 requirement.
+- **Nodes — people.** A small circular avatar (the photo) or, with no photo, a neutral
+  monogram chip with initials. A quiet label beside or below. Clean, uniform, restrained.
+- **You — the self node.** Slightly larger, with a rose ring. You are the center of your
+  own network, marked by the accent, not by ornament.
+- **Edges — handshakes.** Thin neutral lines. Strength is encoded structurally, not
+  colorfully: `close` reads as a solid, slightly heavier line; `warm` lighter; `cold`
+  thin; `dormant` faint and dashed. No edge is rose at rest — rose is reserved for the
+  path moment.
+- **Staleness, ambient.** A neglected person's node desaturates and dims (grayscale +
+  lowered opacity) the longer it's been since the last interaction; a recently-touched
+  one is full-strength. This is the clean descendant of the corkboard's "photo fades to
+  sepia" — same honest, guilt-free signal ("who have I gone quiet on?" is *visible*),
+  rendered as opacity/desaturation rather than aging. Driven by the engine's
+  `lastInteractionDate`.
+- **Layout.** Force-directed (d3-force), settling gently into clusters that mean what you
+  make them mean. Nodes are draggable; positions persist to `.handshake/layout.json`
+  (debounced); pan and zoom are smooth and remembered between sessions.
+- **The path moment — the one bit of drama.** When pathfinding finds a route from you to
+  a target, the path's edges and nodes saturate to rose and a quick pulse runs you →
+  target while the rest of the graph dims; then it relaxes. Brief, cinematic, restrained.
+  This is the single place the accent gets to perform.
+- **Interactions.** Click a node → the person opens in the detail panel. Hover →
+  subtle emphasis on the node and its immediate neighbors. Drag node → node → propose a
+  handshake. Right-click → context menu (find path to…, log interaction, archive).
+  Double-click empty space → add a person.
+- **Rendering.** d3-force for layout; Canvas 2D for the draw (crisp, fast, fine to a few
+  hundred nodes — Obsidian's own graph is canvas/WebGL). SVG is viable at small counts if
+  it buys easier interactivity; that's a build-time call. No WebGL/PBR — the look is flat,
+  clean, and lit by hierarchy, not by a lamp.
 
 ---
 
-## 7. Warmth & staleness, made visible
+## 5. The workspace & layout
 
-Two relationship properties are encoded *visually and ambiently*, so you read the state
-of your network at a glance rather than from a dashboard.
+The Obsidian three-pane model, in clean shadcn surfaces:
 
-- **Warmth** (`close | warm | cold | dormant`) — the **colored tape strip** in the
-  card's corner. A small, calm indicator within the warm-neutral family (with red
-  reserved for connection, the tape uses muted tones: deep warm red for close, soft
-  orange for warm, bare cream for cold, faded grey for dormant).
-- **Staleness** — **the photo fades.** A relationship you've neglected desaturates and
-  yellows toward sepia over time; a close, recently-touched one stays vivid. This is
-  physically honest (old photos fade), guilt-free (no nagging digest), and turns "who
-  have I gone quiet on?" into something you *see* the instant the board opens. It makes
-  the prettiness a forcing function: the board literally shows your neglect, and acting
-  on it brings the face back to life. Driven by shader uniforms on the card's
-  `MeshStandardMaterial` (a desaturation + sepia blend computed from last-interaction
-  recency), tweened smoothly via GSAP or a spring when a new interaction is logged.
+- **Left rail** — navigation: the graph, the people list, goals, and search. Collapsible.
+  Quiet; it's scaffolding, not content.
+- **Center pane** — the subject: the graph (home), or a person's note, or a list/table
+  view. This is where you work.
+- **Right panel** — the inspector: details and metadata for the current selection
+  (a person's handles, warmth, last-touched, recent interactions). Collapsible.
 
-Together these make recency and warmth first-class *in the aesthetic itself* — the board
-is not just spatial but temporal.
+Panes are resizable and remembered. The chrome is calm and recedes; the center pane is
+unmistakably the focus.
 
 ---
 
-## 8. Motion & feel — the tactile grammar
+## 6. The command palette & capture
 
-Motion is half of "want to open it every day." The board must feel like a real object
-you can touch. The motion vocabulary:
+Capture must take five seconds or it dies (SPEC §3). The command palette is how:
 
-- **Pin-pop on drag.** Grab a card and it *lifts* — shadow grows, slight scale-up, the
-  pin pops out and the card swings a hair. Drop it and the pin presses back in with a
-  tiny settle/bounce, and the card lands at its stable derived angle. This pin-pop is
-  the board's tactile signature.
-- **Hover.** A very subtle lift — enough to feel responsive, not enough to fidget.
-- **Drawing a string.** Drag from a card and a sagging string trails from the cursor,
-  then snaps to the target pin and ties off.
-- **Pinning a new card.** A new person presses onto the board with a little settle, as
-  if pushed in.
-- **Capture landing.** When a quick-capture commits, the affected card/interaction
-  settles into place — a small acknowledgment that something real happened.
-- **Pathfinding.** The path saturates, a pulse runs you → target, the rest of the board
-  gently desaturates; then it relaxes. Cinematic but brief.
+- **`Ctrl-P` — the command palette.** Every action lives here: add person, log
+  interaction, create goal, find a path, open settings, switch theme. Keyboard-first,
+  fuzzy-matched.
+- **Quick capture.** A single-line input (its own global-hotkey window, and also reachable
+  from the palette). You type a sentence; Enter. On a confident parse it **commits
+  optimistically** and flashes a one-line undo toast (`logged dm w/ sarah · Ctrl-Z`). On
+  an ambiguous one it shows a one-line preview first. Offline, it never blocks — it files
+  a raw stub to resolve later. (Parsing is deterministic/manual first; AI is the last
+  thing added, never load-bearing.)
+- **`Ctrl-K` — quick-jump.** Fuzzy-find any person and fly the graph to them (or open
+  their note). Spatial memory fades past ~50 people; this is the constant escape hatch.
 
-All motion obeys the physics (§4): things that move are things with weight and a pin
-holding them. Implementation: GSAP (or a spring library) tweening Three.js mesh
-properties — position, rotation, scale, material uniforms — not CSS transitions. The
-motion lives in the renderer, not the DOM.
+Capture is a blink; the graph is where you linger. Two tempos, one clean surface.
 
 ---
 
-## 9. Capture, as felt
+## 7. The person view — the note
 
-The quick-add bar is chrome, not board — dark, quiet, centered, borderless. But its
-*feel* is part of the UX:
+Selecting a person opens their note, the Obsidian soul of the app:
 
-- It appears instantly over whatever you're doing and takes a single line.
-- On a confident parse it **commits optimistically** and flashes a one-line undo toast
-  (`logged dm w/ sarah · Ctrl-Z`) — no confirmation step, so the common case is truly
-  five seconds.
-- On an ambiguous parse it shows a **one-line preview** and Enter confirms.
-- Offline, it never blocks — it files a raw stub to resolve later.
-
-The dark, frictionless capture surface contrasts with the warm, slow, lingering board.
-You capture in a blink and you *dwell* on the board. Two speeds, on purpose.
-
----
-
-## 10. The hero moment
-
-Design explicitly toward one image: **the board zoomed all the way out — a wall of
-faces webbed in red string, glowing warm in a dark room.** This is the
-wallpaper-worthy moment, the thing that makes you *want* to open the app. It is also,
-not coincidentally, the most useful view: your whole network, at a glance, with the
-dormant faces faded and the live connections bright.
-
-Zoomed in, you focus on a cluster and do deeper work. Zoomed out, you feel the whole
-thing. The transition between the two should be smooth and a pleasure in itself.
+- **Frontmatter as form.** Name, handles, role, company, tags, warmth, primary channel —
+  clean shadcn form fields, live-bound. Editing a field writes through the engine's
+  mutation funnel.
+- **Body as markdown.** Below the fields, the free-form prose scratchpad — a real
+  markdown editor. This is where the deeper thinking about a person lives.
+- **Channel handles** appear as small monochrome icons (Twitter, LinkedIn, email,
+  Telegram, Discord, GitHub, Zoom); the primary one carries a touch of the accent. Click
+  to open that profile/conversation in the browser. Function preserved, decoration gone.
+- **Origin** (where the relationship was born) is a clean link/field, not a torn-paper
+  chip.
 
 ---
 
-## 11. Typography
+## 8. Lists & tables — the Notion side
 
-- **Marker hand** — polaroid name strips, sticky-note goals, margin notes. Restrained,
-  legible, never loopy script. This is where handwriting belongs because it's physically
-  honest (you write on polaroids and Post-its with a marker).
-- **Typewriter / label-maker** — origin chips, small printed labels, anything that reads
-  as "typed onto the board." Ages far better than faux-handwriting for non-margin text.
-- **Monospace-adjacent / clean sans** — the dark chrome (sidebar, editor, settings,
-  quick-add). Obsidian-flavored, quiet.
+Not everything is spatial. Clean, dense, sortable list/table views over the same data:
 
-Discipline: handwriting carries *personal* marks only; never let it carry UI. The
-fastest way to tip into kitsch is loopy handwriting doing a UI job.
+- **People** — a filterable, sortable table (name, company, warmth, last touched, tags).
+- **Interactions** — the chronological log; your activity stream.
+- **Goals** — open/active/done targets and criteria, with deadlines.
+
+Saved/filtered views (e.g. "VCs gone cold," "people I met this month") are the natural
+extension. Tables are calm and information-dense — Linear-grade, not spreadsheet-noisy.
 
 ---
 
-## 12. The chrome
+## 9. Warmth & staleness, made visible
 
-The non-board surfaces. Restrained, dark, monospace-adjacent — they recede so the board
-glows.
+Two relationship properties stay ambient and glanceable, rendered in the clean grammar:
 
-- **Sidebar** — quiet navigation/list of people, search, goals. Dark.
-- **Editor side panel** — frontmatter as form fields, markdown body below. shadcn/ui,
-  dark. Where you do deeper thinking about a person.
-- **Quick-add bar** — see §9.
-- **Settings** — vault folder, API key, hotkey, lamp warmth (let the lamp color
-  temperature be tunable — it's the soul of the board's mood). Dark, minimal.
+- **Warmth** (`close | warm | cold | dormant`) — a small, calm indicator: a muted dot or
+  a quiet label/tag on the node, the list row, and the inspector. Within the neutral
+  family; warmth is structure, not a rainbow.
+- **Staleness** — node desaturation/dimming (§4) plus a plain "last touched 3 weeks ago"
+  relative date in lists and the inspector. Honest, guilt-free, and visible the instant
+  you open the app.
 
-The board remembers itself between sessions via `.handshake/layout.json` (positions +
-viewport); card rotation is derived from id, not stored. Reopening the app restores the
-*exact* board you left, down to the pan and zoom.
+These keep recency and warmth first-class in the interface itself, not buried in a
+dashboard.
 
 ---
 
-## 13. The discipline — anti-kitsch rules
+## 10. Typography
 
-The line between "tactile and beautiful" and "kitschy and bad" is thin. These rules
-keep it on the right side:
+- **Clean sans for the UI** — a precise, neutral interface typeface (Inter or the system
+  UI stack). This carries everything: nav, labels, form fields, table text, the editor
+  chrome. Obsidian-flavored: legible, quiet, no personality cosplay.
+- **Monospace for the machine-y bits** — ids, handles, dates, file paths, keyboard hints.
+  A small, deliberate texture that signals "this is data."
+- **No handwriting, anywhere.** The marker hand belonged to the polaroid world; it has no
+  place here. Faux-handwriting is the fastest way to cheapen a clean tool.
 
-1. **One light source. Everything obeys it.** No element opts out of the physics.
-2. **Textures are quiet; light is the drama.** Desaturate and tone every texture into
-   the warm-neutral palette before use.
-3. **Two signal colors only** — red (connection) and yellow (intention) — on a neutral
-   ground. New colors must justify themselves or stay neutral.
-4. **Restraint on aging.** A little wear adds soul; too much is a costume.
-5. **Handwriting for personal marks only**, never for UI.
-6. **Bind everything with the global grain layer** so it reads as one photograph.
-7. **When in doubt, less.** Study real corkboards and lamplit rooms before reaching for
-   another effect.
-8. **Prototype the string first.** It's the make-or-break element; if it doesn't feel
-   like thread, fix that before building anything on top of it.
+---
+
+## 11. Motion & feel
+
+Motion is fast, subtle, and purposeful — it clarifies state changes; it never decorates.
+
+- **Graph settling** — nodes ease into place when the layout shifts; spring physics, brief.
+- **Panel & view transitions** — quick, eased slides/fades; nothing lingers.
+- **Selection & hover** — immediate, light emphasis. Responsive, not fidgety.
+- **Capture landing** — a small, crisp acknowledgment that something committed.
+- **The path pulse** (§4) — the one expressive flourish, kept short.
+
+Implementation is spring/easing on real properties (a spring lib, or CSS where it
+suffices). The rule from the old doc survives in new clothes: **restraint.** If a motion
+doesn't help you understand what changed, cut it.
+
+---
+
+## 12. Density & calm
+
+The hardest clean-UI skill: dense *and* calm at once (this is what makes Linear feel the
+way it does). Lots of information, no noise. Achieved with hierarchy and spacing, not
+with lines and boxes everywhere — generous-but-tight padding, clear type scale, hairline
+separators only where they earn it, alignment to a grid. Calm is a feature; whitespace is
+not wasted space.
+
+---
+
+## 13. How the UI binds to the engine
+
+The data layer is built and UI-agnostic — the UI is a pure consumer:
+
+- Views **read** the live `Switchboard` state: `people` → nodes/rows, `handshakes` →
+  edges, `goals` → goal items, `adjacency` → pathfinding, `lastInteractionDate` →
+  staleness, `interactionsByPerson` → activity.
+- Every change — add, edit, log, archive, move a node — is a `Diff` sent through
+  `VaultSession.commit()`, the single mutation funnel. The UI **never** writes files
+  directly; it describes intent and the engine does the rest (atomic write, inverse for
+  undo).
+- External edits (you in Obsidian, a git pull) arrive via the watcher and reload the
+  state automatically; the UI just re-renders.
+
+The clean boundary means the look can keep evolving without ever touching the brain.
+
+---
+
+## 14. The discipline — anti-clutter rules
+
+The clean-era descendant of the old anti-kitsch rules. The line between "Linear-clean"
+and "generic-bland" is thin; these keep it on the right side:
+
+1. **Monochrome + one accent.** Neutral ground, rose for connection/primary. No third
+   brand color. New color must justify itself as the accent or stay neutral.
+2. **Red is destructive only.** Never the brand, never a button you want pressed.
+3. **Keyboard-first.** Every action reachable from the command palette; the UI is
+   navigable without the mouse (the graph excepted).
+4. **Dense but calm.** Hierarchy and spacing over borders and boxes. Whitespace earns
+   its place.
+5. **Motion clarifies, never decorates.**
+6. **Consistency over cleverness.** One way to do each thing; one component for each job
+   (shadcn/Radix, restyled to taste). No bespoke snowflakes.
+7. **When in doubt, remove it.** The Obsidian/Linear reflex. Subtraction is the default
+   edit.
+8. **The graph is make-or-break.** Make it feel alive before building anything around it.
+
+---
+
+## 15. The hero moment
+
+The old vision aimed at one image: a wall of faces webbed in red string, glowing in a
+dark room. The clean-era hero is its sibling: **your whole network as a calm, legible
+graph on a dark ground — and the instant you ask "who do I know who can reach X," a
+single path lights up rose while everything else recedes.** The wallpaper-worthy moment
+is no longer warmth; it's *clarity* — the feeling of a complex web suddenly answering a
+question. That moment is the entire pitch in one screen.
+
+---
+
+*End of UX north star (clean-era rewrite). Pair with [SPEC.md](./SPEC.md) — note that
+SPEC's Tech-stack §Frontend (R3F/Three/PBR) and its Board visual language are superseded
+by this document and want a follow-up reconciliation.*

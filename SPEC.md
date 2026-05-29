@@ -5,6 +5,14 @@
 > both. Where this spec touches the look (the Board, the cards, the yarn), UX.md is
 > authoritative on how it should feel.
 
+> **↳ Visual direction superseded (2026-05 pivot).** The corkboard / WebGL / R3F / PBR
+> aesthetic in the visual sections below (Design principle #4, The Board view, Tech
+> stack §Frontend, Assets/textures, the Saturday board build) is **retired** — the
+> game-grade realism wasn't reachable in a webview. Handshake's look is now clean and
+> monochrome: "Obsidian for your network," a 2D force-directed graph, one rose accent,
+> no WebGL. The current direction lives in the rewritten **UX.md**. The data model,
+> capture, storage, and pathfinding below are unaffected.
+
 A personal crime-board for the people in your online orbit.
 
 ## FOR
@@ -410,23 +418,17 @@ for daily.
 
 ### Frontend
 
-- **React + TypeScript** — obviously.
-- **Vite** — Tauri 2's default; instant HMR.
-- **Tailwind + shadcn/ui** — for the chrome: sidebar, editor, settings, quick-add. Dark,
-  restrained, Obsidian-flavored. The chrome is entirely DOM.
-- **React Three Fiber (`@react-three/fiber`)** — the React reconciler for Three.js. The
-  board is a WebGL scene, not a DOM canvas. Cards, pins, string, stickies, cork, and
-  frame are all Three.js geometry with PBR materials, lit by a single `SpotLight`.
-- **`@react-three/drei`** — scene helpers: `<Html>` for DOM overlays tracked to 3D card
-  positions (name/tags/icons), `OrthographicCamera`, `useTexture` with Suspense, and
-  raycasting utilities for click/drag interaction.
-- **`@react-three/postprocessing`** — film grain pass + vignette over the rendered frame.
-  The grain layer is what makes the scene read as one photographed surface.
-- react-flow is **not used** — pan/zoom is camera movement; nodes are Three.js meshes;
-  edges are `TubeGeometry`. R3F replaces react-flow's entire function, more cleanly.
+> *↳ superseded (2026-05 pivot): the WebGL/R3F board is retired; the UI is a clean DOM
+> app and the network is a 2D graph. See UX.md.*
 
-> *Full rendering model in UX.md §5. The board is geometrically simple (a flat surface
-> with objects on it) — full PBR realism without scene complexity.*
+- **React + TypeScript + Vite** — Tauri 2's default; instant HMR.
+- **Tailwind v4 + shadcn/ui (Radix primitives)** — the whole UI, not just the chrome.
+  Monochrome, dark-first, one rose accent; components vendored into the repo via the
+  shadcn CLI. The look is "Obsidian for your network."
+- **The graph** — a clean 2D force-directed graph: `d3-force` for layout, Canvas 2D for
+  the draw. People are nodes, handshakes are edges. No Three.js, no WebGL, no PBR.
+- **Pan / zoom / node-drag** are 2D canvas transforms; positions + viewport persist to
+  `.handshake/layout.json`.
 
 ### Storage
 
@@ -475,13 +477,9 @@ bill. No proxy server, no telemetry.
 
 ### Assets / textures
 
-> *↳ updated: PBR material sets, not flat textures.* Each material (cork, walnut, paper)
-> needs a full PBR set: **albedo + normal map + roughness map**. Source from **Poly
-> Haven** and **ambientCG** (both CC0 — free, no attribution, high resolution). Tone the
-> albedo into the warm-neutral palette before use; use normal and roughness maps as-is.
-> The normal maps are what make the SpotLight physically catch the surface grain — the
-> key capability that justifies WebGL. Because the board is framed and bounded, the cork
-> tiles zero times. See UX.md §5 for the full rendering model.
+> *↳ retired (2026-05 pivot): no PBR textures.* The clean UI has no cork/walnut/paper
+> surfaces and no WebGL. The only assets are icons (lucide) and the avatar photos you
+> drop into `attachments/`.
 
 ## What you're explicitly NOT building in v0.1
 
