@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Switchboard } from "@/switchboard";
 import { buildBoardModel, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { PersonCard } from "@/board/PersonCard";
+import { useApp } from "@/app/store";
 import type { Layout } from "@/vault/layout";
 
 const LINK_SPAN = 8000; // SVG coordinate span (centered on origin) for drawing links
@@ -19,17 +19,11 @@ function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
  * The board — a clean digital corkboard. Cards stay where placed (no physics); dragging
  * a card rigidly moves its whole subtree. Positions, pan, and zoom persist to layout.json.
  */
-export function BoardView({
-  switchboard,
-  photos,
-  layout,
-  onPersist,
-}: {
-  switchboard: Switchboard;
-  photos: Map<string, string>;
-  layout: Layout;
-  onPersist: (layout: Layout) => void;
-}) {
+export function BoardView() {
+  const switchboard = useApp((s) => s.switchboard);
+  const photos = useApp((s) => s.photos);
+  const layout = useApp((s) => s.layout);
+  const saveLayout = useApp((s) => s.saveLayout);
   const containerRef = useRef<HTMLDivElement>(null);
   const model = useMemo(
     () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
@@ -66,7 +60,7 @@ export function BoardView({
   function schedulePersist() {
     if (persistTimer.current) clearTimeout(persistTimer.current);
     persistTimer.current = setTimeout(() => {
-      onPersist({
+      saveLayout({
         positions: Object.fromEntries(latest.current.positions),
         viewport: { pan: latest.current.pan, zoom: latest.current.zoom },
         parentOverrides: layout.parentOverrides ?? {},
