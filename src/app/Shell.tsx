@@ -5,6 +5,7 @@ import { CommandPalette } from "@/app/CommandPalette";
 import { WorkspaceBoundary } from "@/app/WorkspaceBoundary";
 import { TopBar } from "@/workspace/TopBar";
 import { PaneRenderer } from "@/workspace/PaneRenderer";
+import { FloatingLayer } from "@/workspace/FloatingLayer";
 
 /** The app frame: nav rail + one top bar of tabs + the pane tiling + the slide-in note + palette. */
 export function Shell() {
@@ -35,6 +36,7 @@ export function Shell() {
           <WorkspaceBoundary>
             <PaneRenderer node={layout} />
           </WorkspaceBoundary>
+          <FloatingLayer />
         </div>
         <PersonPanel />
       </main>

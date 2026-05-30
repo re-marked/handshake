@@ -9,7 +9,7 @@ import { TabLauncher } from "@/workspace/TabLauncher";
 
 const TAB_SPRING = { type: "spring", stiffness: 520, damping: 40 } as const;
 
-function TabIcon({ view, photo }: { view: View; photo?: string }) {
+export function TabIcon({ view, photo }: { view: View; photo?: string }) {
   if (view.type === "person") {
     return (
       <Avatar className="size-5">

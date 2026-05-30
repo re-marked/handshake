@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Trash2, X } from "lucide-react";
+import { PictureInPicture2, Trash2, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,6 +57,18 @@ export function PersonPanel() {
             <div className="flex h-9 shrink-0 items-center justify-between border-b px-3">
               <span className="text-xs text-muted-foreground">Note</span>
               <div className="flex items-center gap-0.5">
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label="Pop out to a floating window"
+                  title="Pop out"
+                  onClick={() => {
+                    useApp.getState().openView({ type: "person", id: openPersonId }, "float");
+                    closePerson();
+                  }}
+                >
+                  <PictureInPicture2 />
+                </Button>
                 {person && !person.isSelf && <DeletePersonButton id={person.id} name={person.name} />}
                 <Button variant="ghost" size="icon-xs" aria-label="Close" onClick={closePerson}>
                   <X />

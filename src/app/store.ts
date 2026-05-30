@@ -3,7 +3,16 @@ import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
 import { emptySwitchboard, type ApplyResult, type Diff, type Switchboard } from "@/switchboard";
-import { emptyWorkspace, newId, viewKey, type OpenTarget, type Pane, type View, type Workspace } from "@/workspace/model";
+import {
+  emptyWorkspace,
+  newId,
+  viewKey,
+  type FloatingWindow,
+  type OpenTarget,
+  type Pane,
+  type View,
+  type Workspace,
+} from "@/workspace/model";
 import { findPane, paneShowing, panes, removePane, setPaneView, setSizes, splitPane } from "@/workspace/ops";
 
 type Status = "idle" | "loading" | "ready" | "error";
@@ -73,6 +82,16 @@ interface AppState {
   focusBoard: () => void;
   /** Update a split's pane sizes (fractions). */
   resizeSplit: (splitId: string, sizes: number[]) => void;
+  /** Pop a view out into a floating window — or focus it if it's already floating. */
+  addFloat: (view: View) => void;
+  /** Close a floating window. */
+  closeFloat: (id: string) => void;
+  /** Move a floating window (absolute coords within the board area). */
+  moveFloat: (id: string, x: number, y: number) => void;
+  /** Resize a floating window. */
+  resizeFloat: (id: string, w: number, h: number) => void;
+  /** Raise a floating window above the others. */
+  focusFloat: (id: string) => void;
   /** Reset the workspace to a single board tab (recovery from a bad layout). */
   resetWorkspace: () => void;
   /** Set the list-view row density (persists to localStorage). */
@@ -139,10 +158,20 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   togglePerson(id) {
+    const floating = get().workspace.floats.find((f) => f.view.type === "person" && f.view.id === id);
+    if (floating) {
+      get().focusFloat(floating.id); // this person is already a float → raise it, no panel
+      return;
+    }
     set((s) => ({ openPersonId: s.openPersonId === id ? null : id }));
   },
 
   openPerson(id) {
+    const floating = get().workspace.floats.find((f) => f.view.type === "person" && f.view.id === id);
+    if (floating) {
+      get().focusFloat(floating.id);
+      return;
+    }
     set({ openPersonId: id });
   },
 
@@ -156,7 +185,16 @@ export const useApp = create<AppState>()((set, get) => ({
     const ties = [...switchboard.handshakes.values()]
       .filter((h) => h.people.includes(id))
       .map((h) => h.id);
-    set({ deletingId: id, openPersonId: null });
+    set((s) => ({
+      deletingId: id,
+      openPersonId: null,
+      // drop any floating note for this person; a docked tab is cleaned up below.
+      workspace: {
+        ...s.workspace,
+        floats: s.workspace.floats.filter((f) => !(f.view.type === "person" && f.view.id === id)),
+      },
+    }));
+    get().closeTab(`person:${id}`);
     await new Promise((r) => setTimeout(r, 190)); // let the card spring out first
     const diff: Diff = [
       ...ties.map((hid) => ({ op: "deleteHandshake", id: hid }) as const),
@@ -175,11 +213,15 @@ export const useApp = create<AppState>()((set, get) => ({
       if (view.type === "person") set({ openPersonId: view.id });
       return;
     }
+    if (target === "float") {
+      get().addFloat(view);
+      return;
+    }
     if (typeof target === "object") {
       get().splitActive(target.split, view);
       return;
     }
-    get().openTab(view); // "tab" (and "float" until step 3)
+    get().openTab(view);
   },
 
   openTab(view) {
@@ -247,6 +289,59 @@ export const useApp = create<AppState>()((set, get) => ({
 
   resizeSplit(splitId, sizes) {
     set((s) => ({ workspace: { ...s.workspace, layout: setSizes(s.workspace.layout, splitId, sizes) } }));
+  },
+
+  addFloat(view) {
+    const ws = get().workspace;
+    const key = viewKey(view);
+    const existing = ws.floats.find((f) => viewKey(f.view) === key);
+    if (existing) {
+      get().focusFloat(existing.id); // already floating → raise it instead of duplicating
+      return;
+    }
+    const maxZ = ws.floats.reduce((m, f) => Math.max(m, f.z), 0);
+    const n = ws.floats.length % 6; // cascade so stacked floats don't hide each other
+    const person = view.type === "person";
+    const float: FloatingWindow = {
+      id: newId(),
+      view,
+      x: 96 + n * 28,
+      y: 64 + n * 28,
+      w: person ? 340 : 600,
+      h: 460,
+      z: maxZ + 1,
+    };
+    set({ workspace: { ...ws, floats: [...ws.floats, float] } });
+  },
+
+  closeFloat(id) {
+    set((s) => ({ workspace: { ...s.workspace, floats: s.workspace.floats.filter((f) => f.id !== id) } }));
+  },
+
+  moveFloat(id, x, y) {
+    set((s) => ({
+      workspace: { ...s.workspace, floats: s.workspace.floats.map((f) => (f.id === id ? { ...f, x, y } : f)) },
+    }));
+  },
+
+  resizeFloat(id, w, h) {
+    set((s) => ({
+      workspace: { ...s.workspace, floats: s.workspace.floats.map((f) => (f.id === id ? { ...f, w, h } : f)) },
+    }));
+  },
+
+  focusFloat(id) {
+    set((s) => {
+      const maxZ = s.workspace.floats.reduce((m, f) => Math.max(m, f.z), 0);
+      const cur = s.workspace.floats.find((f) => f.id === id);
+      if (!cur || cur.z === maxZ) return {}; // missing or already on top → no-op
+      return {
+        workspace: {
+          ...s.workspace,
+          floats: s.workspace.floats.map((f) => (f.id === id ? { ...f, z: maxZ + 1 } : f)),
+        },
+      };
+    });
   },
 
   resetWorkspace() {

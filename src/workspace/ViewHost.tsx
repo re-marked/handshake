@@ -5,8 +5,11 @@ import { GoalsView } from "@/views/GoalsView";
 import { PersonView } from "@/views/PersonView";
 import type { View } from "@/workspace/model";
 
-/** Renders a View into whatever container holds it (a tab, a split pane, a float). */
-export function ViewHost({ view }: { view: View }) {
+/**
+ * Renders a View into whatever container holds it (a tab, a split pane, a float).
+ * `dense` tightens the person note's padding for narrow containers (floats).
+ */
+export function ViewHost({ view, dense = false }: { view: View; dense?: boolean }) {
   switch (view.type) {
     case "board":
       return <BoardView boardId={view.id} />;
@@ -17,7 +20,7 @@ export function ViewHost({ view }: { view: View }) {
     case "person":
       return (
         <ScrollArea className="h-full w-full">
-          <div className="mx-auto max-w-2xl px-8 py-7">
+          <div className={dense ? "px-3.5 py-3" : "mx-auto max-w-2xl px-8 py-7"}>
             <PersonView id={view.id} />
           </div>
         </ScrollArea>
