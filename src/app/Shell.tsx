@@ -1,6 +1,7 @@
 import { useApp } from "@/app/store";
 import { NavRail } from "@/app/NavRail";
 import { PersonPanel } from "@/app/PersonPanel";
+import { CommandPalette } from "@/app/CommandPalette";
 import { BoardView } from "@/board/BoardView";
 
 /** The app frame: nav rail + the main area (the board). Right region + palette land later. */
@@ -29,6 +30,7 @@ export function Shell() {
         <BoardView />
         <PersonPanel />
       </main>
+      <CommandPalette />
     </div>
   );
 }

@@ -22,6 +22,8 @@ interface AppState {
   openPersonId: string | null;
   /** A person mid-deletion — the board plays its exit before the data is removed. */
   deletingId: string | null;
+  /** Whether the command palette (Ctrl-P) is open. */
+  commandOpen: boolean;
 
   init: (vault: string) => Promise<void>;
   /** Route a diff through the funnel, persist it, and swap in the new state. The board
@@ -35,6 +37,8 @@ interface AppState {
   closePerson: () => void;
   /** Delete a person and all their ties; animates the card out, then commits. */
   deletePerson: (id: string) => Promise<void>;
+  /** Open/close the command palette. */
+  setCommandOpen: (open: boolean) => void;
 }
 
 export const useApp = create<AppState>()((set, get) => ({
@@ -46,6 +50,7 @@ export const useApp = create<AppState>()((set, get) => ({
   layout: emptyLayout(),
   openPersonId: null,
   deletingId: null,
+  commandOpen: false,
 
   async init(vault) {
     if (get().status !== "idle") return; // guard against StrictMode double-invoke
@@ -112,5 +117,9 @@ export const useApp = create<AppState>()((set, get) => ({
     ];
     await commit(diff);
     set({ deletingId: null });
+  },
+
+  setCommandOpen(open) {
+    set({ commandOpen: open });
   },
 }));

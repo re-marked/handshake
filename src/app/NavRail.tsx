@@ -1,18 +1,22 @@
 import { Search, Settings, Share2, Target, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useApp } from "@/app/store";
 
-// Static for now — these open Views once L6 lands (see SHELL.md).
-const ITEMS = [
-  { icon: Share2, label: "Board", active: true },
-  { icon: Users, label: "People", active: false },
-  { icon: Target, label: "Goals", active: false },
-  { icon: Search, label: "Search", active: false },
-];
-
-function RailButton({ icon: Icon, label, active }: { icon: typeof Share2; label: string; active?: boolean }) {
+function RailButton({
+  icon: Icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: typeof Share2;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
   return (
     <button
       title={label}
+      onClick={onClick}
       className={cn(
         "flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
         active && "bg-muted text-primary",
@@ -23,13 +27,15 @@ function RailButton({ icon: Icon, label, active }: { icon: typeof Share2; label:
   );
 }
 
-/** The thin left rail — navigation between Views. */
+/** The thin left rail — navigation between Views (most are static until L6; see SHELL.md). */
 export function NavRail() {
+  const setCommandOpen = useApp((s) => s.setCommandOpen);
   return (
     <nav className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-2">
-      {ITEMS.map((it) => (
-        <RailButton key={it.label} icon={it.icon} label={it.label} active={it.active} />
-      ))}
+      <RailButton icon={Share2} label="Board" active />
+      <RailButton icon={Users} label="People" />
+      <RailButton icon={Target} label="Goals" />
+      <RailButton icon={Search} label="Search (Ctrl-P)" onClick={() => setCommandOpen(true)} />
       <div className="mt-auto">
         <RailButton icon={Settings} label="Settings" />
       </div>

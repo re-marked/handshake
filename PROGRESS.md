@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Writer complete — next: L2 `Ctrl-P` command palette.** The whole writer loop is in: always-editable note (autosave → funnel → board **in place**); faint **+** name-first create-and-connect (ghost → spring-drop → free spot → note opens); **delete** (type-the-name shadcn `AlertDialog`, cascades ties, card springs out, self protected); **connection settings on click** (note row *or* board line — strength → link weight, "introduced by" → board parent, unlink); **drag a card onto another to link** two existing people (rose preview + ring, snaps back; drop in open space repositions). Next: the **`Ctrl-P` palette** (jump-to-person / commands / capture) on shadcn `Command`. Deferred: photo upload, markdown rendering, undo (Ctrl-Z rides the funnel's inverse diffs), staleness signal on cards, real photos. AI stays last; BFS `route` deferred.
+**Writer + command palette done — pick the next thread.** Shipped: full writer loop (edit / **+** create-connect / delete / connection settings on click / drag-to-link) and the **`Ctrl-P` palette** — jump to anyone, or type a fresh name to create them connected to you (also opens from the rail's search). Candidate next threads: **board polish** (staleness glow on cards going cold + real photos), **capture** (Phase 3 global quick-add overlay), or more **shell layers** (L3 docked tabs → splits). Deferred: photo upload in the note, markdown rendering, undo (Ctrl-Z rides the funnel's inverse diffs). AI stays last; BFS `route` deferred.
 
 ---
 
@@ -34,7 +34,7 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [x] Opaque polaroid cards: photo (data URL) or silhouette; name + role; warmth = link weight; self in rose
 - [x] Look landed ("it's nice")
 - [x] Persist positions + viewport to `.handshake/layout.json` (debounced); first open centers on self; manual re-parent reserved
-- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 note panel ✓ (read + always-editable write, autosave→funnel) · faint-**+** create-and-connect ✓ · delete (type-to-confirm) + connection settings on click (note + board line) ✓ · drag-to-connect existing ✓ · next: L2 Ctrl-P palette]
+- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 note panel ✓ · faint-**+** create-and-connect ✓ · delete + connection settings on click (note + board line) ✓ · drag-to-connect ✓ · L2 `Ctrl-P` palette ✓ (jump + type-to-create, shadcn `Command`) · next: board polish / capture / L3 tabs]
 - [~] Live wiring: `commit()` reflects in place (store swaps in `applyDiff`'s `next` — no reload); external watcher→reload still rebuilds the whole board
 - [ ] Look polish + re-introduce a staleness signal (card opacity was dropped); real photos across the cast
 
