@@ -103,4 +103,9 @@
     color: var(--color-foreground);
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  /* App-wide text selection uses the rose accent (tracks the --primary knob). */
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
 }
