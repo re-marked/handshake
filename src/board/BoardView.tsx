@@ -3,6 +3,8 @@ import { motion } from "motion/react";
 import { Plus, User } from "lucide-react";
 import { buildBoardModel, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { PersonCard } from "@/board/PersonCard";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ConnectionMenuItems } from "@/app/ConnectionMenu";
 import { useApp } from "@/app/store";
 import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
 import type { Layout } from "@/vault/layout";
@@ -44,6 +46,8 @@ export function BoardView() {
   const [composeName, setComposeName] = useState("");
   const [justCreated, setJustCreated] = useState<string | null>(null);
   const composeBusy = useRef(false);
+  // A connection's settings menu, opened by clicking its line (anchored at the click point).
+  const [lineMenu, setLineMenu] = useState<{ id: string; x: number; y: number } | null>(null);
 
   // First-ever open (no saved viewport): center self (world origin) in the viewport.
   useEffect(() => {
@@ -277,7 +281,15 @@ export function BoardView() {
           viewBox={`${-LINK_SPAN / 2} ${-LINK_SPAN / 2} ${LINK_SPAN} ${LINK_SPAN}`}
         >
           {model.links.map((link) => (
-            <LinkLine key={`${link.a}|${link.b}`} link={link} a={at(link.a)} b={at(link.b)} />
+            <LinkLine
+              key={`${link.a}|${link.b}`}
+              link={link}
+              a={at(link.a)}
+              b={at(link.b)}
+              onOpen={(e) =>
+                setLineMenu({ id: canonicalHandshakeId(link.a, link.b), x: e.clientX, y: e.clientY })
+              }
+            />
           ))}
           {composing && (
             <line
@@ -364,24 +376,63 @@ export function BoardView() {
           </motion.div>
         )}
       </div>
+
+      <DropdownMenu open={!!lineMenu} onOpenChange={(o) => { if (!o) setLineMenu(null); }}>
+        <DropdownMenuTrigger asChild>
+          <div
+            aria-hidden
+            className="fixed"
+            style={{ left: lineMenu?.x ?? -9999, top: lineMenu?.y ?? -9999, width: 0, height: 0 }}
+          />
+        </DropdownMenuTrigger>
+        {lineMenu && (
+          <DropdownMenuContent align="start" className="w-56">
+            <ConnectionMenuItems handshakeId={lineMenu.id} />
+          </DropdownMenuContent>
+        )}
+      </DropdownMenu>
     </div>
   );
 }
 
-function LinkLine({ link, a, b }: { link: BoardLink; a: Pos; b: Pos }) {
+function LinkLine({
+  link,
+  a,
+  b,
+  onOpen,
+}: {
+  link: BoardLink;
+  a: Pos;
+  b: Pos;
+  onOpen: (e: { clientX: number; clientY: number }) => void;
+}) {
   const width = link.strength === "close" ? 2 : link.strength === "warm" ? 1.5 : 1;
   return (
-    <line
-      x1={a.x}
-      y1={a.y}
-      x2={b.x}
-      y2={b.y}
-      style={{
-        stroke: "var(--border)",
-        strokeWidth: width,
-        strokeOpacity: link.treeEdge ? 0.9 : 0.4,
-        strokeDasharray: link.strength === "dormant" ? "5 5" : undefined,
-      }}
-    />
+    <g className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={onOpen}>
+      {/* fat invisible hit area so the thin yarn is easy to click */}
+      <line
+        x1={a.x}
+        y1={a.y}
+        x2={b.x}
+        y2={b.y}
+        stroke="transparent"
+        strokeWidth={14}
+        strokeLinecap="round"
+        style={{ pointerEvents: "stroke" }}
+      />
+      <line
+        x1={a.x}
+        y1={a.y}
+        x2={b.x}
+        y2={b.y}
+        style={{
+          stroke: "var(--border)",
+          strokeWidth: width,
+          strokeOpacity: link.treeEdge ? 0.9 : 0.4,
+          strokeDasharray: link.strength === "dormant" ? "5 5" : undefined,
+          pointerEvents: "none",
+        }}
+      />
+    </g>
   );
 }
