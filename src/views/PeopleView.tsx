@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Locate, Plus, Search, User } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Locate, Plus, Search, User, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,10 +29,10 @@ import {
 
 type Density = "compact" | "comfortable" | "spacious";
 
-const DENSITY: Record<Density, { row: string; avatar: string; pageSize: number }> = {
-  compact: { row: "py-1", avatar: "size-7", pageSize: 14 },
-  comfortable: { row: "py-2", avatar: "size-9", pageSize: 10 },
-  spacious: { row: "py-3.5", avatar: "size-11", pageSize: 7 },
+const DENSITY: Record<Density, { row: string; avatar: string; text: string; rowH: number }> = {
+  compact: { row: "py-1.5", avatar: "size-8", text: "text-sm", rowH: 46 },
+  comfortable: { row: "py-2.5", avatar: "size-10", text: "text-[15px]", rowH: 60 },
+  spacious: { row: "py-4", avatar: "size-12", text: "text-base", rowH: 80 },
 };
 
 const RANK: Record<Strength, number> = { close: 0, warm: 1, cold: 2, dormant: 3 };
@@ -49,7 +49,7 @@ function pageWindow(current: number, total: number): (number | "…")[] {
   return out;
 }
 
-/** People — the calm, searchable index of everyone. List rows, density + sort, pagination. */
+/** People — the calm, full-width index of everyone. Search, tag filters, density, pagination. */
 export function PeopleView() {
   const people = useApp((s) => s.switchboard.people);
   const handshakes = useApp((s) => s.switchboard.handshakes);
@@ -59,16 +59,34 @@ export function PeopleView() {
   const setDensity = useApp((s) => s.setDensity);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"name" | "closeness">("name");
+  const [tagFilters, setTagFilters] = useState<string[]>([]);
   const [page, setPage] = useState(1);
 
   const cfg = DENSITY[density];
   const q = query.trim().toLowerCase();
 
+  // Fit as many rows as the list area can hold so it fills to the bottom (recomputed on resize).
+  const listRef = useRef<HTMLDivElement>(null);
+  const [fitRows, setFitRows] = useState(10);
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const measure = () => setFitRows(Math.max(1, Math.floor(el.clientHeight / cfg.rowH)));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [cfg.rowH]);
+
   const tieStrength = (id: string): Strength | undefined =>
     selfId ? handshakes.get(canonicalHandshakeId(selfId, id))?.strength : undefined;
 
+  const toggleTag = (t: string) =>
+    setTagFilters((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+
   const roster = useMemo(() => {
     return [...people.values()]
+      .filter((p) => tagFilters.every((t) => p.tags.includes(t)))
       .filter((p) => {
         if (!q) return true;
         return (
@@ -81,21 +99,21 @@ export function PeopleView() {
       .sort((a, b) => {
         if (a.isSelf !== b.isSelf) return a.isSelf ? -1 : 1;
         if (sort === "closeness") {
-          const ra = RANK[tieStrength(a.id) ?? "dormant"] + (tieStrength(a.id) ? 0 : 4);
-          const rb = RANK[tieStrength(b.id) ?? "dormant"] + (tieStrength(b.id) ? 0 : 4);
+          const ra = tieStrength(a.id) ? RANK[tieStrength(a.id)!] : 9;
+          const rb = tieStrength(b.id) ? RANK[tieStrength(b.id)!] : 9;
           if (ra !== rb) return ra - rb;
         }
         return a.name.localeCompare(b.name);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [people, handshakes, selfId, q, sort]);
+  }, [people, handshakes, selfId, q, sort, tagFilters]);
 
-  const pageSize = cfg.pageSize;
+  const pageSize = fitRows;
   const totalPages = Math.max(1, Math.ceil(roster.length / pageSize));
   const current = Math.min(page, totalPages);
   const pageItems = roster.slice((current - 1) * pageSize, current * pageSize);
 
-  useEffect(() => setPage(1), [q, sort, density]);
+  useEffect(() => setPage(1), [q, sort, density, tagFilters]);
 
   const exact = q.length > 0 && [...people.values()].some((p) => p.name.trim().toLowerCase() === q);
 
@@ -124,36 +142,34 @@ export function PeopleView() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col items-center overflow-hidden bg-background">
-      <div className="flex min-h-0 w-full max-w-3xl flex-1 flex-col px-6 py-8">
-        <div className="mb-4 flex shrink-0 flex-wrap items-center gap-2">
-          <h1 className="mr-auto text-lg font-semibold text-foreground">
-            People <span className="text-sm font-normal text-muted-foreground">· {people.size}</span>
+    <div className="flex h-full w-full flex-col overflow-hidden bg-background">
+      <div className="flex min-h-0 w-full flex-1 flex-col px-8 py-7">
+        <div className="mb-4 flex shrink-0 flex-wrap items-center gap-3">
+          <h1 className="mr-auto text-xl font-semibold text-foreground">
+            People <span className="text-base font-normal text-muted-foreground">· {people.size}</span>
           </h1>
           <ToggleGroup
             type="single"
-            size="sm"
             variant="outline"
             value={sort}
             onValueChange={(v) => v && setSort(v as "name" | "closeness")}
           >
-            <ToggleGroupItem value="name" className="px-2.5 text-xs">A–Z</ToggleGroupItem>
-            <ToggleGroupItem value="closeness" className="px-2.5 text-xs">Closeness</ToggleGroupItem>
+            <ToggleGroupItem value="name" className="px-4">A–Z</ToggleGroupItem>
+            <ToggleGroupItem value="closeness" className="px-4">Closeness</ToggleGroupItem>
           </ToggleGroup>
           <ToggleGroup
             type="single"
-            size="sm"
             variant="outline"
             value={density}
             onValueChange={(v) => v && setDensity(v as Density)}
           >
-            <ToggleGroupItem value="compact" className="px-2.5 text-xs">Compact</ToggleGroupItem>
-            <ToggleGroupItem value="comfortable" className="px-2.5 text-xs">Comfortable</ToggleGroupItem>
-            <ToggleGroupItem value="spacious" className="px-2.5 text-xs">Spacious</ToggleGroupItem>
+            <ToggleGroupItem value="compact" className="px-4">Compact</ToggleGroupItem>
+            <ToggleGroupItem value="comfortable" className="px-4">Comfortable</ToggleGroupItem>
+            <ToggleGroupItem value="spacious" className="px-4">Spacious</ToggleGroupItem>
           </ToggleGroup>
         </div>
 
-        <div className="mb-2 flex shrink-0 items-center gap-2 rounded-md border px-3">
+        <div className="mb-2 flex h-11 shrink-0 items-center gap-2.5 rounded-md border px-3.5">
           <Search className="size-4 shrink-0 text-muted-foreground" />
           <input
             value={query}
@@ -162,43 +178,70 @@ export function PeopleView() {
               if (e.key === "Enter" && q && !exact) void createConnected(query);
             }}
             placeholder="Search people, or type a new name to add…"
-            className="h-9 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="h-full flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
           />
         </div>
 
-        <ScrollArea className="-mx-2 min-h-0 flex-1">
-          <div className="flex flex-col px-2 pb-1">
-            {q && !exact && (
-              <button
-                type="button"
-                onClick={() => void createConnected(query)}
-                className={cn(
-                  "flex items-center gap-3 rounded-md px-2 text-left text-primary transition-colors hover:bg-accent/40",
-                  cfg.row,
-                )}
+        {tagFilters.length > 0 && (
+          <div className="mb-2 flex shrink-0 flex-wrap items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">Filtering:</span>
+            {tagFilters.map((t) => (
+              <Badge
+                key={t}
+                variant="default"
+                className="cursor-pointer gap-1 pr-1"
+                onClick={() => toggleTag(t)}
               >
-                <Plus className="size-4 shrink-0" />
-                <span className="truncate text-sm">Create “{query.trim()}” — connected to you</span>
-              </button>
-            )}
-            {pageItems.map((p) => {
-              const s = tieStrength(p.id);
-              return (
-                <PersonRow
-                  key={p.id}
-                  person={p}
-                  photo={photos.get(p.id)}
-                  rowClass={cfg.row}
-                  avatarClass={cfg.avatar}
-                  tieColor={s ? TIE_COLOR[s] : undefined}
-                />
-              );
-            })}
-            {roster.length === 0 && (
-              <p className="px-2 py-8 text-center text-sm text-muted-foreground">No people match.</p>
-            )}
+                {t}
+                <X className="size-3" />
+              </Badge>
+            ))}
+            <button
+              type="button"
+              onClick={() => setTagFilters([])}
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              clear
+            </button>
           </div>
-        </ScrollArea>
+        )}
+
+        <div ref={listRef} className="-mx-2 min-h-0 flex-1">
+          <ScrollArea className="h-full">
+            <div className="flex flex-col px-2">
+              {q && !exact && (
+                <button
+                  type="button"
+                  onClick={() => void createConnected(query)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-2 text-left text-primary transition-colors hover:bg-accent/40",
+                    cfg.row,
+                  )}
+                >
+                  <Plus className="size-4 shrink-0" />
+                  <span className="truncate text-[15px]">Create “{query.trim()}” — connected to you</span>
+                </button>
+              )}
+              {pageItems.map((p) => {
+                const s = tieStrength(p.id);
+                return (
+                  <PersonRow
+                    key={p.id}
+                    person={p}
+                    photo={photos.get(p.id)}
+                    cfg={cfg}
+                    tieColor={s ? TIE_COLOR[s] : undefined}
+                    activeTags={tagFilters}
+                    onTag={toggleTag}
+                  />
+                );
+              })}
+              {roster.length === 0 && (
+                <p className="px-2 py-10 text-center text-sm text-muted-foreground">No people match.</p>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
 
         {totalPages > 1 && (
           <Pagination className="mt-3 shrink-0">
@@ -231,15 +274,17 @@ export function PeopleView() {
 function PersonRow({
   person,
   photo,
-  rowClass,
-  avatarClass,
+  cfg,
   tieColor,
+  activeTags,
+  onTag,
 }: {
   person: Person;
   photo?: string;
-  rowClass: string;
-  avatarClass: string;
+  cfg: { row: string; avatar: string; text: string };
   tieColor?: string;
+  activeTags: string[];
+  onTag: (t: string) => void;
 }) {
   const subtitle = [person.role, person.company].filter(Boolean).join(" · ");
   const open = () => useApp.getState().openPerson(person.id);
@@ -252,15 +297,15 @@ function PersonRow({
         if (e.key === "Enter") open();
       }}
       className={cn(
-        "group flex cursor-pointer items-center gap-3 rounded-md px-2 outline-none transition-colors hover:bg-accent/40 focus-visible:bg-accent/50",
-        rowClass,
+        "group flex cursor-pointer items-center gap-3.5 rounded-md px-2 outline-none transition-colors hover:bg-accent/40 focus-visible:bg-accent/50",
+        cfg.row,
       )}
     >
       <span
-        className="size-2 shrink-0 rounded-full"
+        className="size-2.5 shrink-0 rounded-full"
         style={{ background: tieColor ?? "var(--muted-foreground)", opacity: tieColor ? 1 : 0.25 }}
       />
-      <Avatar className={cn("shrink-0", avatarClass)}>
+      <Avatar className={cn("shrink-0", cfg.avatar)}>
         {photo && <AvatarImage src={photo} alt="" />}
         <AvatarFallback>
           <User className="size-[55%] text-muted-foreground/60" strokeWidth={1.75} />
@@ -268,14 +313,22 @@ function PersonRow({
       </Avatar>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className="truncate text-sm font-medium text-foreground">{person.name}</span>
+          <span className={cn("truncate font-medium text-foreground", cfg.text)}>{person.name}</span>
           {person.isSelf && <span className="shrink-0 text-xs text-primary">you</span>}
         </div>
-        {subtitle && <div className="truncate text-xs text-muted-foreground">{subtitle}</div>}
+        {subtitle && <div className="truncate text-sm text-muted-foreground">{subtitle}</div>}
       </div>
       <div className="hidden shrink-0 items-center gap-1 sm:flex">
-        {person.tags.slice(0, 3).map((t) => (
-          <Badge key={t} variant="secondary" className="font-normal">
+        {person.tags.slice(0, 4).map((t) => (
+          <Badge
+            key={t}
+            variant={activeTags.includes(t) ? "default" : "secondary"}
+            className="cursor-pointer font-normal"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTag(t);
+            }}
+          >
             {t}
           </Badge>
         ))}
