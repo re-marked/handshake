@@ -42,8 +42,9 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
   const nameOf = (id: string) => people.get(id)?.name;
 
   return (
-    <div className="flex h-11 shrink-0 items-center gap-1 overflow-x-auto border-b border-border bg-card px-2">
-      {leaf.tabs.map((view, i) => {
+    <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border bg-card px-2">
+      <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+        {leaf.tabs.map((view, i) => {
         const key = viewKey(view);
         const active = i === leaf.activeIndex;
         const closable = view.type !== "board";
@@ -87,7 +88,8 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
             )}
           </div>
         );
-      })}
+        })}
+      </div>
       <TabLauncher leafId={leaf.id} />
     </div>
   );
