@@ -24,7 +24,7 @@ export function BoardView() {
   const photos = useApp((s) => s.photos);
   const layout = useApp((s) => s.layout);
   const saveLayout = useApp((s) => s.saveLayout);
-  const openView = useApp((s) => s.openView);
+  const togglePerson = useApp((s) => s.togglePerson);
   const containerRef = useRef<HTMLDivElement>(null);
   const model = useMemo(
     () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
@@ -145,7 +145,7 @@ export function BoardView() {
     // was a drag/pan → persist the new layout.
     const moved = Math.hypot(e.clientX - d.downX, e.clientY - d.downY);
     if (d.mode === "card" && d.cardId && moved < 5) {
-      openView({ type: "person", id: d.cardId }, "float", { x: e.clientX, y: e.clientY });
+      togglePerson(d.cardId);
     } else {
       schedulePersist();
     }

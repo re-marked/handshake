@@ -1,6 +1,6 @@
 import { useApp } from "@/app/store";
 import { NavRail } from "@/app/NavRail";
-import { FloatLayer } from "@/app/FloatLayer";
+import { PersonPanel } from "@/app/PersonPanel";
 import { BoardView } from "@/board/BoardView";
 
 /** The app frame: nav rail + the main area (the board). Right region + palette land later. */
@@ -27,8 +27,8 @@ export function Shell() {
       <NavRail />
       <main className="relative min-w-0 flex-1">
         <BoardView />
+        <PersonPanel />
       </main>
-      <FloatLayer />
     </div>
   );
 }

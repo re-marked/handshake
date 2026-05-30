@@ -73,15 +73,16 @@ All navigation funnels through a single action:
 
 ```
 openView(view, target)
-  target = float            // floating window (default for `person` — see §4)
+  target = panel            // top-right slide-in note (default for `person` — see §4)
          | tab              // new tab in the active leaf
          | replaceActive    // reuse the active *unpinned* tab (Obsidian's "don't drown")
          | split: dir       // split the active leaf and open there
          | sidebar: side    // left/right region
 ```
 
-- **Click a card → `openView(person, float)`** — the note floats up; the board stays put.
-- **Pin / promote** a floating note → it docks as a `tab` (for keeping or comparing).
+- **Tap a card → the note panel slides in** (top-right); tap the same card again / `Esc`
+  to close. The board stays put and interactive.
+- **Promote** the panel's note → a docked `tab` (for keeping/comparing — workspace layers).
 - **`Cmd/Ctrl-click`** → open in a `split`. The command palette and nav use `tab` /
   `replaceActive`.
 - **Selection** (the highlighted node on the board) is *separate* from what's open — one
@@ -89,20 +90,21 @@ openView(view, target)
 
 ---
 
-## 4. The floating note
+## 4. The note panel
 
-The signature interaction. Tap a polaroid and its note floats up over the web:
+The signature interaction. Tap a polaroid and its note **slides in from the top-right**;
+tap the same card again (or press `Esc`) and it slides back out.
 
-- **Content-sized** — grows to fit (name, frontmatter fields, body), within a max; scrolls
-  if long. Not a fixed-width sidebar.
+- **Slide-in, non-modal** — a smooth slide + fade; the board stays fully interactive
+  behind it. Not a modal sheet, not a draggable window.
+- **Tap-to-toggle** — the same card closes it; a different card swaps the content in place.
+- **Content-sized card**, capped to the viewport, with scroll for long notes.
 - **Moderately large, comfortable reading typography** — distinct from the dense chrome;
-  this is where you *read and think* about a person.
-- **Draggable** (by its header), dismissed with `Esc` / click-away / a close button.
-- The **board is visible behind it** — never replaced.
-- Multiple can stack; **pin → dock** turns an ephemeral peek into a kept tab.
+  this is where you read and think about a person.
 
-Floating = the quick, contextual peek-and-edit. Docked tabs/splits = persistent,
-multi-pane work. Both render the same `person` View.
+(A docked tab — for persistent, multi-pane work — renders the same person view and
+arrives with the workspace layers below. Panel and tab are the same content, different
+containers.)
 
 ---
 
@@ -141,9 +143,9 @@ Each layer is shippable and assumes the model above — no re-architecting.
 - **L0 — Store + frame.** Stand up the `zustand` store; refactor `App` (load → store).
   Render the static frame: nav rail · main area (board, from the store) · empty right
   region · palette mount. *The board keeps working, now driven by the store.*
-- **L1 — The floating note.** Click a card → `openView(person, float)`: a content-sized,
-  comfortably-typeset person panel (frontmatter form + markdown body) floats over the
-  board; drag, `Esc` to close. The first real View + the signature interaction.
+- **L1 — The note panel.** Tap a card → the person's note slides in top-right (tap again /
+  `Esc` to close); a content-sized, comfortably-typeset read view, board live behind.
+  Editing (fields + body → commit) follows. The signature interaction.
 - **L2 — Command palette.** `Ctrl-P` unified: commands (add person, log interaction, new
   goal, switch view, settings) + quick-jump to people (`Ctrl-K`) + capture (sentence →
   diff). Wired to store actions.

@@ -3,21 +3,13 @@ import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
 import { emptySwitchboard, type Switchboard } from "@/switchboard";
-import { viewKey, type OpenTarget, type View } from "@/app/view";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
-export interface FloatWindow {
-  key: string;
-  view: View;
-  x: number;
-  y: number;
-}
-
 /**
- * The app store — the backbone the whole shell reads from. Holds the live vault state,
- * the workspace (floats now; tabs/splits in later layers), and routes writes through
- * the one VaultSession. See SHELL.md.
+ * The app store — the backbone the whole shell reads from. Holds the live vault state +
+ * the open person note, and routes writes through the one VaultSession. (The generic
+ * workspace — tabs/splits/Views — lands in later layers; see SHELL.md.)
  */
 interface AppState {
   status: Status;
@@ -26,14 +18,14 @@ interface AppState {
   switchboard: Switchboard;
   photos: Map<string, string>;
   layout: Layout;
-  floats: FloatWindow[];
-  selectedId: string | null;
+  /** The person whose note slides in (top-right), or null when closed. */
+  openPersonId: string | null;
 
   init: (vault: string) => Promise<void>;
   saveLayout: (layout: Layout) => void;
-  openView: (view: View, target: OpenTarget, at?: { x: number; y: number }) => void;
-  closeFloat: (key: string) => void;
-  select: (id: string | null) => void;
+  /** Open a person's note — or close it if that person is already open (tap-to-toggle). */
+  togglePerson: (id: string) => void;
+  closePerson: () => void;
 }
 
 export const useApp = create<AppState>()((set, get) => ({
@@ -43,8 +35,7 @@ export const useApp = create<AppState>()((set, get) => ({
   switchboard: emptySwitchboard(),
   photos: new Map(),
   layout: emptyLayout(),
-  floats: [],
-  selectedId: null,
+  openPersonId: null,
 
   async init(vault) {
     if (get().status !== "idle") return; // guard against StrictMode double-invoke
@@ -77,26 +68,11 @@ export const useApp = create<AppState>()((set, get) => ({
     void get().session?.saveLayout(layout).catch(() => {});
   },
 
-  // L1 wires only `float`; tab/split/sidebar land in later layers (see SHELL.md).
-  openView(view, target, at) {
-    if (target !== "float") return;
-    const key = viewKey(view);
-    const selectedId = view.type === "person" ? view.id : get().selectedId;
-    if (get().floats.some((f) => f.key === key)) {
-      set({ selectedId });
-      return;
-    }
-    set((s) => ({
-      floats: [...s.floats, { key, view, x: at?.x ?? 96, y: at?.y ?? 96 }],
-      selectedId,
-    }));
+  togglePerson(id) {
+    set((s) => ({ openPersonId: s.openPersonId === id ? null : id }));
   },
 
-  closeFloat(key) {
-    set((s) => ({ floats: s.floats.filter((f) => f.key !== key) }));
-  },
-
-  select(id) {
-    set({ selectedId: id });
+  closePerson() {
+    set({ openPersonId: null });
   },
 }));
