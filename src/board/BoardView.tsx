@@ -6,11 +6,20 @@ import { PersonCard } from "@/board/PersonCard";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConnectionMenuItems } from "@/app/ConnectionMenu";
 import { useApp } from "@/app/store";
-import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
+import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person, type Strength } from "@/switchboard";
 import type { Layout } from "@/vault/layout";
 
 const LINK_SPAN = 8000; // SVG coordinate span (centered on origin) for drawing links
 const PERSIST_DELAY = 500;
+
+// Tie warmth as temperature — desaturated red (close/warm) → blue (cold/dormant). The
+// color carries the strength; kept dusty so it stays classy against the dark board.
+const TIE_COLOR: Record<Strength, string> = {
+  close: "#e0566b", // warm red
+  warm: "#cf8b8e", // dusty rose
+  cold: "#6f9fc6", // cool blue
+  dormant: "#647d96", // faded slate-blue
+};
 
 function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
   const out = new Map(model.positions); // tidy radial seed
@@ -502,9 +511,9 @@ function LinkLine({
         x2={b.x}
         y2={b.y}
         style={{
-          stroke: "var(--border)",
+          stroke: TIE_COLOR[link.strength],
           strokeWidth: width,
-          strokeOpacity: link.treeEdge ? 0.9 : 0.4,
+          strokeOpacity: link.treeEdge ? 0.85 : 0.5,
           strokeDasharray: link.strength === "dormant" ? "5 5" : undefined,
           pointerEvents: "none",
         }}
