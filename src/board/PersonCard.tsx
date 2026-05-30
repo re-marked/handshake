@@ -6,13 +6,22 @@ import type { BoardCard } from "@/board/tree";
  * A polaroid-style person card: a square photo (or a silhouette placeholder) on top,
  * name + role on the caption strip below. Solid/opaque. Self carries the rose accent.
  */
-export function PersonCard({ card, photoSrc }: { card: BoardCard; photoSrc?: string }) {
+export function PersonCard({
+  card,
+  photoSrc,
+  highlighted,
+}: {
+  card: BoardCard;
+  photoSrc?: string;
+  highlighted?: boolean;
+}) {
   const subtitle = [card.role, card.company].filter(Boolean).join(" · ");
   return (
     <div
       className={cn(
-        "w-36 select-none overflow-hidden rounded-md border bg-card shadow-sm",
+        "w-36 select-none overflow-hidden rounded-md border bg-card shadow-sm transition-shadow",
         card.isSelf ? "border-primary" : "border-border",
+        highlighted && "ring-2 ring-primary ring-offset-2 ring-offset-background",
       )}
     >
       <div className="flex aspect-square w-full items-center justify-center bg-muted">

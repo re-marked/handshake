@@ -48,6 +48,8 @@ export function BoardView() {
   const composeBusy = useRef(false);
   // A connection's settings menu, opened by clicking its line (anchored at the click point).
   const [lineMenu, setLineMenu] = useState<{ id: string; x: number; y: number } | null>(null);
+  // Drag-to-link: while dragging a card over a linkable one, preview the new tie.
+  const [linkPreview, setLinkPreview] = useState<{ from: string; to: string } | null>(null);
 
   // First-ever open (no saved viewport): center self (world origin) in the viewport.
   useEffect(() => {
@@ -90,6 +92,8 @@ export function BoardView() {
     mode: "card" | "pan";
     cardId?: string;
     subtree: string[];
+    start: Map<string, Pos>;
+    dropTarget: string | null;
     lastX: number;
     lastY: number;
     downX: number;
@@ -112,17 +116,29 @@ export function BoardView() {
     containerRef.current?.setPointerCapture(e.pointerId);
     if (cardEl?.dataset.cardId) {
       const id = cardEl.dataset.cardId;
+      const subtree = [id, ...descendants(id)];
       drag.current = {
         mode: "card",
         cardId: id,
-        subtree: [id, ...descendants(id)],
+        subtree,
+        start: new Map(subtree.map((sid) => [sid, at(sid)])),
+        dropTarget: null,
         lastX: e.clientX,
         lastY: e.clientY,
         downX: e.clientX,
         downY: e.clientY,
       };
     } else {
-      drag.current = { mode: "pan", subtree: [], lastX: e.clientX, lastY: e.clientY, downX: e.clientX, downY: e.clientY };
+      drag.current = {
+        mode: "pan",
+        subtree: [],
+        start: new Map(),
+        dropTarget: null,
+        lastX: e.clientX,
+        lastY: e.clientY,
+        downX: e.clientX,
+        downY: e.clientY,
+      };
     }
   }
 
@@ -148,20 +164,67 @@ export function BoardView() {
       }
       return next;
     });
+
+    // Is the cursor over a linkable card (not in the dragged subtree, not already tied)?
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (rect && d.cardId) {
+      const px = (e.clientX - rect.left - pan.x) / zoom;
+      const py = (e.clientY - rect.top - pan.y) / zoom;
+      const subtree = new Set(d.subtree);
+      let found: string | null = null;
+      for (const card of model.cards) {
+        if (subtree.has(card.id)) continue;
+        if (switchboard.handshakes.has(canonicalHandshakeId(d.cardId, card.id))) continue;
+        const c = at(card.id);
+        if (Math.abs(px - c.x) < 80 && Math.abs(py - c.y) < 104) {
+          found = card.id;
+          break;
+        }
+      }
+      if (found !== d.dropTarget) {
+        d.dropTarget = found;
+        setLinkPreview(found ? { from: d.cardId, to: found } : null);
+      }
+    }
   }
 
   function onPointerUp(e: React.PointerEvent) {
     const d = drag.current;
     drag.current = null;
     containerRef.current?.releasePointerCapture(e.pointerId);
+    setLinkPreview(null);
     if (!d) return;
-    // A barely-moved press on a card is a click → open its note (float); otherwise it
-    // was a drag/pan → persist the new layout.
     const moved = Math.hypot(e.clientX - d.downX, e.clientY - d.downY);
-    if (d.mode === "card" && d.cardId && moved < 5) {
-      togglePerson(d.cardId);
+    if (d.mode === "card" && d.cardId) {
+      if (moved < 5) {
+        togglePerson(d.cardId); // a barely-moved press is a click → open the note
+      } else if (d.dropTarget) {
+        // Dropped onto another card → link them, and snap the dragged subtree back so
+        // nothing's left overlapping. (Drop in open space to reposition instead.)
+        const target = d.dropTarget;
+        setPositions((prev) => {
+          const next = new Map(prev);
+          for (const [sid, p] of d.start) next.set(sid, p);
+          return next;
+        });
+        const [pa, pb] = canonicalPair(d.cardId, target);
+        void useApp.getState().commit([
+          {
+            op: "createHandshake",
+            handshake: {
+              kind: "handshake",
+              id: canonicalHandshakeId(d.cardId, target),
+              people: [pa, pb],
+              strength: "cold",
+              body: "",
+            },
+          },
+        ]);
+      } else {
+        schedulePersist(); // repositioned in open space
+      }
     } else {
-      schedulePersist();
+      schedulePersist(); // pan
     }
   }
 
@@ -300,6 +363,15 @@ export function BoardView() {
               style={{ stroke: "var(--primary)", strokeWidth: 1.5, strokeOpacity: 0.5, strokeDasharray: "4 4" }}
             />
           )}
+          {linkPreview && (
+            <line
+              x1={at(linkPreview.from).x}
+              y1={at(linkPreview.from).y}
+              x2={at(linkPreview.to).x}
+              y2={at(linkPreview.to).y}
+              style={{ stroke: "var(--primary)", strokeWidth: 2, strokeOpacity: 0.7, strokeDasharray: "5 5" }}
+            />
+          )}
         </svg>
 
         {model.cards.map((card) => {
@@ -319,7 +391,11 @@ export function BoardView() {
                 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               >
-                <PersonCard card={card} photoSrc={photos.get(card.id)} />
+                <PersonCard
+                  card={card}
+                  photoSrc={photos.get(card.id)}
+                  highlighted={card.id === linkPreview?.to}
+                />
               </motion.div>
               <button
                 type="button"
