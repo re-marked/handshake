@@ -229,19 +229,21 @@ dashboard.
 
 ---
 
-## 11. Motion & feel
+## 11. Motion & feel — "motion tea"
 
-Motion is fast, subtle, and purposeful — it clarifies state changes; it never decorates.
+Motion is a **first-class delight**, not afterthought polish — this is a tool opened every
+day, and it should feel alive in the hand. Spring-based, smooth, satisfying; present but
+tasteful (motion serves the moment, it never flails). Built on **`motion` (framer-motion)**:
+springs, enter/exit via `AnimatePresence`, and later layout/gesture animation.
 
-- **Graph settling** — nodes ease into place when the layout shifts; spring physics, brief.
-- **Panel & view transitions** — quick, eased slides/fades; nothing lingers.
-- **Selection & hover** — immediate, light emphasis. Responsive, not fidgety.
-- **Capture landing** — a small, crisp acknowledgment that something committed.
-- **The path pulse** (§4) — the one expressive flourish, kept short.
+- **The note panel** — slides in from the top-right on tap; tapping a *different* person
+  slides the current note out, *then* the new one in (`mode="wait"`). Never an abrupt swap.
+- **Board** — cards settle with spring physics; hover and selection lift lightly.
+- **Capture landing** — a small, crisp spring when something commits.
+- **The path moment** — the path saturates and a pulse runs you → target; the rest dims.
 
-Implementation is spring/easing on real properties (a spring lib, or CSS where it
-suffices). The rule from the old doc survives in new clothes: **restraint.** If a motion
-doesn't help you understand what changed, cut it.
+The rule: motion should feel *intentional* — a spring with weight, not a linear fade. When
+in doubt, make it springier, not flatter.
 
 ---
 
