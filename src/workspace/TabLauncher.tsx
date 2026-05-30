@@ -27,7 +27,12 @@ export function TabLauncher({ leafId }: { leafId: string }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon-xs" aria-label="New tab" className="shrink-0">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="New tab"
+          className="shrink-0 rounded-lg text-muted-foreground hover:text-foreground"
+        >
           <Plus />
         </Button>
       </PopoverTrigger>
