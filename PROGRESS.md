@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Phase 2 · The clean graph.** Aesthetic pivoted to "Obsidian for your network" — clean, monochrome + rose accent, graph as the hero (UX.md fully rewritten). First build target: a clean force-directed graph (d3-force + canvas) of the fixture cast, bound to `VaultSession` — "the graph is the new string," so prove it feels alive before wrapping any chrome. Data layer is complete + live-verified. AI stays last; BFS `route` deferred.
+**Look at the graph, then iterate + build outward.** The clean force-directed graph renders the corkboard cast on the dark theme, in a real Tauri window (committed `0b9480a`). First: eyeball the aesthetic with Mark (rose shade, node/label treatment, force tuning) — the iterate-the-look loop. Then: persist positions to `.handshake/layout.json`, wire live updates (watcher + `commit`), and grow the Obsidian three-pane shell around the graph. AI stays last; BFS `route` deferred.
 
 ---
 
@@ -26,13 +26,15 @@ The engine is **Switchboard** — pure TS in `src/switchboard/`, zero Tauri/Reac
 - [ ] BFS pathfinding: `route(sb, from, to)` — deferred to end (data-consuming)
 - [x] Fixture vault for tests (`src/switchboard/__tests__/fixtures/`); real people seeded later
 
-## Phase 2 — The graph (clean era — see rewritten UX.md)
-- [ ] App shell: Obsidian three-pane workspace (shadcn/Radix), dark-first, rose accent
-- [ ] Clean force-directed graph (d3-force + canvas): people = nodes, handshakes = edges
-- [ ] React binding to `VaultSession` (read switchboard, commit diffs, reload on watcher)
-- [ ] Node drag + pan/zoom → positions/viewport to `.handshake/layout.json`
-- [ ] Staleness (desaturate/dim) + warmth indicator, driven by the engine
-- [ ] Strip dead WebGL deps: `@react-three/*`, `three`, `postprocessing`, `public/textures/`
+## Phase 2 — The graph (clean era — see rewritten UX.md)  ◀ current
+- [x] Strip dead WebGL deps; shadcn/Tailwind-v4 foundation + dark-first rose theme (re-tool)
+- [x] Clean force-directed graph (`d3-force` + Canvas 2D): people = nodes, handshakes = edges
+- [x] Render bound to `VaultSession` (loads the vault, draws the cast); pan / zoom / drag / hover / select
+- [x] Staleness as node opacity (from `lastInteractionDate`); warmth as edge weight
+- [ ] Iterate the look with Mark (rose shade, node/label treatment, force tuning)
+- [ ] Persist node positions + viewport to `.handshake/layout.json` (re-lays-out each load now)
+- [ ] Live wiring: subscribe to the watcher + reflect `commit()`s without a full reload
+- [ ] App shell: Obsidian three-pane workspace (left rail / center / inspector), command palette, person note
 
 ## Phase 3 — Capture
 - [ ] Global hotkey (Tauri) → quick-add overlay

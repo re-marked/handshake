@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
-import { GraphView } from "@/graph/GraphView";
+import { BoardView } from "@/board/BoardView";
 import type { Switchboard } from "@/switchboard";
 
 // Dev: point at a vault folder via VITE_VAULT_PATH. A real folder-picker / settings
@@ -35,9 +35,5 @@ export default function App() {
       </div>
     );
   }
-  return (
-    <div className="h-full w-full">
-      <GraphView switchboard={switchboard} />
-    </div>
-  );
+  return <BoardView switchboard={switchboard} />;
 }
