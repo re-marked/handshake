@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
-import { emptySwitchboard, type Switchboard } from "@/switchboard";
+import { emptySwitchboard, type ApplyResult, type Diff, type Switchboard } from "@/switchboard";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
@@ -22,9 +22,14 @@ interface AppState {
   openPersonId: string | null;
 
   init: (vault: string) => Promise<void>;
+  /** Route a diff through the funnel, persist it, and swap in the new state. The board
+   *  updates in place — no reload — because applyDiff hands back the derived next state. */
+  commit: (diff: Diff) => Promise<ApplyResult>;
   saveLayout: (layout: Layout) => void;
   /** Open a person's note — or close it if that person is already open (tap-to-toggle). */
   togglePerson: (id: string) => void;
+  /** Open a person's note unconditionally (e.g. just after creating them). */
+  openPerson: (id: string) => void;
   closePerson: () => void;
 }
 
@@ -63,6 +68,14 @@ export const useApp = create<AppState>()((set, get) => ({
     }
   },
 
+  async commit(diff) {
+    const session = get().session;
+    if (!session) throw new Error("commit before vault init");
+    const result = await session.commit(diff);
+    if (result.ok) set({ switchboard: result.next });
+    return result;
+  },
+
   // Persist only — don't store the live layout back into state (would re-seed mid-drag).
   saveLayout(layout) {
     void get().session?.saveLayout(layout).catch(() => {});
@@ -70,6 +83,10 @@ export const useApp = create<AppState>()((set, get) => ({
 
   togglePerson(id) {
     set((s) => ({ openPersonId: s.openPersonId === id ? null : id }));
+  },
+
+  openPerson(id) {
+    set({ openPersonId: id });
   },
 
   closePerson() {
