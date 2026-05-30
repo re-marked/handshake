@@ -3,8 +3,8 @@ import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
 import { emptySwitchboard, type ApplyResult, type Diff, type Switchboard } from "@/switchboard";
-import { emptyWorkspace, viewKey, type OpenTarget, type View, type Workspace } from "@/workspace/model";
-import { findView, insertTab, mapLeaf, removeTab } from "@/workspace/ops";
+import { emptyWorkspace, newId, viewKey, type Leaf, type OpenTarget, type View, type Workspace } from "@/workspace/model";
+import { collapseEmpty, findLeaf, findView, insertTab, leaves, mapLeaf, removeTab, setSizes, splitNode } from "@/workspace/ops";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
@@ -67,6 +67,10 @@ interface AppState {
   setActiveLeaf: (leafId: string) => void;
   /** Focus (or open) the board tab and make it active. */
   focusBoard: () => void;
+  /** Split a leaf (row/col), opening a view in the new pane. */
+  splitLeaf: (leafId: string, dir: "row" | "col", view: View) => void;
+  /** Update a split's pane sizes (fractions). */
+  resizeSplit: (splitId: string, sizes: number[]) => void;
   /** Set the list-view row density (persists to localStorage). */
   setDensity: (density: "compact" | "comfortable" | "spacious") => void;
   /** Switch to the board and center it on a person (+ a brief highlight). */
@@ -177,6 +181,11 @@ export const useApp = create<AppState>()((set, get) => ({
       });
       return;
     }
+    if (typeof target === "object") {
+      // { split: "row" | "col" } — open the view in a new pane beside the active leaf
+      get().splitLeaf(ws.activeLeafId, target.split, view);
+      return;
+    }
     const leafId = ws.activeLeafId;
     const root = mapLeaf(ws.root, leafId, (l) => {
       if (target === "replaceActive") {
@@ -185,15 +194,19 @@ export const useApp = create<AppState>()((set, get) => ({
           return { ...l, tabs: l.tabs.map((t, i) => (i === l.activeIndex ? view : t)) };
         }
       }
-      return insertTab(l, view); // split/float dock as a tab until those layers land
+      return insertTab(l, view); // "float" docks as a tab until step 3
     });
     set({ workspace: { ...ws, activeLeafId: leafId, root } });
   },
 
   closeTab(leafId, key) {
-    set((s) => ({
-      workspace: { ...s.workspace, root: mapLeaf(s.workspace.root, leafId, (l) => removeTab(l, key)) },
-    }));
+    set((s) => {
+      const root = collapseEmpty(mapLeaf(s.workspace.root, leafId, (l) => removeTab(l, key)));
+      const activeLeafId = findLeaf(root, s.workspace.activeLeafId)
+        ? s.workspace.activeLeafId
+        : (leaves(root)[0]?.id ?? s.workspace.activeLeafId);
+      return { workspace: { ...s.workspace, root, activeLeafId } };
+    });
   },
 
   setActiveTab(leafId, key) {
@@ -215,6 +228,18 @@ export const useApp = create<AppState>()((set, get) => ({
 
   focusBoard() {
     get().openView({ type: "board" }, "tab");
+  },
+
+  splitLeaf(leafId, dir, view) {
+    const ws = get().workspace;
+    const newLeaf: Leaf = { kind: "leaf", id: newId(), tabs: [view], activeIndex: 0 };
+    set({
+      workspace: { ...ws, root: splitNode(ws.root, leafId, dir, newLeaf), activeLeafId: newLeaf.id },
+    });
+  },
+
+  resizeSplit(splitId, sizes) {
+    set((s) => ({ workspace: { ...s.workspace, root: setSizes(s.workspace.root, splitId, sizes) } }));
   },
 
   setDensity(density) {

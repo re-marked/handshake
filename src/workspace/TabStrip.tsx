@@ -90,6 +90,7 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
         );
         })}
       </div>
+      <TabLauncher leafId={leaf.id} mode="split" />
       <TabLauncher leafId={leaf.id} />
     </div>
   );

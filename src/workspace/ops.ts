@@ -2,7 +2,7 @@
 // No React/Tauri/store. Every function returns a new tree (immutably) so the
 // store can `set({ workspace: { ...ws, root: fn(ws.root, ...) } })`.
 
-import { viewKey, type Leaf, type Node, type View, type Workspace } from "./model";
+import { newId, viewKey, type Leaf, type Node, type Split, type View, type Workspace } from "./model";
 
 /** All leaves in the tree, left-to-right. */
 export function leaves(node: Node): Leaf[] {
@@ -51,4 +51,60 @@ export function removeTab(leaf: Leaf, key: string): Leaf {
 export function activeView(ws: Workspace): View | undefined {
   const leaf = findLeaf(ws.root, ws.activeLeafId) ?? leaves(ws.root)[0];
   return leaf?.tabs[leaf.activeIndex];
+}
+
+/** Find any node (leaf or split) by id. */
+export function findNode(node: Node, id: string): Node | undefined {
+  if (node.id === id) return node;
+  if (node.kind === "split") {
+    for (const c of node.children) {
+      const found = findNode(c, id);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
+/** Replace any node (by id) with a replacement subtree. */
+export function replaceNode(node: Node, id: string, replacement: Node): Node {
+  if (node.id === id) return replacement;
+  if (node.kind === "split") {
+    return { ...node, children: node.children.map((c) => replaceNode(c, id, replacement)) };
+  }
+  return node;
+}
+
+/** Wrap a leaf in a new Split alongside a new leaf (50/50). */
+export function splitNode(root: Node, leafId: string, dir: "row" | "col", newLeaf: Leaf): Node {
+  const target = findNode(root, leafId);
+  if (!target) return root;
+  const split: Split = { kind: "split", id: newId(), dir, children: [target, newLeaf], sizes: [0.5, 0.5] };
+  return replaceNode(root, leafId, split);
+}
+
+/** Set a split's sizes (fractions). */
+export function setSizes(node: Node, splitId: string, sizes: number[]): Node {
+  if (node.kind !== "split") return node;
+  if (node.id === splitId) return { ...node, sizes };
+  return { ...node, children: node.children.map((c) => setSizes(c, splitId, sizes)) };
+}
+
+/** Normalize sizes to length n summing to 1 (equal split if the shape changed). */
+export function normalizeSizes(sizes: number[], n: number): number[] {
+  if (sizes.length === n) {
+    const sum = sizes.reduce((a, b) => a + b, 0);
+    if (sum > 0) return sizes.map((s) => s / sum);
+  }
+  return Array.from({ length: n }, () => 1 / n);
+}
+
+/** Drop empty leaves and unwrap single-child splits; renormalize sizes. */
+export function collapseEmpty(node: Node): Node {
+  if (node.kind === "leaf") return node;
+  const children = node.children
+    .map(collapseEmpty)
+    .filter((c) => !(c.kind === "leaf" && c.tabs.length === 0));
+  if (children.length === 1) return children[0];
+  if (children.length === 0) return node.children[0]; // unreachable: the board pins a leaf
+  return { ...node, children, sizes: normalizeSizes(node.sizes, children.length) };
 }

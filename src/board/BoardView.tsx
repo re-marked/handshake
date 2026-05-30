@@ -220,7 +220,13 @@ export function BoardView() {
     if (d.mode === "card" && d.cardId) {
       const isGoal = d.cardId.startsWith("goal:");
       if (moved < 5) {
-        if (!isGoal) togglePerson(d.cardId); // person click → note; goal click is a no-op (use the tick)
+        if (!isGoal) {
+          if (e.metaKey || e.ctrlKey) {
+            useApp.getState().openView({ type: "person", id: d.cardId }, { split: "row" }); // ⌘/Ctrl-click → split
+          } else {
+            togglePerson(d.cardId); // plain click → slide-in note
+          }
+        }
       } else if (!isGoal && d.dropTarget) {
         // Dropped onto another card → link them, and snap the dragged subtree back so
         // nothing's left overlapping. (Drop in open space to reposition instead.)
