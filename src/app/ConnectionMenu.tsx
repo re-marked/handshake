@@ -56,7 +56,7 @@ export function ConnectionMenuItems({ handshakeId }: { handshakeId: string }) {
             value={handshake.establishedVia ?? NONE}
             onValueChange={(v) => patch({ establishedVia: v === NONE ? undefined : v })}
           >
-            <ScrollArea className="h-56">
+            <ScrollArea viewportClassName="max-h-56">
               <div className="p-1">
                 <DropdownMenuRadioItem value={NONE}>No one</DropdownMenuRadioItem>
                 {candidates.map((p) => (
