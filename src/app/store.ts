@@ -11,6 +11,7 @@ import {
   type NoteMode,
   type OpenTarget,
   type Pane,
+  type Split,
   type View,
   type Workspace,
 } from "@/workspace/model";
@@ -98,6 +99,8 @@ interface AppState {
   setNoteMode: (id: string, mode: NoteMode) => void;
   /** Remember which mode new notes open in (persisted in the workspace). */
   setNoteDefault: (mode: NoteMode) => void;
+  /** Quick layout: this note on the left, the board on the right (a one-tap sane split). */
+  splitNoteWithBoard: (id: string) => void;
   /** Reset the workspace to a single board tab (recovery from a bad layout). */
   resetWorkspace: () => void;
   /** Set the list-view row density (persists to localStorage). */
@@ -375,6 +378,28 @@ export const useApp = create<AppState>()((set, get) => ({
 
   setNoteDefault(mode) {
     set((s) => ({ workspace: { ...s.workspace, noteDefault: mode } }));
+  },
+
+  splitNoteWithBoard(id) {
+    const ws = get().workspace;
+    const note: View = { type: "person", id };
+    const board: View = { type: "board", id: "main" };
+    const left: Pane = { kind: "pane", id: newId(), view: note };
+    const right: Pane = { kind: "pane", id: newId(), view: board };
+    const layout: Split = { kind: "split", id: newId(), dir: "row", children: [left, right], sizes: [0.42, 0.58] };
+    const tabs = [...ws.tabs];
+    for (const v of [note, board]) if (!tabs.some((t) => viewKey(t) === viewKey(v))) tabs.push(v);
+    set({
+      // the note moves into the left pane, so detach it from the panel/floats.
+      openPersonId: get().openPersonId === id ? null : get().openPersonId,
+      workspace: {
+        ...ws,
+        tabs,
+        layout,
+        activePaneId: left.id,
+        floats: ws.floats.filter((f) => viewKey(f.view) !== `person:${id}`),
+      },
+    });
   },
 
   resetWorkspace() {
