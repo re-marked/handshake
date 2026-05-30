@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**People view shipped — three primary views now (Board · People · Goals).** People is a calm searchable list (shadcn): filter by name/role/company/tags, **A–Z or closeness** sort, **configurable density** (compact/comfortable/spacious, persisted to localStorage), **shadcn pagination**, a tie-strength dot per row, **locate** (centers the board + rings them), and **add-from-here** (type a name → create connected to you). Goals also ride the board as dashed cards (tick → promote). Candidate next: **photo upload** (pick an image → polaroid + People avatars), **shell L3** (docked tabs → splits), or look polish. Deferred: pathfinding, markdown, undo, `workspace.json` prefs (density is in localStorage for now). AI stays last.
+**Shell L3 — the workspace, in 5 steps** (full plan: `.claude/plans/curious-stargazing-music.md`). **Step 1 ✓ (committed) — verify live next.** The main area is now a **tab workspace**: everything is a View, browser-style tabs + a freestyle **`+`** launcher (shadcn Popover+Command), the rail opens/focuses **singleton** tabs, the board is a **pinned home tab** kept always-mounted, slide-in note unchanged. The model is frozen (`src/workspace/model.ts`) so steps 2–5 are additive. **Verify step 1 in `pnpm tauri dev`:** rail opens/focuses tabs; `+` opens any view/person; board state survives tab switches; tap-a-card still slides the note in; no duplicate person tabs. Then: **(2)** splits + resize (shadcn Resizable), **(3)** floating windows, **(4)** inline note-mode switch (panel⇄float⇄tab) + remembered default, **(5)** persist `workspace.json`. Deferred: pathfinding, photo upload, markdown, undo. AI stays last.
 
 ---
 
@@ -34,7 +34,7 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [x] Opaque polaroid cards: photo (data URL) or silhouette; name + role; warmth = link weight; self in rose
 - [x] Look landed ("it's nice")
 - [x] Persist positions + viewport to `.handshake/layout.json` (debounced); first open centers on self; manual re-parent reserved
-- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 note panel ✓ · faint-**+** create-and-connect ✓ · delete + connection settings (click) ✓ · drag-to-connect ✓ · L2 `Ctrl-P` palette ✓ · primary views **Board · People · Goals** ✓ (rail swap) · People list: search/sort/density/pagination/locate/add ✓ · next: photos / L3 docked tabs]
+- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 note panel ✓ · faint-**+** create-and-connect ✓ · delete + connection settings (click) ✓ · drag-to-connect ✓ · L2 `Ctrl-P` palette ✓ · primary views Board · People · Goals ✓ · People list: search/sort/density/pagination/locate/add ✓ · **L3 workspace** step 1 ✓ (tab tree + freestyle `+` launcher, board pinned) · next: L3 steps 2–5 (splits/floats/note-modes/persist)]
 - [~] Live wiring: `commit()` reflects in place (store swaps in `applyDiff`'s `next` — no reload); external watcher→reload still rebuilds the whole board
 - [~] Look polish: ties colored by warmth (shades of rose, intensity = strength) ✓; staleness/freshness signal **dropped on purpose** (too CRM-y); real photos across the cast still TODO (needs photo upload)
 
