@@ -3,13 +3,21 @@ import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
 import { emptySwitchboard, type Switchboard } from "@/switchboard";
+import { viewKey, type OpenTarget, type View } from "@/app/view";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
+export interface FloatWindow {
+  key: string;
+  view: View;
+  x: number;
+  y: number;
+}
+
 /**
- * The app store — the backbone the whole shell reads from. Holds the live vault state
- * and routes writes through the one VaultSession. Workspace/selection state lands here
- * in later layers (see SHELL.md).
+ * The app store — the backbone the whole shell reads from. Holds the live vault state,
+ * the workspace (floats now; tabs/splits in later layers), and routes writes through
+ * the one VaultSession. See SHELL.md.
  */
 interface AppState {
   status: Status;
@@ -18,10 +26,14 @@ interface AppState {
   switchboard: Switchboard;
   photos: Map<string, string>;
   layout: Layout;
+  floats: FloatWindow[];
+  selectedId: string | null;
 
   init: (vault: string) => Promise<void>;
-  /** Persist the board layout (positions + viewport) to disk. */
   saveLayout: (layout: Layout) => void;
+  openView: (view: View, target: OpenTarget, at?: { x: number; y: number }) => void;
+  closeFloat: (key: string) => void;
+  select: (id: string | null) => void;
 }
 
 export const useApp = create<AppState>()((set, get) => ({
@@ -31,6 +43,8 @@ export const useApp = create<AppState>()((set, get) => ({
   switchboard: emptySwitchboard(),
   photos: new Map(),
   layout: emptyLayout(),
+  floats: [],
+  selectedId: null,
 
   async init(vault) {
     if (get().status !== "idle") return; // guard against StrictMode double-invoke
@@ -58,9 +72,31 @@ export const useApp = create<AppState>()((set, get) => ({
     }
   },
 
-  // Don't store the live layout back into state — that would re-seed the board mid-drag.
-  // We only write it through; the in-memory layout is the snapshot the board seeded from.
+  // Persist only — don't store the live layout back into state (would re-seed mid-drag).
   saveLayout(layout) {
     void get().session?.saveLayout(layout).catch(() => {});
+  },
+
+  // L1 wires only `float`; tab/split/sidebar land in later layers (see SHELL.md).
+  openView(view, target, at) {
+    if (target !== "float") return;
+    const key = viewKey(view);
+    const selectedId = view.type === "person" ? view.id : get().selectedId;
+    if (get().floats.some((f) => f.key === key)) {
+      set({ selectedId });
+      return;
+    }
+    set((s) => ({
+      floats: [...s.floats, { key, view, x: at?.x ?? 96, y: at?.y ?? 96 }],
+      selectedId,
+    }));
+  },
+
+  closeFloat(key) {
+    set((s) => ({ floats: s.floats.filter((f) => f.key !== key) }));
+  },
+
+  select(id) {
+    set({ selectedId: id });
   },
 }));

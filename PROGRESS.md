@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Shell — Layer 1: the floating note** (see **SHELL.md**). Click a card → `openView(person, float)`: a content-sized, comfortably-typeset person panel (frontmatter fields + markdown body) floats over the board — board intact behind; drag, `Esc` to close. The signature interaction + the first real View beyond the board. (L0 — zustand store + frame — is done.) AI stays last; BFS `route` deferred.
+**Shell — finish L1 (note editing) → L2 (command palette).** The floating note works (tap a card → read view floats up: photo, name, role, tags, handles, body; draggable; `Esc`). Next: make it **editable** (frontmatter fields + markdown body → the `commit` funnel), then the **`Ctrl-P` palette** (commands + quick-jump + capture). First, eyeball the float's feel (width, the ~15px type, layout). Built on shadcn. AI stays last; BFS `route` deferred.
 
 ---
 
@@ -34,7 +34,7 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [x] Opaque polaroid cards: photo (data URL) or silhouette; name + role; warmth = link weight; self in rose
 - [x] Look landed ("it's nice")
 - [x] Persist positions + viewport to `.handshake/layout.json` (debounced); first open centers on self; manual re-parent reserved
-- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes float in). Model + L0–L6 in **SHELL.md**. [L0 store + frame ✓ · next: L1 floating note]
+- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes float in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 floating note (read, shadcn) ✓ · next: note editing → L2 palette]
 - [ ] Live wiring: watcher + `commit()` reflected without a full reload
 - [ ] Look polish + re-introduce a staleness signal (card opacity was dropped); real photos across the cast
 

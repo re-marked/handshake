@@ -24,6 +24,7 @@ export function BoardView() {
   const photos = useApp((s) => s.photos);
   const layout = useApp((s) => s.layout);
   const saveLayout = useApp((s) => s.saveLayout);
+  const openView = useApp((s) => s.openView);
   const containerRef = useRef<HTMLDivElement>(null);
   const model = useMemo(
     () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
@@ -71,7 +72,15 @@ export function BoardView() {
     if (persistTimer.current) clearTimeout(persistTimer.current);
   }, []);
 
-  const drag = useRef<{ mode: "card" | "pan"; subtree: string[]; lastX: number; lastY: number } | null>(null);
+  const drag = useRef<{
+    mode: "card" | "pan";
+    cardId?: string;
+    subtree: string[];
+    lastX: number;
+    lastY: number;
+    downX: number;
+    downY: number;
+  } | null>(null);
 
   function descendants(id: string): string[] {
     const out: string[] = [];
@@ -89,9 +98,17 @@ export function BoardView() {
     containerRef.current?.setPointerCapture(e.pointerId);
     if (cardEl?.dataset.cardId) {
       const id = cardEl.dataset.cardId;
-      drag.current = { mode: "card", subtree: [id, ...descendants(id)], lastX: e.clientX, lastY: e.clientY };
+      drag.current = {
+        mode: "card",
+        cardId: id,
+        subtree: [id, ...descendants(id)],
+        lastX: e.clientX,
+        lastY: e.clientY,
+        downX: e.clientX,
+        downY: e.clientY,
+      };
     } else {
-      drag.current = { mode: "pan", subtree: [], lastX: e.clientX, lastY: e.clientY };
+      drag.current = { mode: "pan", subtree: [], lastX: e.clientX, lastY: e.clientY, downX: e.clientX, downY: e.clientY };
     }
   }
 
@@ -120,10 +137,18 @@ export function BoardView() {
   }
 
   function onPointerUp(e: React.PointerEvent) {
-    const wasDragging = drag.current !== null;
+    const d = drag.current;
     drag.current = null;
     containerRef.current?.releasePointerCapture(e.pointerId);
-    if (wasDragging) schedulePersist();
+    if (!d) return;
+    // A barely-moved press on a card is a click → open its note (float); otherwise it
+    // was a drag/pan → persist the new layout.
+    const moved = Math.hypot(e.clientX - d.downX, e.clientY - d.downY);
+    if (d.mode === "card" && d.cardId && moved < 5) {
+      openView({ type: "person", id: d.cardId }, "float", { x: e.clientX, y: e.clientY });
+    } else {
+      schedulePersist();
+    }
   }
 
   function onWheel(e: React.WheelEvent) {
