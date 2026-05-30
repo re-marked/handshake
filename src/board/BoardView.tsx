@@ -4,24 +4,16 @@ import { Check, Plus, User } from "lucide-react";
 import { buildBoardModel, type BoardCard, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { PersonCard } from "@/board/PersonCard";
 import { GoalCard } from "@/board/GoalCard";
+import { TIE_COLOR } from "@/board/ties";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConnectionMenuItems } from "@/app/ConnectionMenu";
 import { promoteGoalDiff } from "@/app/goals";
 import { useApp } from "@/app/store";
-import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person, type Strength } from "@/switchboard";
+import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
 import type { Layout } from "@/vault/layout";
 
 const LINK_SPAN = 8000; // SVG coordinate span (centered on origin) for drawing links
 const PERSIST_DELAY = 500;
-
-// Tie warmth as one hue, our rose — vivid (close) fading to dusty mauve-grey (dormant).
-// Strength reads from intensity, not a second color, so the board stays on-accent.
-const TIE_COLOR: Record<Strength, string> = {
-  close: "#e25a92", // vivid rose
-  warm: "#c56a85", // dusty rose
-  cold: "#a06d78", // muted mauve
-  dormant: "#7d6168", // faded rose-grey
-};
 
 function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
   const out = new Map(model.positions); // tidy radial seed
@@ -42,6 +34,7 @@ export function BoardView() {
   const saveLayout = useApp((s) => s.saveLayout);
   const togglePerson = useApp((s) => s.togglePerson);
   const deletingId = useApp((s) => s.deletingId);
+  const locate = useApp((s) => s.locate);
   const containerRef = useRef<HTMLDivElement>(null);
   const model = useMemo(
     () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
@@ -61,6 +54,8 @@ export function BoardView() {
   const [lineMenu, setLineMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   // Drag-to-link: while dragging a card over a linkable one, preview the new tie.
   const [linkPreview, setLinkPreview] = useState<{ from: string; to: string } | null>(null);
+  // A briefly-highlighted card after a "locate" from the People view.
+  const [focusId, setFocusId] = useState<string | null>(null);
 
   // First-ever open (no saved viewport): center self (world origin) in the viewport.
   useEffect(() => {
@@ -98,6 +93,21 @@ export function BoardView() {
   useEffect(() => () => {
     if (persistTimer.current) clearTimeout(persistTimer.current);
   }, []);
+
+  // Locate: center the viewport on a person (requested from the People view) + briefly ring them.
+  useEffect(() => {
+    if (!locate) return;
+    const el = containerRef.current;
+    const pos = positions.get(locate.id);
+    if (el && pos) {
+      setPan({ x: el.clientWidth / 2 - pos.x * zoom, y: el.clientHeight / 2 - pos.y * zoom });
+      schedulePersist();
+    }
+    setFocusId(locate.id);
+    const t = setTimeout(() => setFocusId(null), 1400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locate?.nonce]);
 
   const drag = useRef<{
     mode: "card" | "pan";
@@ -451,7 +461,7 @@ export function BoardView() {
                   <PersonCard
                     card={card}
                     photoSrc={photos.get(card.id)}
-                    highlighted={card.id === linkPreview?.to}
+                    highlighted={card.id === linkPreview?.to || card.id === focusId}
                   />
                 )}
               </motion.div>

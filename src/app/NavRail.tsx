@@ -35,7 +35,7 @@ export function NavRail() {
   return (
     <nav className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-2">
       <RailButton icon={Share2} label="Board" active={view === "board"} onClick={() => setView("board")} />
-      <RailButton icon={Users} label="People" />
+      <RailButton icon={Users} label="People" active={view === "people"} onClick={() => setView("people")} />
       <RailButton icon={Target} label="Goals" active={view === "goals"} onClick={() => setView("goals")} />
       <RailButton icon={Search} label="Search (Ctrl-P)" onClick={() => setCommandOpen(true)} />
       <div className="mt-auto">

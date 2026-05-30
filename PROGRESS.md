@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Goals shipped (list + on the board) — pick the next thread.** Rail swaps **Board ↔ Goals**. Goals are short standalone aspirations (add / inline-edit / status / delete), AND each target goal rides on the board as a **faint dashed card**; **ticking it** (board card *or* list) graduates it into a real person connected to you — solidifying in place. **Freshness/staleness dropped on purpose** (too CRM-y). Candidate next: **photo upload** (pick an image → polaroid), a **People view** (searchable list, rail's Users icon), or **shell L3** (docked tabs → splits). Deferred: pathfinding (BFS `route` self→goal), per-goal notes/deadline/explicit target-person link, markdown, undo. AI stays last.
+**People view shipped — three primary views now (Board · People · Goals).** People is a calm searchable list (shadcn): filter by name/role/company/tags, **A–Z or closeness** sort, **configurable density** (compact/comfortable/spacious, persisted to localStorage), **shadcn pagination**, a tie-strength dot per row, **locate** (centers the board + rings them), and **add-from-here** (type a name → create connected to you). Goals also ride the board as dashed cards (tick → promote). Candidate next: **photo upload** (pick an image → polaroid + People avatars), **shell L3** (docked tabs → splits), or look polish. Deferred: pathfinding, markdown, undo, `workspace.json` prefs (density is in localStorage for now). AI stays last.
 
 ---
 
@@ -34,7 +34,7 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [x] Opaque polaroid cards: photo (data URL) or silhouette; name + role; warmth = link weight; self in rose
 - [x] Look landed ("it's nice")
 - [x] Persist positions + viewport to `.handshake/layout.json` (debounced); first open centers on self; manual re-parent reserved
-- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 note panel ✓ · faint-**+** create-and-connect ✓ · delete + connection settings (click) ✓ · drag-to-connect ✓ · L2 `Ctrl-P` palette ✓ · primary-view swap Board↔Goals ✓ (rail) · next: People view / photos / L3 tabs]
+- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 note panel ✓ · faint-**+** create-and-connect ✓ · delete + connection settings (click) ✓ · drag-to-connect ✓ · L2 `Ctrl-P` palette ✓ · primary views **Board · People · Goals** ✓ (rail swap) · People list: search/sort/density/pagination/locate/add ✓ · next: photos / L3 docked tabs]
 - [~] Live wiring: `commit()` reflects in place (store swaps in `applyDiff`'s `next` — no reload); external watcher→reload still rebuilds the whole board
 - [~] Look polish: ties colored by warmth (shades of rose, intensity = strength) ✓; staleness/freshness signal **dropped on purpose** (too CRM-y); real photos across the cast still TODO (needs photo upload)
 

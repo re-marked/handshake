@@ -6,6 +6,16 @@ import { emptySwitchboard, type ApplyResult, type Diff, type Switchboard } from 
 
 type Status = "idle" | "loading" | "ready" | "error";
 
+function readDensity(): "compact" | "comfortable" | "spacious" {
+  try {
+    const v = localStorage.getItem("handshake.density");
+    if (v === "compact" || v === "comfortable" || v === "spacious") return v;
+  } catch {
+    /* ignore */
+  }
+  return "comfortable";
+}
+
 /**
  * The app store — the backbone the whole shell reads from. Holds the live vault state +
  * the open person note, and routes writes through the one VaultSession. (The generic
@@ -25,7 +35,11 @@ interface AppState {
   /** Whether the command palette (Ctrl-P) is open. */
   commandOpen: boolean;
   /** The active primary view in the main area. */
-  view: "board" | "goals";
+  view: "board" | "goals" | "people";
+  /** Row density for list views (People). Persisted to localStorage. */
+  density: "compact" | "comfortable" | "spacious";
+  /** A request to center the board on a person (from the People view); nonce retriggers. */
+  locate: { id: string; nonce: number } | null;
 
   init: (vault: string) => Promise<void>;
   /** Route a diff through the funnel, persist it, and swap in the new state. The board
@@ -41,8 +55,12 @@ interface AppState {
   deletePerson: (id: string) => Promise<void>;
   /** Open/close the command palette. */
   setCommandOpen: (open: boolean) => void;
-  /** Switch the primary view (board ↔ goals). */
-  setView: (view: "board" | "goals") => void;
+  /** Switch the primary view. */
+  setView: (view: "board" | "goals" | "people") => void;
+  /** Set the list-view row density (persists to localStorage). */
+  setDensity: (density: "compact" | "comfortable" | "spacious") => void;
+  /** Switch to the board and center it on a person (+ a brief highlight). */
+  locatePerson: (id: string) => void;
 }
 
 export const useApp = create<AppState>()((set, get) => ({
@@ -56,6 +74,8 @@ export const useApp = create<AppState>()((set, get) => ({
   deletingId: null,
   commandOpen: false,
   view: "board",
+  density: readDensity(),
+  locate: null,
 
   async init(vault) {
     if (get().status !== "idle") return; // guard against StrictMode double-invoke
@@ -130,5 +150,18 @@ export const useApp = create<AppState>()((set, get) => ({
 
   setView(view) {
     set({ view });
+  },
+
+  setDensity(density) {
+    try {
+      localStorage.setItem("handshake.density", density);
+    } catch {
+      /* ignore */
+    }
+    set({ density });
+  },
+
+  locatePerson(id) {
+    set((s) => ({ view: "board", locate: { id, nonce: (s.locate?.nonce ?? 0) + 1 } }));
   },
 }));

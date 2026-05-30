@@ -5,6 +5,7 @@ import { PersonPanel } from "@/app/PersonPanel";
 import { CommandPalette } from "@/app/CommandPalette";
 import { BoardView } from "@/board/BoardView";
 import { GoalsView } from "@/views/GoalsView";
+import { PeopleView } from "@/views/PeopleView";
 
 /** The app frame: nav rail + the main area (the board). Right region + palette land later. */
 export function Shell() {
@@ -36,6 +37,11 @@ export function Shell() {
         {view === "goals" && (
           <div className="absolute inset-0">
             <GoalsView />
+          </div>
+        )}
+        {view === "people" && (
+          <div className="absolute inset-0">
+            <PeopleView />
           </div>
         )}
         <PersonPanel />
