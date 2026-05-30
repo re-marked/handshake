@@ -120,6 +120,25 @@ fn read_attachment(vault: String, relpath: String) -> Result<String, String> {
     Ok(format!("data:{};base64,{}", mime, STANDARD.encode(bytes)))
 }
 
+/// Read the board layout sidecar (.handshake/layout.json). Empty string if absent.
+#[tauri::command]
+fn read_layout(vault: String) -> Result<String, String> {
+    let path = PathBuf::from(&vault).join(".handshake").join("layout.json");
+    match fs::read_to_string(&path) {
+        Ok(content) => Ok(content),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(String::new()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Atomically write the board layout sidecar. The watcher ignores .handshake/.
+#[tauri::command]
+fn write_layout(vault: String, content: String) -> Result<(), String> {
+    let dir = PathBuf::from(&vault).join(".handshake");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    write_atomic(&dir.join("layout.json"), &content).map_err(|e| e.to_string())
+}
+
 /// Start watching the vault. External edits are emitted to the frontend as
 /// "vault:change"; our own writes are suppressed via the ledger.
 #[tauri::command]
@@ -245,7 +264,15 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .manage(Ledger::default())
         .manage(WatcherHolder::default())
-        .invoke_handler(tauri::generate_handler![read_vault, write_file, delete_file, start_watching, read_attachment])
+        .invoke_handler(tauri::generate_handler![
+            read_vault,
+            write_file,
+            delete_file,
+            start_watching,
+            read_attachment,
+            read_layout,
+            write_layout
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

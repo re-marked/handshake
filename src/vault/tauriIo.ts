@@ -13,6 +13,8 @@ export function createTauriIO(vault: string): VaultIO {
     writeFile: (relpath, text) => invoke<void>("write_file", { vault, relpath, content: text }),
     deleteFile: (relpath) => invoke<void>("delete_file", { vault, relpath }),
     readAttachment: (relpath) => invoke<string>("read_attachment", { vault, relpath }),
+    readLayout: () => invoke<string>("read_layout", { vault }),
+    writeLayout: (content) => invoke<void>("write_layout", { vault, content }),
     watch: async (onChange) => {
       // Listen before starting the watcher so no early event slips through.
       const unlisten = await listen<VaultChange>("vault:change", (event) => onChange(event.payload));

@@ -8,6 +8,7 @@ import {
   type VaultFile,
 } from "../switchboard";
 import type { VaultChange, VaultIO } from "./io";
+import { emptyLayout, parseLayout, serializeLayout, type Layout } from "./layout";
 
 /**
  * Owns the live Switchboard and the disk. The only stateful object in the data
@@ -56,6 +57,20 @@ export class VaultSession {
   /** Read an attachment (image) as a data URL the webview can display. */
   readAttachment(relpath: string): Promise<string> {
     return this.io.readAttachment(relpath);
+  }
+
+  /** Load the board layout sidecar (positions, viewport, parent overrides). */
+  async loadLayout(): Promise<Layout> {
+    try {
+      return parseLayout(await this.io.readLayout());
+    } catch {
+      return emptyLayout();
+    }
+  }
+
+  /** Persist the board layout sidecar. */
+  async saveLayout(layout: Layout): Promise<void> {
+    await this.io.writeLayout(serializeLayout(layout));
   }
 
   /** Begin reacting to external edits (Obsidian, git, etc.). Returns an unsubscribe fn. */

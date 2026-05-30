@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { BoardView } from "@/board/BoardView";
+import type { Layout } from "@/vault/layout";
 import type { Switchboard } from "@/switchboard";
 
 // Dev: point at a vault folder via VITE_VAULT_PATH. A real folder-picker / settings
@@ -10,8 +11,10 @@ const VAULT = import.meta.env.VITE_VAULT_PATH as string | undefined;
 
 export default function App() {
   const [switchboard, setSwitchboard] = useState<Switchboard | null>(null);
+  const [layout, setLayout] = useState<Layout | null>(null);
   const [photos, setPhotos] = useState<Map<string, string>>(new Map());
   const [error, setError] = useState<string | null>(null);
+  const sessionRef = useRef<VaultSession | null>(null);
 
   useEffect(() => {
     if (!VAULT) {
@@ -19,12 +22,14 @@ export default function App() {
       return;
     }
     const session = new VaultSession(createTauriIO(VAULT));
+    sessionRef.current = session;
     let cancelled = false;
 
     (async () => {
-      const sb = await session.load();
+      const [sb, loadedLayout] = await Promise.all([session.load(), session.loadLayout()]);
       if (cancelled) return;
       setSwitchboard(sb);
+      setLayout(loadedLayout);
 
       // Resolve photos for anyone who has one; missing files just stay silhouettes.
       const resolved = await Promise.all(
@@ -49,6 +54,10 @@ export default function App() {
     };
   }, []);
 
+  const onPersist = useCallback((next: Layout) => {
+    void sessionRef.current?.saveLayout(next).catch(() => {});
+  }, []);
+
   if (error) {
     return (
       <div className="flex h-full w-full items-center justify-center p-8 text-center text-sm text-muted-foreground">
@@ -56,12 +65,12 @@ export default function App() {
       </div>
     );
   }
-  if (!switchboard) {
+  if (!switchboard || !layout) {
     return (
       <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
         Loading vault…
       </div>
     );
   }
-  return <BoardView switchboard={switchboard} photos={photos} />;
+  return <BoardView switchboard={switchboard} layout={layout} photos={photos} onPersist={onPersist} />;
 }

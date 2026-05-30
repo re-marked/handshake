@@ -1,30 +1,81 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Switchboard } from "@/switchboard";
-import { buildBoardModel, type BoardLink, type Pos } from "@/board/tree";
+import { buildBoardModel, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { PersonCard } from "@/board/PersonCard";
+import type { Layout } from "@/vault/layout";
 
 const LINK_SPAN = 8000; // SVG coordinate span (centered on origin) for drawing links
+const PERSIST_DELAY = 500;
+
+function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
+  const out = new Map(model.positions); // tidy radial seed
+  for (const [id, p] of Object.entries(layout.positions)) {
+    if (out.has(id)) out.set(id, p); // a saved position wins for cards that still exist
+  }
+  return out;
+}
 
 /**
- * The board — a clean digital corkboard. Cards are placed and stay put (no physics);
- * dragging a card rigidly moves its whole subtree. Pan the empty board, scroll to zoom.
+ * The board — a clean digital corkboard. Cards stay where placed (no physics); dragging
+ * a card rigidly moves its whole subtree. Positions, pan, and zoom persist to layout.json.
  */
-export function BoardView({ switchboard, photos }: { switchboard: Switchboard; photos: Map<string, string> }) {
-  const model = useMemo(() => buildBoardModel(switchboard, new Date()), [switchboard]);
+export function BoardView({
+  switchboard,
+  photos,
+  layout,
+  onPersist,
+}: {
+  switchboard: Switchboard;
+  photos: Map<string, string>;
+  layout: Layout;
+  onPersist: (layout: Layout) => void;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const model = useMemo(
+    () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
+    [switchboard, layout],
+  );
 
-  const [positions, setPositions] = useState<Map<string, Pos>>(() => new Map(model.positions));
-  const [pan, setPan] = useState<Pos>({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
+  const [positions, setPositions] = useState<Map<string, Pos>>(() => seedPositions(model, layout));
+  const [pan, setPan] = useState<Pos>(() => layout.viewport?.pan ?? { x: 0, y: 0 });
+  const [zoom, setZoom] = useState(() => layout.viewport?.zoom ?? 1);
 
-  // Reset to the tidy layout when the vault changes (positions aren't persisted yet),
-  // and center the board so self (0,0) sits mid-viewport.
+  // First-ever open (no saved viewport): center self (world origin) in the viewport.
   useEffect(() => {
-    setPositions(new Map(model.positions));
-    setZoom(1);
+    if (layout.viewport) return;
     const el = containerRef.current;
-    setPan(el ? { x: el.clientWidth / 2, y: el.clientHeight / 2 } : { x: 0, y: 0 });
+    if (el) setPan({ x: el.clientWidth / 2, y: el.clientHeight / 2 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Across vault reloads: keep live positions, seed new cards, prune removed ones.
+  useEffect(() => {
+    setPositions((prev) => {
+      const next = new Map(prev);
+      const ids = new Set(model.cards.map((c) => c.id));
+      for (const [id, p] of model.positions) if (!next.has(id)) next.set(id, p);
+      for (const id of [...next.keys()]) if (!ids.has(id)) next.delete(id);
+      return next;
+    });
   }, [model]);
+
+  // ---- debounced persistence ----
+  const latest = useRef({ positions, pan, zoom });
+  latest.current = { positions, pan, zoom };
+  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function schedulePersist() {
+    if (persistTimer.current) clearTimeout(persistTimer.current);
+    persistTimer.current = setTimeout(() => {
+      onPersist({
+        positions: Object.fromEntries(latest.current.positions),
+        viewport: { pan: latest.current.pan, zoom: latest.current.zoom },
+        parentOverrides: layout.parentOverrides ?? {},
+      });
+    }, PERSIST_DELAY);
+  }
+  useEffect(() => () => {
+    if (persistTimer.current) clearTimeout(persistTimer.current);
+  }, []);
 
   const drag = useRef<{ mode: "card" | "pan"; subtree: string[]; lastX: number; lastY: number } | null>(null);
 
@@ -75,8 +126,10 @@ export function BoardView({ switchboard, photos }: { switchboard: Switchboard; p
   }
 
   function onPointerUp(e: React.PointerEvent) {
+    const wasDragging = drag.current !== null;
     drag.current = null;
     containerRef.current?.releasePointerCapture(e.pointerId);
+    if (wasDragging) schedulePersist();
   }
 
   function onWheel(e: React.WheelEvent) {
@@ -90,6 +143,7 @@ export function BoardView({ switchboard, photos }: { switchboard: Switchboard; p
     const wy = (cy - pan.y) / zoom;
     setPan({ x: cx - wx * nextZoom, y: cy - wy * nextZoom });
     setZoom(nextZoom);
+    schedulePersist();
   }
 
   const at = (id: string): Pos => positions.get(id) ?? { x: 0, y: 0 };

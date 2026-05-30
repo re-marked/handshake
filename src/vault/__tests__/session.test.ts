@@ -32,6 +32,13 @@ class FakeIO implements VaultIO {
   async readAttachment(): Promise<string> {
     return "";
   }
+  private layoutJson = "";
+  async readLayout(): Promise<string> {
+    return this.layoutJson;
+  }
+  async writeLayout(content: string): Promise<void> {
+    this.layoutJson = content;
+  }
   async watch(onChange: (change: VaultChange) => void): Promise<() => void> {
     this.listeners.push(onChange);
     return () => {
@@ -139,5 +146,17 @@ describe("VaultSession", () => {
 
     io.externalDelete("people/james-liu.md");
     expect(session.switchboard.people.has("james-liu")).toBe(false);
+  });
+
+  it("persists and restores the board layout", async () => {
+    const session = new VaultSession(new FakeIO(loadFixtureVault()));
+    await session.saveLayout({
+      positions: { self: { x: 10, y: 20 } },
+      viewport: { pan: { x: 5, y: 5 }, zoom: 1.5 },
+      parentOverrides: {},
+    });
+    const reloaded = await session.loadLayout();
+    expect(reloaded.positions.self).toEqual({ x: 10, y: 20 });
+    expect(reloaded.viewport?.zoom).toBe(1.5);
   });
 });

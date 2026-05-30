@@ -5,7 +5,12 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Iterate the board's look with Mark.** The card-tree corkboard renders the cast in a real window (`85d252e`): clean dark cards (monogram + name + role), links, self in rose, rigid subtree-drag. Known tuning: open with self centered; the radial seed reads linear with few cards; confirm only self is accented. Mark drives the look (card design, layout, rose shade, links); then persist positions to `.handshake/layout.json` (+ manual re-parent), live wiring (watcher + `commit`), and the three-pane shell. AI stays last; BFS `route` deferred.
+**(a) Make it stick — done.** Positions + viewport persist to `.handshake/layout.json` (debounced); first open centers on self; drag/pan/zoom survive a reload. Next, Mark's pick:
+- **(b) The shell** — Obsidian three-pane workspace (sidebar / board / inspector) + `Ctrl-P` command palette. *(Recommended.)*
+- **(c) Look polish** — real photos across the cast, link curves, richer cards, a staleness signal.
+- **(d) Live updates** — watcher + capture reflected without a reload.
+
+AI stays last; BFS `route` deferred.
 
 ---
 
@@ -31,11 +36,12 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [x] Strip dead WebGL deps; shadcn/Tailwind-v4 foundation + dark-first rose theme (re-tool)
 - [x] Card-tree model (`board/tree.ts`): tree rooted at self (parent = introducer ?? nearest connector ?? you), all handshakes drawn, cross-links flagged, tidy radial seed + staleness. Tested.
 - [x] `BoardView`: clean DOM cards + SVG links; pan / zoom / rigid subtree-drag; bound to `VaultSession`
-- [x] Staleness as card opacity; warmth as link weight; self in rose
-- [ ] Iterate the look with Mark (card design, layout/centering, rose shade, link style)
-- [ ] Persist positions + viewport + manual re-parent to `.handshake/layout.json`
-- [ ] Live wiring: watcher + `commit()` reflected without a full reload
+- [x] Opaque polaroid cards: photo (data URL) or silhouette; name + role; warmth = link weight; self in rose
+- [x] Look landed ("it's nice")
+- [x] Persist positions + viewport to `.handshake/layout.json` (debounced); first open centers on self; manual re-parent reserved
 - [ ] App shell: three-pane workspace (left rail / board / inspector), command palette, person note
+- [ ] Live wiring: watcher + `commit()` reflected without a full reload
+- [ ] Look polish + re-introduce a staleness signal (card opacity was dropped); real photos across the cast
 
 ## Phase 3 — Capture
 - [ ] Global hotkey (Tauri) → quick-add overlay
