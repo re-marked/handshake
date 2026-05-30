@@ -5,7 +5,6 @@ import { CommandPalette } from "@/app/CommandPalette";
 import { WorkspaceBoundary } from "@/app/WorkspaceBoundary";
 import { TopBar } from "@/workspace/TopBar";
 import { PaneRenderer } from "@/workspace/PaneRenderer";
-import { Logo } from "@/components/Logo";
 
 /** The app frame: nav rail + one top bar of tabs + the pane tiling + the slide-in note + palette. */
 export function Shell() {
@@ -22,8 +21,7 @@ export function Shell() {
   }
   if (status !== "ready") {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-sm text-muted-foreground">
-        <Logo className="size-14 animate-pulse rounded-2xl bg-white p-1.5 shadow-sm" />
+      <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
         Loading vault…
       </div>
     );
