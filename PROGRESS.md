@@ -5,12 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**(a) Make it stick — done.** Positions + viewport persist to `.handshake/layout.json` (debounced); first open centers on self; drag/pan/zoom survive a reload. Next, Mark's pick:
-- **(b) The shell** — Obsidian three-pane workspace (sidebar / board / inspector) + `Ctrl-P` command palette. *(Recommended.)*
-- **(c) Look polish** — real photos across the cast, link curves, richer cards, a staleness signal.
-- **(d) Live updates** — watcher + capture reflected without a reload.
-
-AI stays last; BFS `route` deferred.
+**Build the shell — Layer 0** (full model + L0–L6 plan in **SHELL.md**). Stand up the `zustand` store, refactor `App` (load → store), render the static frame (nav rail / board-in-main / right region / palette mount), board driven by the store. Workspace is Obsidian-grade: everything's a View, board pinned-main, notes float in (L1). AI stays last; BFS `route` deferred.
 
 ---
 
@@ -39,7 +34,7 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [x] Opaque polaroid cards: photo (data URL) or silhouette; name + role; warmth = link weight; self in rose
 - [x] Look landed ("it's nice")
 - [x] Persist positions + viewport to `.handshake/layout.json` (debounced); first open centers on self; manual re-parent reserved
-- [ ] App shell: three-pane workspace (left rail / board / inspector), command palette, person note
+- [ ] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes float in). Full model + layered plan L0–L6 in **SHELL.md**.
 - [ ] Live wiring: watcher + `commit()` reflected without a full reload
 - [ ] Look polish + re-introduce a staleness signal (card opacity was dropped); real photos across the cast
 
