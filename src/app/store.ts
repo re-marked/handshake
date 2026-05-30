@@ -71,6 +71,8 @@ interface AppState {
   splitLeaf: (leafId: string, dir: "row" | "col", view: View) => void;
   /** Update a split's pane sizes (fractions). */
   resizeSplit: (splitId: string, sizes: number[]) => void;
+  /** Reset the docked workspace to a single board tab (recovery from a bad layout). */
+  resetWorkspace: () => void;
   /** Set the list-view row density (persists to localStorage). */
   setDensity: (density: "compact" | "comfortable" | "spacious") => void;
   /** Switch to the board and center it on a person (+ a brief highlight). */
@@ -240,6 +242,10 @@ export const useApp = create<AppState>()((set, get) => ({
 
   resizeSplit(splitId, sizes) {
     set((s) => ({ workspace: { ...s.workspace, root: setSizes(s.workspace.root, splitId, sizes) } }));
+  },
+
+  resetWorkspace() {
+    set({ workspace: emptyWorkspace() });
   },
 
   setDensity(density) {
