@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion } from "motion/react";
-import { X } from "lucide-react";
+import { PanelRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/app/store";
 import { tabLabel, type FloatingWindow as FloatWin } from "@/workspace/model";
@@ -82,15 +82,33 @@ export function FloatingWindow({
           <TabIcon view={view} photo={photo} />
           <span className="truncate">{tabLabel(view, (pid) => people.get(pid)?.name)}</span>
         </div>
-        <Button
-          data-no-drag
-          variant="ghost"
-          size="icon-xs"
-          aria-label="Close"
-          onClick={() => useApp.getState().closeFloat(id)}
-        >
-          <X />
-        </Button>
+        <div className="flex items-center gap-0.5">
+          {view.type === "person" && (
+            <Button
+              data-no-drag
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Dock to the side panel"
+              title="Dock to panel"
+              onClick={() => {
+                const pid = view.id;
+                useApp.getState().closeFloat(id); // drop the float first, then re-open as the panel
+                useApp.getState().openView({ type: "person", id: pid }, "panel");
+              }}
+            >
+              <PanelRight />
+            </Button>
+          )}
+          <Button
+            data-no-drag
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Close"
+            onClick={() => useApp.getState().closeFloat(id)}
+          >
+            <X />
+          </Button>
+        </div>
       </div>
 
       <div className="min-h-0 flex-1">

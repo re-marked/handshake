@@ -59,7 +59,7 @@ export function PersonPanel() {
               <div className="flex items-center gap-0.5">
                 <Button
                   variant="ghost"
-                  size="icon-xs"
+                  size="icon-sm"
                   aria-label="Pop out to a floating window"
                   title="Pop out"
                   onClick={() => {
@@ -70,7 +70,7 @@ export function PersonPanel() {
                   <PictureInPicture2 />
                 </Button>
                 {person && !person.isSelf && <DeletePersonButton id={person.id} name={person.name} />}
-                <Button variant="ghost" size="icon-xs" aria-label="Close" onClick={closePerson}>
+                <Button variant="ghost" size="icon-sm" aria-label="Close" onClick={closePerson}>
                   <X />
                 </Button>
               </div>
@@ -111,7 +111,7 @@ function DeletePersonButton({ id, name }: { id: string; name: string }) {
       }}
     >
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon-xs" aria-label="Delete person">
+        <Button variant="ghost" size="icon-sm" aria-label="Delete person">
           <Trash2 />
         </Button>
       </AlertDialogTrigger>
