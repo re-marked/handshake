@@ -176,10 +176,33 @@ export function BoardView() {
 
   const at = (id: string): Pos => positions.get(id) ?? { x: 0, y: 0 };
 
-  function startCompose(sourceId: string) {
+  // Find an open spot for a new card: fan outward from the source (in its growth
+  // direction, away from its parent), expanding the radius until it clears every
+  // existing card so the newcomer never lands on top of one.
+  function findFreeSpot(sourceId: string): Pos {
     const src = at(sourceId);
+    const parent = model.parentOf.get(sourceId);
+    const from = parent ? at(parent) : { x: src.x, y: src.y - 1 };
+    const baseAngle = Math.atan2(src.y - from.y, src.x - from.x);
+    const occupied = [...positions.values()];
+    const W = 172;
+    const H = 215;
+    const free = (p: Pos) => !occupied.some((q) => Math.abs(q.x - p.x) < W && Math.abs(q.y - p.y) < H);
+    for (let r = 210; r <= 660; r += 80) {
+      for (let k = 0; k <= 7; k++) {
+        for (const s of k === 0 ? [0] : [1, -1]) {
+          const a = baseAngle + s * k * 0.45;
+          const cand = { x: src.x + r * Math.cos(a), y: src.y + r * Math.sin(a) };
+          if (free(cand)) return cand;
+        }
+      }
+    }
+    return { x: src.x + 210 * Math.cos(baseAngle), y: src.y + 210 * Math.sin(baseAngle) };
+  }
+
+  function startCompose(sourceId: string) {
     setComposeName("");
-    setComposing({ sourceId, pos: { x: src.x + 30, y: src.y + 200 } });
+    setComposing({ sourceId, pos: findFreeSpot(sourceId) });
   }
 
   function cancelCompose() {
