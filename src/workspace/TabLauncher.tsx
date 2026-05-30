@@ -17,16 +17,14 @@ import { newId, type View } from "@/workspace/model";
  * Open any view (or a person) freestyle — as a new tab (`+`) or beside the leaf (`split`).
  * Board is excluded from split (it's a singleton — only one board, ever).
  */
-export function TabLauncher({ leafId, mode = "tab" }: { leafId: string; mode?: "tab" | "split" }) {
+export function TabLauncher({ mode = "tab" }: { mode?: "tab" | "split" }) {
   const [open, setOpen] = useState(false);
   const people = useApp((s) => s.switchboard.people);
   const split = mode === "split";
 
   function pick(view: View) {
     setOpen(false);
-    useApp.getState().setActiveLeaf(leafId);
-    if (split) useApp.getState().splitLeaf(leafId, "row", view);
-    else useApp.getState().openView(view, "tab");
+    useApp.getState().openView(view, split ? { split: "row" } : "tab");
   }
 
   return (

@@ -3,8 +3,8 @@ import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
 import { emptySwitchboard, type ApplyResult, type Diff, type Switchboard } from "@/switchboard";
-import { emptyWorkspace, newId, viewKey, type Leaf, type OpenTarget, type View, type Workspace } from "@/workspace/model";
-import { collapseEmpty, findLeaf, findView, insertTab, leaves, mapLeaf, removeTab, setSizes, splitNode } from "@/workspace/ops";
+import { emptyWorkspace, newId, viewKey, type OpenTarget, type Pane, type View, type Workspace } from "@/workspace/model";
+import { findPane, paneShowing, panes, removePane, setPaneView, setSizes, splitPane } from "@/workspace/ops";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
@@ -36,7 +36,7 @@ interface AppState {
   deletingId: string | null;
   /** Whether the command palette (Ctrl-P) is open. */
   commandOpen: boolean;
-  /** The docked workspace tree (tabs + splits) + floats + active leaf + note default. */
+  /** The workspace: open tabs (the single top bar) + the pane tiling below + floats + note default. */
   workspace: Workspace;
   /** Row density for list views (People). Persisted to localStorage. */
   density: "compact" | "comfortable" | "spacious";
@@ -57,21 +57,23 @@ interface AppState {
   deletePerson: (id: string) => Promise<void>;
   /** Open/close the command palette. */
   setCommandOpen: (open: boolean) => void;
-  /** Open a View into a target (tab / panel / replaceActive / split / float); dedupes + focuses. */
+  /** Open a View into a target (tab / panel / split / float). */
   openView: (view: View, target?: OpenTarget) => void;
-  /** Close a tab (by viewKey) in a leaf. */
-  closeTab: (leafId: string, key: string) => void;
-  /** Make a tab active within its leaf. */
-  setActiveTab: (leafId: string, key: string) => void;
-  /** Mark a leaf as the active one. */
-  setActiveLeaf: (leafId: string) => void;
-  /** Focus (or open) the board tab and make it active. */
+  /** Open a page in the focused pane (or focus its pane if already shown). */
+  openTab: (view: View) => void;
+  /** Click a tab: focus its pane, else swap it into the focused pane. */
+  selectTab: (key: string) => void;
+  /** Close a page (and its pane, if it's currently shown). */
+  closeTab: (key: string) => void;
+  /** Split the focused pane, showing a view in the new pane. */
+  splitActive: (dir: "row" | "col", view: View) => void;
+  /** Focus a pane. */
+  setActivePane: (id: string) => void;
+  /** Focus (or open) the home board in the active pane. */
   focusBoard: () => void;
-  /** Split a leaf (row/col), opening a view in the new pane. */
-  splitLeaf: (leafId: string, dir: "row" | "col", view: View) => void;
   /** Update a split's pane sizes (fractions). */
   resizeSplit: (splitId: string, sizes: number[]) => void;
-  /** Reset the docked workspace to a single board tab (recovery from a bad layout). */
+  /** Reset the workspace to a single board tab (recovery from a bad layout). */
   resetWorkspace: () => void;
   /** Set the list-view row density (persists to localStorage). */
   setDensity: (density: "compact" | "comfortable" | "spacious") => void;
@@ -169,79 +171,78 @@ export const useApp = create<AppState>()((set, get) => ({
       if (view.type === "person") set({ openPersonId: view.id });
       return;
     }
+    if (typeof target === "object") {
+      get().splitActive(target.split, view);
+      return;
+    }
+    get().openTab(view); // "tab" (and "float" until step 3)
+  },
+
+  openTab(view) {
     const ws = get().workspace;
     const key = viewKey(view);
-    const found = findView(ws.root, key);
-    if (found) {
-      // already open somewhere → focus it (don't duplicate)
-      set({
-        workspace: {
-          ...ws,
-          activeLeafId: found.leaf.id,
-          root: mapLeaf(ws.root, found.leaf.id, (l) => ({ ...l, activeIndex: found.index })),
-        },
-      });
+    const tabs = ws.tabs.some((t) => viewKey(t) === key) ? ws.tabs : [...ws.tabs, view];
+    const shown = paneShowing(ws.layout, key);
+    if (shown) {
+      set({ workspace: { ...ws, tabs, activePaneId: shown.id } }); // already visible → focus it
       return;
     }
-    if (typeof target === "object") {
-      // { split: "row" | "col" } — open the view in a new pane beside the active leaf
-      get().splitLeaf(ws.activeLeafId, target.split, view);
+    set({ workspace: { ...ws, tabs, layout: setPaneView(ws.layout, ws.activePaneId, view) } });
+  },
+
+  selectTab(key) {
+    const ws = get().workspace;
+    const shown = paneShowing(ws.layout, key);
+    if (shown) {
+      set({ workspace: { ...ws, activePaneId: shown.id } });
       return;
     }
-    const leafId = ws.activeLeafId;
-    const root = mapLeaf(ws.root, leafId, (l) => {
-      if (target === "replaceActive") {
-        const cur = l.tabs[l.activeIndex];
-        if (cur && cur.type !== "board") {
-          return { ...l, tabs: l.tabs.map((t, i) => (i === l.activeIndex ? view : t)) };
-        }
-      }
-      return insertTab(l, view); // "float" docks as a tab until step 3
-    });
-    set({ workspace: { ...ws, activeLeafId: leafId, root } });
+    const view = ws.tabs.find((t) => viewKey(t) === key);
+    if (view) set({ workspace: { ...ws, layout: setPaneView(ws.layout, ws.activePaneId, view) } });
   },
 
-  closeTab(leafId, key) {
-    set((s) => {
-      const root = collapseEmpty(mapLeaf(s.workspace.root, leafId, (l) => removeTab(l, key)));
-      const activeLeafId = findLeaf(root, s.workspace.activeLeafId)
-        ? s.workspace.activeLeafId
-        : (leaves(root)[0]?.id ?? s.workspace.activeLeafId);
-      return { workspace: { ...s.workspace, root, activeLeafId } };
-    });
-  },
-
-  setActiveTab(leafId, key) {
-    set((s) => ({
+  splitActive(dir, view) {
+    const ws = get().workspace;
+    const key = viewKey(view);
+    const tabs = ws.tabs.some((t) => viewKey(t) === key) ? ws.tabs : [...ws.tabs, view];
+    const newPane: Pane = { kind: "pane", id: newId(), view };
+    set({
       workspace: {
-        ...s.workspace,
-        activeLeafId: leafId,
-        root: mapLeaf(s.workspace.root, leafId, (l) => {
-          const i = l.tabs.findIndex((v) => viewKey(v) === key);
-          return i >= 0 ? { ...l, activeIndex: i } : l;
-        }),
+        ...ws,
+        tabs,
+        layout: splitPane(ws.layout, ws.activePaneId, dir, newPane),
+        activePaneId: newPane.id,
       },
-    }));
+    });
   },
 
-  setActiveLeaf(leafId) {
-    set((s) => ({ workspace: { ...s.workspace, activeLeafId: leafId } }));
+  closeTab(key) {
+    const ws = get().workspace;
+    const tabs = ws.tabs.filter((t) => viewKey(t) !== key);
+    if (tabs.length === 0) return; // never close the last page (board "main" is un-closable anyway)
+    const shown = paneShowing(ws.layout, key);
+    let layout = ws.layout;
+    let activePaneId = ws.activePaneId;
+    if (shown) {
+      layout =
+        panes(ws.layout).length > 1
+          ? removePane(ws.layout, shown.id) // collapse the pane
+          : setPaneView(ws.layout, shown.id, tabs[0]); // sole pane → show another page
+      if (!findPane(layout, activePaneId)) activePaneId = panes(layout)[0]?.id ?? activePaneId;
+    }
+    set({ workspace: { ...ws, tabs, layout, activePaneId } });
+  },
+
+  setActivePane(id) {
+    set((s) => ({ workspace: { ...s.workspace, activePaneId: id } }));
   },
 
   focusBoard() {
-    get().openView({ type: "board", id: "main" }, "tab");
-  },
-
-  splitLeaf(leafId, dir, view) {
-    const ws = get().workspace;
-    const newLeaf: Leaf = { kind: "leaf", id: newId(), tabs: [view], activeIndex: 0 };
-    set({
-      workspace: { ...ws, root: splitNode(ws.root, leafId, dir, newLeaf), activeLeafId: newLeaf.id },
-    });
+    get().openTab({ type: "board", id: "main" });
   },
 
   resizeSplit(splitId, sizes) {
-    set((s) => ({ workspace: { ...s.workspace, root: setSizes(s.workspace.root, splitId, sizes) } }));
+    set((s) => ({ workspace: { ...s.workspace, layout: setSizes(s.workspace.layout, splitId, sizes) } }));
   },
 
   resetWorkspace() {

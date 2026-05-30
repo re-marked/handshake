@@ -283,7 +283,7 @@ export function BoardView({ boardId }: { boardId: string }) {
     const rect = el.getBoundingClientRect();
     const cx = e.clientX - rect.left;
     const cy = e.clientY - rect.top;
-    const nextZoom = Math.min(3, Math.max(0.3, zoom * Math.exp(-e.deltaY * 0.0015)));
+    const nextZoom = Math.min(8, Math.max(0.05, zoom * Math.exp(-e.deltaY * 0.0015)));
     const wx = (cx - pan.x) / zoom;
     const wy = (cy - pan.y) / zoom;
     setPan({ x: cx - wx * nextZoom, y: cy - wy * nextZoom });

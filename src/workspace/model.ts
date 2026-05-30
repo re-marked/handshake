@@ -1,12 +1,11 @@
 // ── The workspace model ──────────────────────────────────────────────────────
-// Pure, serializable types for the Obsidian-grade workspace: everything you can
-// look at is a `View`; Views live in a recursive tab/split tree, plus a floating
-// layer. No React/Tauri imports here (mirrors src/vault/layout.ts). The model is
-// frozen early so splits/floats/persistence are "more of the same", never a redo.
+// Browser-style: ONE top bar of tabs (open pages); below it, a tiling of bare panes
+// (no per-pane bars). Each pane shows one view; a subset of the open tabs are shown at a
+// time (the rest sit in the bar). Pure + serializable; no React/Tauri imports.
 
 import { nanoid } from "nanoid";
 
-/** Everything that can occupy a tab, a split pane, a float, or the slide-in panel. */
+/** Everything that can occupy a tab, a pane, a float, or the slide-in panel. */
 export type View =
   | { type: "board"; id: string } // id distinguishes independent boards ("main" is the home)
   | { type: "people" }
@@ -15,12 +14,11 @@ export type View =
   | { type: "settings" }
   | { type: "person"; id: string };
 
-/** A tabbed pane. */
-export interface Leaf {
-  kind: "leaf";
+/** A tiled pane showing one view (no tab bar of its own). */
+export interface Pane {
+  kind: "pane";
   id: string;
-  tabs: View[];
-  activeIndex: number;
+  view: View;
 }
 
 /** Panes arranged side-by-side (row) or stacked (col). */
@@ -28,11 +26,11 @@ export interface Split {
   kind: "split";
   id: string;
   dir: "row" | "col";
-  children: Node[];
+  children: PaneNode[];
   sizes: number[]; // fractions in (0,1), sum ~= 1
 }
 
-export type Node = Leaf | Split;
+export type PaneNode = Pane | Split;
 
 /** A free-floating, draggable in-app window holding a View. */
 export interface FloatingWindow {
@@ -49,23 +47,26 @@ export interface FloatingWindow {
 export type NoteMode = "panel" | "float" | "tab";
 
 export interface Workspace {
-  root: Node;
+  /** Every open page — the single top bar. */
+  tabs: View[];
+  /** The tiling shown below the bar; each Pane shows a view (a subset of `tabs`). */
+  layout: PaneNode;
+  /** The focused pane (where a clicked tab swaps in). */
+  activePaneId: string;
   floats: FloatingWindow[];
-  activeLeafId: string;
   noteDefault: NoteMode;
 }
 
 /** Where openView places a View. */
-export type OpenTarget = "panel" | "tab" | "replaceActive" | { split: "row" | "col" } | "float";
+export type OpenTarget = "panel" | "tab" | { split: "row" | "col" } | "float";
 
 export function newId(): string {
   return nanoid(10);
 }
 
 /**
- * Identity of a View for dedupe + React keys. Singletons (board/people/goals/
- * search/settings) collapse to their type — at most one app-wide; only distinct
- * persons coexist. Stable across reorder/move so editor drafts survive.
+ * Identity of a View for dedupe + React keys. Singletons (people/goals/search/settings)
+ * collapse to their type; only distinct persons + boards coexist.
  */
 export function viewKey(v: View): string {
   if (v.type === "person") return `person:${v.id}`;
@@ -91,8 +92,9 @@ export function tabLabel(v: View, nameOf: (id: string) => string | undefined): s
   }
 }
 
-/** The default workspace: a single leaf with just the board, panel notes. */
+/** The default workspace: a single board tab shown in one pane, panel notes. */
 export function emptyWorkspace(noteDefault: NoteMode = "panel"): Workspace {
-  const leaf: Leaf = { kind: "leaf", id: newId(), tabs: [{ type: "board", id: "main" }], activeIndex: 0 };
-  return { root: leaf, floats: [], activeLeafId: leaf.id, noteDefault };
+  const view: View = { type: "board", id: "main" };
+  const pane: Pane = { kind: "pane", id: newId(), view };
+  return { tabs: [view], layout: pane, activePaneId: pane.id, floats: [], noteDefault };
 }
