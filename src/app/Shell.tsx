@@ -1,13 +1,16 @@
+import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { NavRail } from "@/app/NavRail";
 import { PersonPanel } from "@/app/PersonPanel";
 import { CommandPalette } from "@/app/CommandPalette";
 import { BoardView } from "@/board/BoardView";
+import { GoalsView } from "@/views/GoalsView";
 
 /** The app frame: nav rail + the main area (the board). Right region + palette land later. */
 export function Shell() {
   const status = useApp((s) => s.status);
   const error = useApp((s) => s.error);
+  const view = useApp((s) => s.view);
 
   if (status === "error") {
     return (
@@ -27,7 +30,14 @@ export function Shell() {
     <div className="flex h-full w-full overflow-hidden bg-background text-foreground">
       <NavRail />
       <main className="relative min-w-0 flex-1 overflow-hidden">
-        <BoardView />
+        <div className={cn("absolute inset-0", view !== "board" && "hidden")}>
+          <BoardView />
+        </div>
+        {view === "goals" && (
+          <div className="absolute inset-0">
+            <GoalsView />
+          </div>
+        )}
         <PersonPanel />
       </main>
       <CommandPalette />

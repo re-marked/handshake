@@ -24,6 +24,8 @@ interface AppState {
   deletingId: string | null;
   /** Whether the command palette (Ctrl-P) is open. */
   commandOpen: boolean;
+  /** The active primary view in the main area. */
+  view: "board" | "goals";
 
   init: (vault: string) => Promise<void>;
   /** Route a diff through the funnel, persist it, and swap in the new state. The board
@@ -39,6 +41,8 @@ interface AppState {
   deletePerson: (id: string) => Promise<void>;
   /** Open/close the command palette. */
   setCommandOpen: (open: boolean) => void;
+  /** Switch the primary view (board ↔ goals). */
+  setView: (view: "board" | "goals") => void;
 }
 
 export const useApp = create<AppState>()((set, get) => ({
@@ -51,6 +55,7 @@ export const useApp = create<AppState>()((set, get) => ({
   openPersonId: null,
   deletingId: null,
   commandOpen: false,
+  view: "board",
 
   async init(vault) {
     if (get().status !== "idle") return; // guard against StrictMode double-invoke
@@ -121,5 +126,9 @@ export const useApp = create<AppState>()((set, get) => ({
 
   setCommandOpen(open) {
     set({ commandOpen: open });
+  },
+
+  setView(view) {
+    set({ view });
   },
 }));

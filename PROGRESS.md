@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Writer + command palette done — pick the next thread.** Shipped: full writer loop (edit / **+** create-connect / delete / connection settings on click / drag-to-link) and the **`Ctrl-P` palette** — jump to anyone, or type a fresh name to create them connected to you (also opens from the rail's search). Candidate next threads: **board polish** (staleness glow on cards going cold + real photos), **capture** (Phase 3 global quick-add overlay), or more **shell layers** (L3 docked tabs → splits). Deferred: photo upload in the note, markdown rendering, undo (Ctrl-Z rides the funnel's inverse diffs). AI stays last; BFS `route` deferred.
+**Goals view shipped — pick the next thread.** The main area now swaps **Board ↔ Goals** from the rail (the first real "View"). Goals are a simple standalone checklist — add / inline-edit / status (open·active·done·abandoned) / delete — people you want to meet, off the board. **Freshness/staleness was dropped on purpose** (too CRM-y, needs diligent logging). Candidate next: **photo upload** (pick an image → polaroid), a **People view** (searchable list, the rail's Users icon), or **shell L3** (docked tabs → splits). Deferred: pathfinding (BFS `route` self→goal), per-goal notes/deadline/target-person link, markdown, undo. AI stays last.
 
 ---
 
@@ -34,9 +34,9 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [x] Opaque polaroid cards: photo (data URL) or silhouette; name + role; warmth = link weight; self in rose
 - [x] Look landed ("it's nice")
 - [x] Persist positions + viewport to `.handshake/layout.json` (debounced); first open centers on self; manual re-parent reserved
-- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 note panel ✓ · faint-**+** create-and-connect ✓ · delete + connection settings on click (note + board line) ✓ · drag-to-connect ✓ · L2 `Ctrl-P` palette ✓ (jump + type-to-create, shadcn `Command`) · next: board polish / capture / L3 tabs]
+- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 note panel ✓ · faint-**+** create-and-connect ✓ · delete + connection settings (click) ✓ · drag-to-connect ✓ · L2 `Ctrl-P` palette ✓ · primary-view swap Board↔Goals ✓ (rail) · next: People view / photos / L3 tabs]
 - [~] Live wiring: `commit()` reflects in place (store swaps in `applyDiff`'s `next` — no reload); external watcher→reload still rebuilds the whole board
-- [ ] Look polish + re-introduce a staleness signal (card opacity was dropped); real photos across the cast
+- [~] Look polish: ties colored by warmth (shades of rose, intensity = strength) ✓; staleness/freshness signal **dropped on purpose** (too CRM-y); real photos across the cast still TODO (needs photo upload)
 
 ## Phase 3 — Capture
 - [ ] Global hotkey (Tauri) → quick-add overlay
@@ -44,6 +44,7 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [ ] Optimistic commit + undo toast
 
 ## Phase 4 — Pathfinding + drafting
+- [x] Goals as a standalone **view** (rail Target → swaps main area; add/inline-edit/status/delete). Short aspirations, not graph-linked. Optional target-person link + deadlines deferred.
 - [ ] BFS from self → target through handshake graph
 - [ ] Yarn highlights path
 - [ ] Anthropic Sonnet drafts intro ask

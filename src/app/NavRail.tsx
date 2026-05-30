@@ -29,12 +29,14 @@ function RailButton({
 
 /** The thin left rail — navigation between Views (most are static until L6; see SHELL.md). */
 export function NavRail() {
+  const view = useApp((s) => s.view);
+  const setView = useApp((s) => s.setView);
   const setCommandOpen = useApp((s) => s.setCommandOpen);
   return (
     <nav className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-2">
-      <RailButton icon={Share2} label="Board" active />
+      <RailButton icon={Share2} label="Board" active={view === "board"} onClick={() => setView("board")} />
       <RailButton icon={Users} label="People" />
-      <RailButton icon={Target} label="Goals" />
+      <RailButton icon={Target} label="Goals" active={view === "goals"} onClick={() => setView("goals")} />
       <RailButton icon={Search} label="Search (Ctrl-P)" onClick={() => setCommandOpen(true)} />
       <div className="mt-auto">
         <RailButton icon={Settings} label="Settings" />
