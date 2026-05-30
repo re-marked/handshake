@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useApp } from "@/app/store";
 import { Shell } from "@/app/Shell";
+import { WorkspaceBoundary } from "@/app/WorkspaceBoundary";
 
 // Dev: point at a vault folder via VITE_VAULT_PATH. A real folder-picker / settings
 // flow replaces this later.
@@ -15,5 +16,9 @@ export default function App() {
     void useApp.getState().init(VAULT);
   }, []);
 
-  return <Shell />;
+  return (
+    <WorkspaceBoundary>
+      <Shell />
+    </WorkspaceBoundary>
+  );
 }

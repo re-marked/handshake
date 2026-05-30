@@ -35,8 +35,8 @@ export class WorkspaceBoundary extends Component<Props, State> {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-8 text-center">
         <p className="text-sm font-medium text-destructive">The workspace hit an error.</p>
-        <pre className="max-w-xl overflow-auto rounded-md border bg-muted/50 p-3 text-left text-xs text-muted-foreground">
-          {error.message}
+        <pre className="max-h-72 max-w-2xl overflow-auto rounded-md border bg-muted/50 p-3 text-left text-xs whitespace-pre-wrap text-muted-foreground">
+          {error.stack ?? error.message}
         </pre>
         <Button variant="outline" size="sm" onClick={this.reset}>
           Reset workspace
