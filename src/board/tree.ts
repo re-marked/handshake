@@ -4,6 +4,7 @@ export interface BoardCard {
   id: string;
   name: string;
   isSelf: boolean;
+  photo?: string; // relpath into attachments/ (loaded once the asset protocol is wired)
   role?: string;
   company?: string;
   /** 0..1 recency → card opacity (staleness). */
@@ -51,6 +52,7 @@ export function buildBoardModel(
     id: p.id,
     name: p.name,
     isSelf: p.isSelf,
+    photo: p.photo,
     role: p.role,
     company: p.company,
     freshness: freshnessOf(lastInteractionDate(sb, p.id), now),

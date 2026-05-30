@@ -16,7 +16,6 @@ export function BoardView({ switchboard }: { switchboard: Switchboard }) {
   const [positions, setPositions] = useState<Map<string, Pos>>(() => new Map(model.positions));
   const [pan, setPan] = useState<Pos>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [selected, setSelected] = useState<string | null>(null);
 
   // Reset to the tidy layout when the vault changes (positions aren't persisted yet),
   // and center the board so self (0,0) sits mid-viewport.
@@ -45,10 +44,8 @@ export function BoardView({ switchboard }: { switchboard: Switchboard }) {
     containerRef.current?.setPointerCapture(e.pointerId);
     if (cardEl?.dataset.cardId) {
       const id = cardEl.dataset.cardId;
-      setSelected(id);
       drag.current = { mode: "card", subtree: [id, ...descendants(id)], lastX: e.clientX, lastY: e.clientY };
     } else {
-      setSelected(null);
       drag.current = { mode: "pan", subtree: [], lastX: e.clientX, lastY: e.clientY };
     }
   }
@@ -100,7 +97,7 @@ export function BoardView({ switchboard }: { switchboard: Switchboard }) {
   return (
     <div
       ref={containerRef}
-      className="relative h-full w-full touch-none overflow-hidden bg-background"
+      className="relative h-full w-full touch-none select-none overflow-hidden bg-background"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -130,7 +127,7 @@ export function BoardView({ switchboard }: { switchboard: Switchboard }) {
               className="absolute cursor-grab"
               style={{ left: p.x, top: p.y, transform: "translate(-50%, -50%)" }}
             >
-              <PersonCard card={card} selected={selected === card.id} />
+              <PersonCard card={card} />
             </div>
           );
         })}

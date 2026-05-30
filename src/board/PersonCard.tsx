@@ -11,28 +11,33 @@ function monogram(name: string): string {
     .toUpperCase();
 }
 
-/** A clean person card on the board. Opacity encodes staleness; self carries the accent. */
-export function PersonCard({ card, selected }: { card: BoardCard; selected: boolean }) {
+/**
+ * A polaroid-style person card: a square photo (or placeholder) on top, name + role on
+ * the caption strip below. Clean, not skeuomorphic. Opacity encodes staleness; self
+ * carries the rose accent. (Real photos load once the Tauri asset protocol is wired.)
+ */
+export function PersonCard({ card }: { card: BoardCard }) {
   const subtitle = [card.role, card.company].filter(Boolean).join(" · ");
   return (
     <div
       style={{ opacity: card.freshness }}
       className={cn(
-        "flex w-40 items-center gap-2.5 rounded-lg border bg-card px-3 py-2 text-card-foreground shadow-sm",
+        "w-36 select-none overflow-hidden rounded-md border bg-card shadow-sm",
         card.isSelf ? "border-primary" : "border-border",
-        selected && "ring-2 ring-ring",
       )}
     >
-      <div
-        className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium",
-          card.isSelf ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-        )}
-      >
-        {monogram(card.name)}
+      <div className="flex aspect-square w-full items-center justify-center bg-muted">
+        <span
+          className={cn(
+            "text-2xl font-semibold",
+            card.isSelf ? "text-primary" : "text-muted-foreground/70",
+          )}
+        >
+          {monogram(card.name)}
+        </span>
       </div>
-      <div className="min-w-0">
-        <div className="truncate text-sm font-medium leading-tight">{card.name}</div>
+      <div className="px-2.5 py-2">
+        <div className="truncate text-sm font-medium leading-tight text-card-foreground">{card.name}</div>
         {subtitle && <div className="truncate text-xs leading-tight text-muted-foreground">{subtitle}</div>}
       </div>
     </div>
