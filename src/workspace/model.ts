@@ -8,7 +8,7 @@ import { nanoid } from "nanoid";
 
 /** Everything that can occupy a tab, a split pane, a float, or the slide-in panel. */
 export type View =
-  | { type: "board" }
+  | { type: "board"; id: string } // id distinguishes independent boards ("main" is the home)
   | { type: "people" }
   | { type: "goals" }
   | { type: "search"; query?: string }
@@ -68,7 +68,9 @@ export function newId(): string {
  * persons coexist. Stable across reorder/move so editor drafts survive.
  */
 export function viewKey(v: View): string {
-  return v.type === "person" ? `person:${v.id}` : v.type;
+  if (v.type === "person") return `person:${v.id}`;
+  if (v.type === "board") return `board:${v.id}`;
+  return v.type;
 }
 
 /** Display label for a tab. Person names come from the caller (the people map). */
@@ -91,6 +93,6 @@ export function tabLabel(v: View, nameOf: (id: string) => string | undefined): s
 
 /** The default workspace: a single leaf with just the board, panel notes. */
 export function emptyWorkspace(noteDefault: NoteMode = "panel"): Workspace {
-  const leaf: Leaf = { kind: "leaf", id: newId(), tabs: [{ type: "board" }], activeIndex: 0 };
+  const leaf: Leaf = { kind: "leaf", id: newId(), tabs: [{ type: "board", id: "main" }], activeIndex: 0 };
   return { root: leaf, floats: [], activeLeafId: leaf.id, noteDefault };
 }

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useApp } from "@/app/store";
-import type { View } from "@/workspace/model";
+import { newId, type View } from "@/workspace/model";
 
 /**
  * Open any view (or a person) freestyle — as a new tab (`+`) or beside the leaf (`split`).
@@ -48,11 +48,9 @@ export function TabLauncher({ leafId, mode = "tab" }: { leafId: string; mode?: "
           <CommandList>
             <CommandEmpty>Nothing found.</CommandEmpty>
             <CommandGroup heading="Views">
-              {!split && (
-                <CommandItem value="board" onSelect={() => pick({ type: "board" })}>
-                  <Share2 /> Board
-                </CommandItem>
-              )}
+              <CommandItem value="new board" onSelect={() => pick({ type: "board", id: newId() })}>
+                <Share2 /> New board
+              </CommandItem>
               <CommandItem value="people" onSelect={() => pick({ type: "people" })}>
                 <Users /> People
               </CommandItem>

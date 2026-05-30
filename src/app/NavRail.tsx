@@ -35,7 +35,7 @@ export function NavRail() {
   const setCommandOpen = useApp((s) => s.setCommandOpen);
   return (
     <nav className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-2">
-      <RailButton icon={Share2} label="Board" active={activeType === "board"} onClick={() => openView({ type: "board" }, "tab")} />
+      <RailButton icon={Share2} label="Board" active={activeType === "board"} onClick={() => openView({ type: "board", id: "main" }, "tab")} />
       <RailButton icon={Users} label="People" active={activeType === "people"} onClick={() => openView({ type: "people" }, "tab")} />
       <RailButton icon={Target} label="Goals" active={activeType === "goals"} onClick={() => openView({ type: "goals" }, "tab")} />
       <RailButton icon={Search} label="Search (Ctrl-P)" onClick={() => setCommandOpen(true)} />

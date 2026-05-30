@@ -229,7 +229,7 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   focusBoard() {
-    get().openView({ type: "board" }, "tab");
+    get().openView({ type: "board", id: "main" }, "tab");
   },
 
   splitLeaf(leafId, dir, view) {

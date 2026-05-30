@@ -47,7 +47,7 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
         {leaf.tabs.map((view, i) => {
         const key = viewKey(view);
         const active = i === leaf.activeIndex;
-        const closable = view.type !== "board";
+        const closable = !(view.type === "board" && view.id === "main");
         return (
           <div
             key={key}

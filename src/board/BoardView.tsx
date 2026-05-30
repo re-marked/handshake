@@ -15,6 +15,14 @@ import type { Layout } from "@/vault/layout";
 const LINK_SPAN = 8000; // SVG coordinate span (centered on origin) for drawing links
 const PERSIST_DELAY = 500;
 
+/**
+ * Per-board live layout, kept in-memory so a board's arrangement + viewport survive a
+ * split-remount. The "main" board also persists to layout.json; extra boards are session views
+ * (reload persistence for extras lands with workspace.json).
+ */
+type BoardSnapshot = { positions: Map<string, Pos>; pan: Pos; zoom: number };
+const boardCache = new Map<string, BoardSnapshot>();
+
 function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
   const out = new Map(model.positions); // tidy radial seed
   for (const [id, p] of Object.entries(layout.positions)) {
@@ -27,7 +35,7 @@ function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
  * The board — a clean digital corkboard. Cards stay where placed (no physics); dragging
  * a card rigidly moves its whole subtree. Positions, pan, and zoom persist to layout.json.
  */
-export function BoardView() {
+export function BoardView({ boardId }: { boardId: string }) {
   const switchboard = useApp((s) => s.switchboard);
   const photos = useApp((s) => s.photos);
   const layout = useApp((s) => s.layout);
@@ -41,9 +49,12 @@ export function BoardView() {
     [switchboard, layout],
   );
 
-  const [positions, setPositions] = useState<Map<string, Pos>>(() => seedPositions(model, layout));
-  const [pan, setPan] = useState<Pos>(() => layout.viewport?.pan ?? { x: 0, y: 0 });
-  const [zoom, setZoom] = useState(() => layout.viewport?.zoom ?? 1);
+  const cached = boardCache.get(boardId);
+  const [positions, setPositions] = useState<Map<string, Pos>>(
+    () => cached?.positions ?? seedPositions(model, layout),
+  );
+  const [pan, setPan] = useState<Pos>(() => cached?.pan ?? layout.viewport?.pan ?? { x: 0, y: 0 });
+  const [zoom, setZoom] = useState(() => cached?.zoom ?? layout.viewport?.zoom ?? 1);
 
   // The "+" create-and-connect flow: a ghost card you name before it materializes.
   const [composing, setComposing] = useState<{ sourceId: string; pos: Pos } | null>(null);
@@ -59,7 +70,7 @@ export function BoardView() {
 
   // First-ever open (no saved viewport): center self (world origin) in the viewport.
   useEffect(() => {
-    if (layout.viewport) return;
+    if (cached || layout.viewport) return;
     const el = containerRef.current;
     if (el) setPan({ x: el.clientWidth / 2, y: el.clientHeight / 2 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,23 +91,32 @@ export function BoardView() {
   const latest = useRef({ positions, pan, zoom });
   latest.current = { positions, pan, zoom };
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function schedulePersist() {
-    if (persistTimer.current) clearTimeout(persistTimer.current);
-    persistTimer.current = setTimeout(() => {
+  function persistNow() {
+    const snap = latest.current;
+    boardCache.set(boardId, { positions: new Map(snap.positions), pan: snap.pan, zoom: snap.zoom });
+    if (boardId === "main") {
       saveLayout({
-        positions: Object.fromEntries(latest.current.positions),
-        viewport: { pan: latest.current.pan, zoom: latest.current.zoom },
+        positions: Object.fromEntries(snap.positions),
+        viewport: { pan: snap.pan, zoom: snap.zoom },
         parentOverrides: layout.parentOverrides ?? {},
       });
-    }, PERSIST_DELAY);
+    }
   }
-  useEffect(() => () => {
+  function schedulePersist() {
     if (persistTimer.current) clearTimeout(persistTimer.current);
-  }, []);
+    persistTimer.current = setTimeout(persistNow, PERSIST_DELAY);
+  }
+  useEffect(
+    () => () => {
+      if (persistTimer.current) clearTimeout(persistTimer.current);
+      persistNow(); // flush this board's layout into the cache before unmount (survives splits)
+    },
+    [boardId],
+  );
 
   // Locate: center the viewport on a person (requested from the People view) + briefly ring them.
   useEffect(() => {
-    if (!locate) return;
+    if (!locate || boardId !== "main") return; // locate targets the home board
     const el = containerRef.current;
     const pos = positions.get(locate.id);
     if (el && pos) {

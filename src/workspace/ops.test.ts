@@ -19,13 +19,13 @@ function leaf(tabs: View[], activeIndex = 0): Leaf {
 
 describe("workspace ops", () => {
   it("insertTab appends + activates a new view", () => {
-    const l = insertTab(leaf([{ type: "board" }]), { type: "people" });
-    expect(l.tabs.map(viewKey)).toEqual(["board", "people"]);
+    const l = insertTab(leaf([{ type: "board", id: "main" }]), { type: "people" });
+    expect(l.tabs.map(viewKey)).toEqual(["board:main", "people"]);
     expect(l.activeIndex).toBe(1);
   });
 
   it("insertTab focuses an existing view instead of duplicating", () => {
-    const l = insertTab(leaf([{ type: "board" }, { type: "people" }], 0), { type: "people" });
+    const l = insertTab(leaf([{ type: "board", id: "main" }, { type: "people" }], 0), { type: "people" });
     expect(l.tabs).toHaveLength(2);
     expect(l.activeIndex).toBe(1);
   });
@@ -37,14 +37,14 @@ describe("workspace ops", () => {
   });
 
   it("removeTab shifts activeIndex when removing before the active tab", () => {
-    const l = removeTab(leaf([{ type: "board" }, { type: "people" }, { type: "goals" }], 2), "people");
-    expect(l.tabs.map(viewKey)).toEqual(["board", "goals"]);
+    const l = removeTab(leaf([{ type: "board", id: "main" }, { type: "people" }, { type: "goals" }], 2), "people");
+    expect(l.tabs.map(viewKey)).toEqual(["board:main", "goals"]);
     expect(l.activeIndex).toBe(1);
   });
 
   it("removeTab clamps activeIndex when removing the active last tab", () => {
-    const l = removeTab(leaf([{ type: "board" }, { type: "people" }], 1), "people");
-    expect(l.tabs.map(viewKey)).toEqual(["board"]);
+    const l = removeTab(leaf([{ type: "board", id: "main" }, { type: "people" }], 1), "people");
+    expect(l.tabs.map(viewKey)).toEqual(["board:main"]);
     expect(l.activeIndex).toBe(0);
   });
 
@@ -77,7 +77,7 @@ describe("workspace ops", () => {
       id: "S",
       dir: "row",
       children: [
-        { kind: "leaf", id: "A", tabs: [{ type: "board" }], activeIndex: 0 },
+        { kind: "leaf", id: "A", tabs: [{ type: "board", id: "main" }], activeIndex: 0 },
         { kind: "leaf", id: "B", tabs: [{ type: "people" }], activeIndex: 0 },
       ],
       sizes: [0.5, 0.5],
@@ -91,7 +91,7 @@ describe("workspace ops", () => {
       id: "S",
       dir: "row",
       children: [
-        { kind: "leaf", id: "A", tabs: [{ type: "board" }], activeIndex: 0 },
+        { kind: "leaf", id: "A", tabs: [{ type: "board", id: "main" }], activeIndex: 0 },
         { kind: "leaf", id: "B", tabs: [], activeIndex: 0 },
       ],
       sizes: [0.5, 0.5],

@@ -9,7 +9,7 @@ import type { View } from "@/workspace/model";
 export function ViewHost({ view }: { view: View }) {
   switch (view.type) {
     case "board":
-      return <BoardView />;
+      return <BoardView boardId={view.id} />;
     case "people":
       return <PeopleView />;
     case "goals":
