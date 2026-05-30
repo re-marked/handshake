@@ -6,7 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useApp } from "@/app/store";
 import { PersonView } from "@/views/PersonView";
 
-const SLIDE = { type: "spring", stiffness: 380, damping: 34 } as const;
+const ENTER = { type: "spring", stiffness: 520, damping: 38 } as const;
+const EXIT = { duration: 0.12, ease: "easeIn" } as const;
 
 /**
  * The person note — a card that slides in from the top-right when you tap a polaroid and
@@ -34,8 +35,8 @@ export function PersonPanel() {
             key={openPersonId}
             initial={{ x: 340, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 340, opacity: 0 }}
-            transition={SLIDE}
+            exit={{ x: 340, opacity: 0, transition: EXIT }}
+            transition={ENTER}
             className="pointer-events-auto flex max-h-[calc(100vh-6rem)] flex-col overflow-hidden rounded-xl border bg-card shadow-xl"
           >
             <div className="flex shrink-0 items-center justify-between border-b px-3 py-1.5">
