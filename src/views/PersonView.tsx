@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Plus, User, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +87,20 @@ export function PersonView({ id }: { id: string }) {
     const h = useApp.getState().switchboard.people.get(id)?.handles ?? {};
     return Object.entries(h).map(([channel, value]) => ({ channel, value: String(value) }));
   });
+
+  const handshakes = useApp((s) => s.switchboard.handshakes);
+  const people = useApp((s) => s.switchboard.people);
+  const connections = useMemo(
+    () =>
+      [...handshakes.values()]
+        .filter((h) => h.people.includes(id))
+        .map((h) => {
+          const otherId = h.people[0] === id ? h.people[1] : h.people[0];
+          return { handshakeId: h.id, name: people.get(otherId)?.name ?? otherId, strength: h.strength };
+        })
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [handshakes, people, id],
+  );
 
   if (!draft) {
     return <div className="p-2 text-sm text-muted-foreground">Person not found.</div>;
@@ -214,6 +228,27 @@ export function PersonView({ id }: { id: string }) {
           <Plus /> handle
         </Button>
       </div>
+
+      {connections.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <div className="text-xs text-muted-foreground">Connections</div>
+          {connections.map((c) => (
+            <div key={c.handshakeId} className="group/c flex items-center gap-2 text-sm">
+              <span className="min-w-0 flex-1 truncate text-foreground/90">{c.name}</span>
+              <span className="shrink-0 text-xs capitalize text-muted-foreground">{c.strength}</span>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                aria-label={`Unlink ${c.name}`}
+                className="opacity-0 transition-opacity group-hover/c:opacity-100"
+                onClick={() => void useApp.getState().commit([{ op: "deleteHandshake", id: c.handshakeId }])}
+              >
+                <X />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <Separator />
       <Textarea

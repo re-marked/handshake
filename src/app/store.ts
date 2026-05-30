@@ -20,6 +20,8 @@ interface AppState {
   layout: Layout;
   /** The person whose note slides in (top-right), or null when closed. */
   openPersonId: string | null;
+  /** A person mid-deletion — the board plays its exit before the data is removed. */
+  deletingId: string | null;
 
   init: (vault: string) => Promise<void>;
   /** Route a diff through the funnel, persist it, and swap in the new state. The board
@@ -31,6 +33,8 @@ interface AppState {
   /** Open a person's note unconditionally (e.g. just after creating them). */
   openPerson: (id: string) => void;
   closePerson: () => void;
+  /** Delete a person and all their ties; animates the card out, then commits. */
+  deletePerson: (id: string) => Promise<void>;
 }
 
 export const useApp = create<AppState>()((set, get) => ({
@@ -41,6 +45,7 @@ export const useApp = create<AppState>()((set, get) => ({
   photos: new Map(),
   layout: emptyLayout(),
   openPersonId: null,
+  deletingId: null,
 
   async init(vault) {
     if (get().status !== "idle") return; // guard against StrictMode double-invoke
@@ -91,5 +96,21 @@ export const useApp = create<AppState>()((set, get) => ({
 
   closePerson() {
     set({ openPersonId: null });
+  },
+
+  async deletePerson(id) {
+    const { switchboard, commit } = get();
+    if (switchboard.people.get(id)?.isSelf) return; // never delete self
+    const ties = [...switchboard.handshakes.values()]
+      .filter((h) => h.people.includes(id))
+      .map((h) => h.id);
+    set({ deletingId: id, openPersonId: null });
+    await new Promise((r) => setTimeout(r, 190)); // let the card spring out first
+    const diff: Diff = [
+      ...ties.map((hid) => ({ op: "deleteHandshake", id: hid }) as const),
+      { op: "deletePerson", id } as const,
+    ];
+    await commit(diff);
+    set({ deletingId: null });
   },
 }));

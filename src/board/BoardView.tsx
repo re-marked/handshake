@@ -28,6 +28,7 @@ export function BoardView() {
   const layout = useApp((s) => s.layout);
   const saveLayout = useApp((s) => s.saveLayout);
   const togglePerson = useApp((s) => s.togglePerson);
+  const deletingId = useApp((s) => s.deletingId);
   const containerRef = useRef<HTMLDivElement>(null);
   const model = useMemo(
     () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
@@ -300,7 +301,10 @@ export function BoardView() {
             >
               <motion.div
                 initial={card.id === justCreated ? { scale: 0.5, opacity: 0 } : false}
-                animate={{ scale: 1, opacity: 1 }}
+                animate={{
+                  scale: card.id === deletingId ? 0.4 : 1,
+                  opacity: card.id === deletingId ? 0 : 1,
+                }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               >
                 <PersonCard card={card} photoSrc={photos.get(card.id)} />
