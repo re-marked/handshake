@@ -2,6 +2,8 @@ import { Search, Settings, Share2, Target, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { activeView } from "@/workspace/ops";
+import { Logo } from "@/components/Logo";
+import { BRAND } from "@/lib/brand";
 
 function RailButton({
   icon: Icon,
@@ -35,6 +37,13 @@ export function NavRail() {
   const setCommandOpen = useApp((s) => s.setCommandOpen);
   return (
     <nav className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-2">
+      <button
+        title={BRAND.name}
+        onClick={() => openView({ type: "board", id: "main" }, "tab")}
+        className="mb-1 grid size-8 place-items-center overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-border/60 transition hover:ring-primary/40"
+      >
+        <Logo className="size-7" />
+      </button>
       <RailButton icon={Share2} label="Board" active={activeType === "board"} onClick={() => openView({ type: "board", id: "main" }, "tab")} />
       <RailButton icon={Users} label="People" active={activeType === "people"} onClick={() => openView({ type: "people" }, "tab")} />
       <RailButton icon={Target} label="Goals" active={activeType === "goals"} onClick={() => openView({ type: "goals" }, "tab")} />
