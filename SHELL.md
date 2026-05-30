@@ -143,6 +143,12 @@ people sit vs which panes are open).
 
 ## 7. Build in layers
 
+> **Status (built):** the workspace shipped as a **browser-style model** — ONE top bar of tabs +
+> a pane tiling below (`src/workspace/`), rather than the per-leaf tabs sketched in the L-list
+> here. Done: tabs · resizable splits · multiple independent boards · floating windows · the
+> inline note-mode switch (panel⇄float⇄tab) + remembered default · persistence (`workspace.json`).
+> Still open: dragging tabs between panes. The layer notes below are kept for the original intent.
+
 Each layer is shippable and assumes the model above — no re-architecting.
 
 - **L0 — Store + frame.** Stand up the `zustand` store; refactor `App` (load → store).
