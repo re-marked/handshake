@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Writer is live — verify in `pnpm tauri dev`, then drag-to-connect → L2 palette.** Editing works: the note is one **always-editable** surface (inline name/role/company, tag chips, handle rows, body), debounced autosave → `commit` funnel → board updates **in place** (no reload; id is stable, layout keyed by id). The faint **+** on each card **create-and-connects** a new person (name-first ghost → spring-drop → note opens). Next: **(4) drag one card onto another to link two existing people**, fold a minimal **relationship slice** into the note (`establishedVia` "introduced by" + strength — both live on the handshake), then the **`Ctrl-P` palette**. Deferred: photo upload, markdown rendering, undo (Ctrl-Z rides the inverse diffs the funnel already emits). AI stays last; BFS `route` deferred.
+**Writer nearly complete — next: (4) drag-to-connect existing → L2 palette.** Done: always-editable note (autosave → funnel → board updates **in place**); faint **+** name-first create-and-connect (ghost → spring-drop → note opens, fans to a free spot); **delete** (type-the-name shadcn `AlertDialog`, cascades ties, card springs out, self protected); **unlink** + the **relationship slice** via **right-click a connection** (strength → link weight; "introduced by" → board parent; the menu is the home for more tie fields). Next: **(4) drag one card onto another to link two existing people** (the last edge gesture), then the **`Ctrl-P` palette** (jump / command / capture). Deferred: photo upload, markdown rendering, undo (Ctrl-Z rides the funnel's inverse diffs). AI stays last; BFS `route` deferred.
 
 ---
 
@@ -34,7 +34,7 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [x] Opaque polaroid cards: photo (data URL) or silhouette; name + role; warmth = link weight; self in rose
 - [x] Look landed ("it's nice")
 - [x] Persist positions + viewport to `.handshake/layout.json` (debounced); first open centers on self; manual re-parent reserved
-- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 slide-in note panel ✓ (read + always-editable write, autosave→funnel) · faint-**+** create-and-connect ✓ · next: drag-to-connect existing → L2 palette]
+- [~] App shell — Obsidian-grade workspace (everything is a View; board pinned-main; notes slide in). Model + L0–L6 in **SHELL.md**. [L0 store+frame ✓ · L1 note panel ✓ (read + always-editable write, autosave→funnel) · faint-**+** create-and-connect ✓ · delete (type-to-confirm) + unlink + right-click relationship settings ✓ · next: drag-to-connect existing → L2 palette]
 - [~] Live wiring: `commit()` reflects in place (store swaps in `applyDiff`'s `next` — no reload); external watcher→reload still rebuilds the whole board
 - [ ] Look polish + re-introduce a staleness signal (card opacity was dropped); real photos across the cast
 

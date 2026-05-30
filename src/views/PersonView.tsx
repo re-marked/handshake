@@ -1,14 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Plus, User, X } from "lucide-react";
+import { Plus, Unlink, User, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
-import type { Person, PersonPatch } from "@/switchboard";
+import type { Handshake, HandshakePatch, Person, PersonPatch, Strength } from "@/switchboard";
 
 // The fields the note edits; the commit patch is diffed over exactly these.
 const EDITABLE = ["name", "role", "company", "tags", "handles", "body"] as const;
@@ -96,7 +109,7 @@ export function PersonView({ id }: { id: string }) {
         .filter((h) => h.people.includes(id))
         .map((h) => {
           const otherId = h.people[0] === id ? h.people[1] : h.people[0];
-          return { handshakeId: h.id, name: people.get(otherId)?.name ?? otherId, strength: h.strength };
+          return { h, name: people.get(otherId)?.name ?? otherId };
         })
         .sort((a, b) => a.name.localeCompare(b.name)),
     [handshakes, people, id],
@@ -233,19 +246,7 @@ export function PersonView({ id }: { id: string }) {
         <div className="flex flex-col gap-1">
           <div className="text-xs text-muted-foreground">Connections</div>
           {connections.map((c) => (
-            <div key={c.handshakeId} className="group/c flex items-center gap-2 text-sm">
-              <span className="min-w-0 flex-1 truncate text-foreground/90">{c.name}</span>
-              <span className="shrink-0 text-xs capitalize text-muted-foreground">{c.strength}</span>
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                aria-label={`Unlink ${c.name}`}
-                className="opacity-0 transition-opacity group-hover/c:opacity-100"
-                onClick={() => void useApp.getState().commit([{ op: "deleteHandshake", id: c.handshakeId }])}
-              >
-                <X />
-              </Button>
-            </div>
+            <ConnectionRow key={c.h.id} handshake={c.h} name={c.name} people={people} />
           ))}
         </div>
       )}
@@ -261,5 +262,77 @@ export function PersonView({ id }: { id: string }) {
         )}
       />
     </div>
+  );
+}
+
+const STRENGTHS: Strength[] = ["close", "warm", "cold", "dormant"];
+
+/**
+ * One row in the note's Connections list. Right-click for the tie's settings: strength
+ * (re-weights the link), who introduced them (drives board parenting), and unlink. More
+ * relationship fields slot in here over time.
+ */
+function ConnectionRow({
+  handshake,
+  name,
+  people,
+}: {
+  handshake: Handshake;
+  name: string;
+  people: Map<string, Person>;
+}) {
+  const commit = useApp((s) => s.commit);
+  const patch = (p: HandshakePatch) => void commit([{ op: "updateHandshake", id: handshake.id, patch: p }]);
+  const candidates = [...people.values()]
+    .filter((p) => p.id !== handshake.people[0] && p.id !== handshake.people[1])
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <div className="-mx-1.5 flex cursor-default items-center gap-2 rounded-md px-1.5 py-0.5 text-sm transition-colors hover:bg-accent/40">
+          <span className="min-w-0 flex-1 truncate text-foreground/90">{name}</span>
+          <span className="shrink-0 text-xs capitalize text-muted-foreground">{handshake.strength}</span>
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent className="w-52">
+        <ContextMenuLabel className="truncate">{name}</ContextMenuLabel>
+        <ContextMenuSeparator />
+        <ContextMenuRadioGroup
+          value={handshake.strength}
+          onValueChange={(v) => patch({ strength: v as Strength })}
+        >
+          {STRENGTHS.map((s) => (
+            <ContextMenuRadioItem key={s} value={s} className="capitalize">
+              {s}
+            </ContextMenuRadioItem>
+          ))}
+        </ContextMenuRadioGroup>
+        <ContextMenuSeparator />
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>Introduced by</ContextMenuSubTrigger>
+          <ContextMenuSubContent className="max-h-64 w-48 overflow-y-auto">
+            <ContextMenuRadioGroup
+              value={handshake.establishedVia ?? "__none__"}
+              onValueChange={(v) => patch({ establishedVia: v === "__none__" ? undefined : v })}
+            >
+              <ContextMenuRadioItem value="__none__">No one</ContextMenuRadioItem>
+              {candidates.map((p) => (
+                <ContextMenuRadioItem key={p.id} value={p.id}>
+                  {p.name}
+                </ContextMenuRadioItem>
+              ))}
+            </ContextMenuRadioGroup>
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+        <ContextMenuSeparator />
+        <ContextMenuItem
+          variant="destructive"
+          onSelect={() => void commit([{ op: "deleteHandshake", id: handshake.id }])}
+        >
+          <Unlink /> Unlink
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
