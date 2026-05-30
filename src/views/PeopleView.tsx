@@ -243,29 +243,27 @@ export function PeopleView() {
           </ScrollArea>
         </div>
 
-        {totalPages > 1 && (
-          <Pagination className="mt-3 shrink-0">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious disabled={current <= 1} onClick={() => setPage(current - 1)} />
+        <Pagination className="mt-3 shrink-0">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious disabled={current <= 1} onClick={() => setPage(current - 1)} />
+            </PaginationItem>
+            {pageWindow(current, totalPages).map((p, i) => (
+              <PaginationItem key={i}>
+                {p === "…" ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <PaginationLink isActive={p === current} onClick={() => setPage(p)}>
+                    {p}
+                  </PaginationLink>
+                )}
               </PaginationItem>
-              {pageWindow(current, totalPages).map((p, i) => (
-                <PaginationItem key={i}>
-                  {p === "…" ? (
-                    <PaginationEllipsis />
-                  ) : (
-                    <PaginationLink isActive={p === current} onClick={() => setPage(p)}>
-                      {p}
-                    </PaginationLink>
-                  )}
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext disabled={current >= totalPages} onClick={() => setPage(current + 1)} />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
+            ))}
+            <PaginationItem>
+              <PaginationNext disabled={current >= totalPages} onClick={() => setPage(current + 1)} />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );

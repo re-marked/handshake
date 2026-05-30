@@ -149,7 +149,7 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   setView(view) {
-    set({ view });
+    set({ view, openPersonId: null }); // switching views closes the open note
   },
 
   setDensity(density) {
@@ -162,6 +162,6 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   locatePerson(id) {
-    set((s) => ({ view: "board", locate: { id, nonce: (s.locate?.nonce ?? 0) + 1 } }));
+    set((s) => ({ view: "board", openPersonId: null, locate: { id, nonce: (s.locate?.nonce ?? 0) + 1 } }));
   },
 }));
