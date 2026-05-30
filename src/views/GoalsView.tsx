@@ -99,7 +99,7 @@ function GoalRow({ goal }: { goal: Goal }) {
     const res = await commit(diff);
     if (res.ok) {
       useApp.getState().focusBoard();
-      useApp.getState().openPerson(personId);
+      useApp.getState().revealPerson(personId);
     }
   }
 

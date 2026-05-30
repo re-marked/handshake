@@ -3,6 +3,7 @@ import { BoardView } from "@/board/BoardView";
 import { PeopleView } from "@/views/PeopleView";
 import { GoalsView } from "@/views/GoalsView";
 import { PersonView } from "@/views/PersonView";
+import { NoteModeSwitch } from "@/workspace/NoteModeSwitch";
 import type { View } from "@/workspace/model";
 
 /**
@@ -19,11 +20,20 @@ export function ViewHost({ view, dense = false }: { view: View; dense?: boolean 
       return <GoalsView />;
     case "person":
       return (
-        <ScrollArea className="h-full w-full">
-          <div className={dense ? "px-3.5 py-3" : "mx-auto max-w-2xl px-8 py-7"}>
-            <PersonView id={view.id} />
-          </div>
-        </ScrollArea>
+        <div className="flex h-full w-full flex-col">
+          {/* Tabs/panes have no header of their own, so the note-mode switch rides a slim
+              toolbar here. Floats (dense) carry it in their own header instead. */}
+          {!dense && (
+            <div className="flex h-10 shrink-0 items-center justify-end border-b px-2">
+              <NoteModeSwitch id={view.id} current="tab" />
+            </div>
+          )}
+          <ScrollArea className="min-h-0 flex-1">
+            <div className={dense ? "px-3.5 py-3" : "mx-auto max-w-2xl px-8 py-7"}>
+              <PersonView id={view.id} />
+            </div>
+          </ScrollArea>
+        </div>
       );
     case "search":
     case "settings":

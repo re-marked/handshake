@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { PictureInPicture2, Trash2, X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useApp } from "@/app/store";
 import { PersonView } from "@/views/PersonView";
+import { NoteModeSwitch } from "@/workspace/NoteModeSwitch";
 
 const ENTER = { type: "spring", stiffness: 520, damping: 38 } as const;
 const EXIT = { duration: 0.12, ease: "easeIn" } as const;
@@ -54,21 +55,9 @@ export function PersonPanel() {
             transition={ENTER}
             className="pointer-events-auto flex max-h-[calc(100vh-4.5rem)] flex-col overflow-hidden rounded-xl border bg-card shadow-xl"
           >
-            <div className="flex h-9 shrink-0 items-center justify-between border-b px-3">
-              <span className="text-xs text-muted-foreground">Note</span>
+            <div className="flex h-10 shrink-0 items-center justify-between border-b pl-2 pr-1.5">
+              <NoteModeSwitch id={openPersonId} current="panel" />
               <div className="flex items-center gap-0.5">
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label="Pop out to a floating window"
-                  title="Pop out"
-                  onClick={() => {
-                    useApp.getState().openView({ type: "person", id: openPersonId }, "float");
-                    closePerson();
-                  }}
-                >
-                  <PictureInPicture2 />
-                </Button>
                 {person && !person.isSelf && <DeletePersonButton id={person.id} name={person.name} />}
                 <Button variant="ghost" size="icon-sm" aria-label="Close" onClick={closePerson}>
                   <X />

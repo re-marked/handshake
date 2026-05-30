@@ -52,7 +52,7 @@ export function CommandPalette() {
 
   function jump(id: string) {
     setOpen(false);
-    useApp.getState().openPerson(id);
+    useApp.getState().revealPerson(id);
   }
 
   async function create(name: string) {
@@ -74,7 +74,7 @@ export function CommandPalette() {
       diff.push({ op: "createHandshake", handshake });
     }
     const res = await useApp.getState().commit(diff);
-    if (res.ok) useApp.getState().openPerson(id);
+    if (res.ok) useApp.getState().revealPerson(id);
   }
 
   return (

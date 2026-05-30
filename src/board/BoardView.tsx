@@ -40,7 +40,6 @@ export function BoardView({ boardId }: { boardId: string }) {
   const photos = useApp((s) => s.photos);
   const layout = useApp((s) => s.layout);
   const saveLayout = useApp((s) => s.saveLayout);
-  const togglePerson = useApp((s) => s.togglePerson);
   const deletingId = useApp((s) => s.deletingId);
   const locate = useApp((s) => s.locate);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -244,7 +243,7 @@ export function BoardView({ boardId }: { boardId: string }) {
           if (e.metaKey || e.ctrlKey) {
             useApp.getState().openView({ type: "person", id: d.cardId }, { split: "row" }); // ⌘/Ctrl-click → split
           } else {
-            togglePerson(d.cardId); // plain click → slide-in note
+            useApp.getState().revealPerson(d.cardId, { toggle: true }); // plain click → note in the default mode
           }
         }
       } else if (!isGoal && d.dropTarget) {
@@ -342,7 +341,7 @@ export function BoardView({ boardId }: { boardId: string }) {
     const res = await useApp.getState().commit(diff);
     if (res.ok) {
       schedulePersist();
-      useApp.getState().openPerson(personId);
+      useApp.getState().revealPerson(personId);
       setTimeout(() => setJustCreated(null), 500);
     } else {
       setJustCreated(null);
@@ -385,7 +384,7 @@ export function BoardView({ boardId }: { boardId: string }) {
       if (res.ok) {
         cancelCompose();
         schedulePersist();
-        useApp.getState().openPerson(id);
+        useApp.getState().revealPerson(id);
         setTimeout(() => setJustCreated(null), 500);
       } else {
         setPositions((prev) => {

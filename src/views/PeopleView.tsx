@@ -137,7 +137,7 @@ export function PeopleView() {
     const res = await useApp.getState().commit(diff);
     if (res.ok) {
       setQuery("");
-      useApp.getState().openPerson(id);
+      useApp.getState().revealPerson(id);
     }
   }
 
@@ -285,7 +285,7 @@ function PersonRow({
   onTag: (t: string) => void;
 }) {
   const subtitle = [person.role, person.company].filter(Boolean).join(" · ");
-  const open = () => useApp.getState().openPerson(person.id);
+  const open = () => useApp.getState().revealPerson(person.id);
   return (
     <div
       role="button"

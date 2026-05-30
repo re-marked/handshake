@@ -8,6 +8,7 @@ import {
   newId,
   viewKey,
   type FloatingWindow,
+  type NoteMode,
   type OpenTarget,
   type Pane,
   type View,
@@ -57,9 +58,10 @@ interface AppState {
    *  updates in place — no reload — because applyDiff hands back the derived next state. */
   commit: (diff: Diff) => Promise<ApplyResult>;
   saveLayout: (layout: Layout) => void;
-  /** Open a person's note — or close it if that person is already open (tap-to-toggle). */
-  togglePerson: (id: string) => void;
-  /** Open a person's note unconditionally (e.g. just after creating them). */
+  /** Reveal a person in the remembered note mode — or focus them if already shown
+   *  somewhere. `toggle` lets the board's tap-again close the slide-in panel. */
+  revealPerson: (id: string, opts?: { toggle?: boolean }) => void;
+  /** Open a person in the slide-in panel (primitive; callers usually want revealPerson). */
   openPerson: (id: string) => void;
   closePerson: () => void;
   /** Delete a person and all their ties; animates the card out, then commits. */
@@ -92,6 +94,10 @@ interface AppState {
   resizeFloat: (id: string, w: number, h: number) => void;
   /** Raise a floating window above the others. */
   focusFloat: (id: string) => void;
+  /** Move a person's note between modes (panel ⇄ float ⇄ tab) — a move, not a copy. */
+  setNoteMode: (id: string, mode: NoteMode) => void;
+  /** Remember which mode new notes open in (persisted in the workspace). */
+  setNoteDefault: (mode: NoteMode) => void;
   /** Reset the workspace to a single board tab (recovery from a bad layout). */
   resetWorkspace: () => void;
   /** Set the list-view row density (persists to localStorage). */
@@ -157,21 +163,28 @@ export const useApp = create<AppState>()((set, get) => ({
     void get().session?.saveLayout(layout).catch(() => {});
   },
 
-  togglePerson(id) {
-    const floating = get().workspace.floats.find((f) => f.view.type === "person" && f.view.id === id);
+  revealPerson(id, opts) {
+    const s = get();
+    const key = `person:${id}`;
+    const floating = s.workspace.floats.find((f) => viewKey(f.view) === key);
     if (floating) {
-      get().focusFloat(floating.id); // this person is already a float → raise it, no panel
+      get().focusFloat(floating.id); // already floating → raise it
       return;
     }
-    set((s) => ({ openPersonId: s.openPersonId === id ? null : id }));
+    if (s.workspace.tabs.some((t) => viewKey(t) === key)) {
+      get().selectTab(key); // already a docked tab/pane → focus it
+      return;
+    }
+    if (s.openPersonId === id) {
+      if (opts?.toggle) get().closePerson(); // panel: tap the same card again to close
+      return;
+    }
+    const mode = s.workspace.noteDefault; // not shown anywhere → open in the remembered mode
+    if (mode === "panel") get().openPerson(id);
+    else get().openView({ type: "person", id }, mode);
   },
 
   openPerson(id) {
-    const floating = get().workspace.floats.find((f) => f.view.type === "person" && f.view.id === id);
-    if (floating) {
-      get().focusFloat(floating.id);
-      return;
-    }
     set({ openPersonId: id });
   },
 
@@ -342,6 +355,26 @@ export const useApp = create<AppState>()((set, get) => ({
         },
       };
     });
+  },
+
+  setNoteMode(id, mode) {
+    const view: View = { type: "person", id };
+    const key = `person:${id}`;
+    const s = get();
+    // Detach from every container first — a person lives in exactly one place.
+    set({
+      openPersonId: s.openPersonId === id ? null : s.openPersonId,
+      workspace: { ...s.workspace, floats: s.workspace.floats.filter((f) => viewKey(f.view) !== key) },
+    });
+    get().closeTab(key); // drops a docked tab + collapses its pane, if present
+    // Re-attach in the target mode.
+    if (mode === "panel") set({ openPersonId: id });
+    else if (mode === "float") get().addFloat(view);
+    else get().openTab(view);
+  },
+
+  setNoteDefault(mode) {
+    set((s) => ({ workspace: { ...s.workspace, noteDefault: mode } }));
   },
 
   resetWorkspace() {

@@ -1,11 +1,12 @@
 import { useRef } from "react";
 import { motion } from "motion/react";
-import { PanelRight, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/app/store";
 import { tabLabel, type FloatingWindow as FloatWin } from "@/workspace/model";
 import { TabIcon } from "@/workspace/TopBar";
 import { ViewHost } from "@/workspace/ViewHost";
+import { NoteModeSwitch } from "@/workspace/NoteModeSwitch";
 
 const POP = { type: "spring", stiffness: 520, damping: 40 } as const;
 const MIN_W = 260;
@@ -72,7 +73,7 @@ export function FloatingWindow({
       onPointerUp={onPointerUp}
     >
       <div
-        className="flex h-9 shrink-0 cursor-grab select-none items-center justify-between gap-2 border-b px-2.5 active:cursor-grabbing"
+        className="flex h-10 shrink-0 cursor-grab select-none items-center justify-between gap-2 border-b px-2.5 active:cursor-grabbing"
         onPointerDown={(e) => {
           if ((e.target as HTMLElement).closest("[data-no-drag]")) return;
           begin("move", e);
@@ -82,30 +83,9 @@ export function FloatingWindow({
           <TabIcon view={view} photo={photo} />
           <span className="truncate">{tabLabel(view, (pid) => people.get(pid)?.name)}</span>
         </div>
-        <div className="flex items-center gap-0.5">
-          {view.type === "person" && (
-            <Button
-              data-no-drag
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Dock to the side panel"
-              title="Dock to panel"
-              onClick={() => {
-                const pid = view.id;
-                useApp.getState().closeFloat(id); // drop the float first, then re-open as the panel
-                useApp.getState().openView({ type: "person", id: pid }, "panel");
-              }}
-            >
-              <PanelRight />
-            </Button>
-          )}
-          <Button
-            data-no-drag
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Close"
-            onClick={() => useApp.getState().closeFloat(id)}
-          >
+        <div data-no-drag className="flex items-center gap-1">
+          {view.type === "person" && <NoteModeSwitch id={view.id} current="float" />}
+          <Button variant="ghost" size="icon-sm" aria-label="Close" onClick={() => useApp.getState().closeFloat(id)}>
             <X />
           </Button>
         </div>
