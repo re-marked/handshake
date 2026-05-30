@@ -101,8 +101,12 @@ export const useApp = create<AppState>()((set, get) => ({
     const session = new VaultSession(createTauriIO(vault));
     set({ session });
     try {
-      const [switchboard, layout] = await Promise.all([session.load(), session.loadLayout()]);
-      set({ switchboard, layout, status: "ready" });
+      const [switchboard, layout, workspace] = await Promise.all([
+        session.load(),
+        session.loadLayout(),
+        session.loadWorkspace(),
+      ]);
+      set({ switchboard, layout, workspace, status: "ready" });
 
       const resolved = await Promise.all(
         [...switchboard.people.values()]
@@ -263,3 +267,17 @@ export const useApp = create<AppState>()((set, get) => ({
     set((s) => ({ locate: { id, nonce: (s.locate?.nonce ?? 0) + 1 } }));
   },
 }));
+
+// Persist the workspace (tabs / pane tiling / floats / note default) ~500ms after it changes,
+// mirroring BoardView's debounced layout writer. Transient bits (openPersonId, locate, command,
+// deletingId) live outside `workspace`, so they never trigger a write.
+let workspaceSaveTimer: ReturnType<typeof setTimeout> | null = null;
+useApp.subscribe((state, prev) => {
+  if (state.workspace === prev.workspace) return;
+  const { session, status } = state;
+  if (!session || status !== "ready") return;
+  if (workspaceSaveTimer) clearTimeout(workspaceSaveTimer);
+  workspaceSaveTimer = setTimeout(() => {
+    void session.saveWorkspace(useApp.getState().workspace).catch(() => {});
+  }, 500);
+});

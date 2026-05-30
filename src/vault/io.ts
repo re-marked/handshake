@@ -25,6 +25,10 @@ export interface VaultIO {
   readLayout(): Promise<string>;
   /** Atomically write the board layout sidecar. */
   writeLayout(content: string): Promise<void>;
+  /** Read the workspace sidecar (raw JSON; empty string if absent). */
+  readWorkspace(): Promise<string>;
+  /** Atomically write the workspace sidecar. */
+  writeWorkspace(content: string): Promise<void>;
   /** React to external edits (not our own writes). Resolves to an unsubscribe fn. */
   watch(onChange: (change: VaultChange) => void): Promise<() => void>;
 }

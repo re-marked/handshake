@@ -139,6 +139,25 @@ fn write_layout(vault: String, content: String) -> Result<(), String> {
     write_atomic(&dir.join("layout.json"), &content).map_err(|e| e.to_string())
 }
 
+/// Read the workspace sidecar (.handshake/workspace.json). Empty string if absent.
+#[tauri::command]
+fn read_workspace(vault: String) -> Result<String, String> {
+    let path = PathBuf::from(&vault).join(".handshake").join("workspace.json");
+    match fs::read_to_string(&path) {
+        Ok(content) => Ok(content),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(String::new()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Atomically write the workspace sidecar. The watcher ignores .handshake/.
+#[tauri::command]
+fn write_workspace(vault: String, content: String) -> Result<(), String> {
+    let dir = PathBuf::from(&vault).join(".handshake");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    write_atomic(&dir.join("workspace.json"), &content).map_err(|e| e.to_string())
+}
+
 /// Start watching the vault. External edits are emitted to the frontend as
 /// "vault:change"; our own writes are suppressed via the ledger.
 #[tauri::command]
@@ -271,7 +290,9 @@ pub fn run() {
             start_watching,
             read_attachment,
             read_layout,
-            write_layout
+            write_layout,
+            read_workspace,
+            write_workspace
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

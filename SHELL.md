@@ -128,8 +128,13 @@ writer); the watcher reload updates `switchboard` in place.
 ## 6. Persistence — two sidecars, two lifecycles
 
 - **`.handshake/layout.json`** — the *board's* state: card positions + viewport. (Built.)
-- **`.handshake/workspace.json`** — the *shell's* state: the split tree, tabs, floating
-  windows, sizes, sidebar open/closed. Restored on open.
+- **`.handshake/workspace.json`** — the *shell's* state: the open tabs, the pane tiling +
+  split sizes, the active pane, floating windows, and the note-mode default. (Built —
+  `src/vault/workspace.ts` defensive parse/serialize; Rust `read_workspace`/`write_workspace`;
+  loaded in store `init`, written via a 500ms-debounced `useApp.subscribe`.) Restored on open.
+  The transient slide-in note (`openPersonId`), locate, and command state are deliberately
+  **not** persisted — launch never auto-pops a note. Extra (non-`main`) board positions are
+  session-only (in-memory cache); only `main`'s positions persist (in `layout.json`).
 
 Separate because they change at different rates and mean different things (where the
 people sit vs which panes are open).

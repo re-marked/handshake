@@ -9,6 +9,8 @@ import {
 } from "../switchboard";
 import type { VaultChange, VaultIO } from "./io";
 import { emptyLayout, parseLayout, serializeLayout, type Layout } from "./layout";
+import { parseWorkspace, serializeWorkspace } from "./workspace";
+import { emptyWorkspace, type Workspace } from "@/workspace/model";
 
 /**
  * Owns the live Switchboard and the disk. The only stateful object in the data
@@ -71,6 +73,20 @@ export class VaultSession {
   /** Persist the board layout sidecar. */
   async saveLayout(layout: Layout): Promise<void> {
     await this.io.writeLayout(serializeLayout(layout));
+  }
+
+  /** Load the workspace sidecar (open tabs, the pane tiling, floats). */
+  async loadWorkspace(): Promise<Workspace> {
+    try {
+      return parseWorkspace(await this.io.readWorkspace());
+    } catch {
+      return emptyWorkspace();
+    }
+  }
+
+  /** Persist the workspace sidecar. */
+  async saveWorkspace(workspace: Workspace): Promise<void> {
+    await this.io.writeWorkspace(serializeWorkspace(workspace));
   }
 
   /** Begin reacting to external edits (Obsidian, git, etc.). Returns an unsubscribe fn. */
