@@ -1,17 +1,14 @@
-import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { NavRail } from "@/app/NavRail";
 import { PersonPanel } from "@/app/PersonPanel";
 import { CommandPalette } from "@/app/CommandPalette";
-import { BoardView } from "@/board/BoardView";
-import { GoalsView } from "@/views/GoalsView";
-import { PeopleView } from "@/views/PeopleView";
+import { WorkspaceRenderer } from "@/workspace/WorkspaceRenderer";
 
-/** The app frame: nav rail + the main area (the board). Right region + palette land later. */
+/** The app frame: nav rail + the docked workspace (tabs/splits) + the slide-in note + palette. */
 export function Shell() {
   const status = useApp((s) => s.status);
   const error = useApp((s) => s.error);
-  const view = useApp((s) => s.view);
+  const root = useApp((s) => s.workspace.root);
 
   if (status === "error") {
     return (
@@ -31,19 +28,7 @@ export function Shell() {
     <div className="flex h-full w-full overflow-hidden bg-background text-foreground">
       <NavRail />
       <main className="relative min-w-0 flex-1 overflow-hidden">
-        <div className={cn("absolute inset-0", view !== "board" && "hidden")}>
-          <BoardView />
-        </div>
-        {view === "goals" && (
-          <div className="absolute inset-0">
-            <GoalsView />
-          </div>
-        )}
-        {view === "people" && (
-          <div className="absolute inset-0">
-            <PeopleView />
-          </div>
-        )}
+        <WorkspaceRenderer node={root} />
         <PersonPanel />
       </main>
       <CommandPalette />

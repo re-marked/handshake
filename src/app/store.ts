@@ -3,6 +3,8 @@ import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
 import { emptySwitchboard, type ApplyResult, type Diff, type Switchboard } from "@/switchboard";
+import { emptyWorkspace, viewKey, type OpenTarget, type View, type Workspace } from "@/workspace/model";
+import { findView, insertTab, mapLeaf, removeTab } from "@/workspace/ops";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
@@ -34,8 +36,8 @@ interface AppState {
   deletingId: string | null;
   /** Whether the command palette (Ctrl-P) is open. */
   commandOpen: boolean;
-  /** The active primary view in the main area. */
-  view: "board" | "goals" | "people";
+  /** The docked workspace tree (tabs + splits) + floats + active leaf + note default. */
+  workspace: Workspace;
   /** Row density for list views (People). Persisted to localStorage. */
   density: "compact" | "comfortable" | "spacious";
   /** A request to center the board on a person (from the People view); nonce retriggers. */
@@ -55,8 +57,16 @@ interface AppState {
   deletePerson: (id: string) => Promise<void>;
   /** Open/close the command palette. */
   setCommandOpen: (open: boolean) => void;
-  /** Switch the primary view. */
-  setView: (view: "board" | "goals" | "people") => void;
+  /** Open a View into a target (tab / panel / replaceActive / split / float); dedupes + focuses. */
+  openView: (view: View, target?: OpenTarget) => void;
+  /** Close a tab (by viewKey) in a leaf. */
+  closeTab: (leafId: string, key: string) => void;
+  /** Make a tab active within its leaf. */
+  setActiveTab: (leafId: string, key: string) => void;
+  /** Mark a leaf as the active one. */
+  setActiveLeaf: (leafId: string) => void;
+  /** Focus (or open) the board tab and make it active. */
+  focusBoard: () => void;
   /** Set the list-view row density (persists to localStorage). */
   setDensity: (density: "compact" | "comfortable" | "spacious") => void;
   /** Switch to the board and center it on a person (+ a brief highlight). */
@@ -73,7 +83,7 @@ export const useApp = create<AppState>()((set, get) => ({
   openPersonId: null,
   deletingId: null,
   commandOpen: false,
-  view: "board",
+  workspace: emptyWorkspace(),
   density: readDensity(),
   locate: null,
 
@@ -148,8 +158,63 @@ export const useApp = create<AppState>()((set, get) => ({
     set({ commandOpen: open });
   },
 
-  setView(view) {
-    set({ view, openPersonId: null }); // switching views closes the open note
+  openView(view, target = "tab") {
+    if (target === "panel") {
+      if (view.type === "person") set({ openPersonId: view.id });
+      return;
+    }
+    const ws = get().workspace;
+    const key = viewKey(view);
+    const found = findView(ws.root, key);
+    if (found) {
+      // already open somewhere → focus it (don't duplicate)
+      set({
+        workspace: {
+          ...ws,
+          activeLeafId: found.leaf.id,
+          root: mapLeaf(ws.root, found.leaf.id, (l) => ({ ...l, activeIndex: found.index })),
+        },
+      });
+      return;
+    }
+    const leafId = ws.activeLeafId;
+    const root = mapLeaf(ws.root, leafId, (l) => {
+      if (target === "replaceActive") {
+        const cur = l.tabs[l.activeIndex];
+        if (cur && cur.type !== "board") {
+          return { ...l, tabs: l.tabs.map((t, i) => (i === l.activeIndex ? view : t)) };
+        }
+      }
+      return insertTab(l, view); // split/float dock as a tab until those layers land
+    });
+    set({ workspace: { ...ws, activeLeafId: leafId, root } });
+  },
+
+  closeTab(leafId, key) {
+    set((s) => ({
+      workspace: { ...s.workspace, root: mapLeaf(s.workspace.root, leafId, (l) => removeTab(l, key)) },
+    }));
+  },
+
+  setActiveTab(leafId, key) {
+    set((s) => ({
+      workspace: {
+        ...s.workspace,
+        activeLeafId: leafId,
+        root: mapLeaf(s.workspace.root, leafId, (l) => {
+          const i = l.tabs.findIndex((v) => viewKey(v) === key);
+          return i >= 0 ? { ...l, activeIndex: i } : l;
+        }),
+      },
+    }));
+  },
+
+  setActiveLeaf(leafId) {
+    set((s) => ({ workspace: { ...s.workspace, activeLeafId: leafId } }));
+  },
+
+  focusBoard() {
+    get().openView({ type: "board" }, "tab");
   },
 
   setDensity(density) {
@@ -162,6 +227,7 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   locatePerson(id) {
-    set((s) => ({ view: "board", openPersonId: null, locate: { id, nonce: (s.locate?.nonce ?? 0) + 1 } }));
+    get().focusBoard(); // make the board the active tab so centering lands on a visible board
+    set((s) => ({ locate: { id, nonce: (s.locate?.nonce ?? 0) + 1 } }));
   },
 }));

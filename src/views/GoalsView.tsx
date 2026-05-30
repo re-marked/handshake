@@ -98,7 +98,7 @@ function GoalRow({ goal }: { goal: Goal }) {
     const { diff, personId } = promoteGoalDiff(useApp.getState().switchboard, goal);
     const res = await commit(diff);
     if (res.ok) {
-      useApp.getState().setView("board");
+      useApp.getState().focusBoard();
       useApp.getState().openPerson(personId);
     }
   }

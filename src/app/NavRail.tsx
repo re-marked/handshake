@@ -1,6 +1,7 @@
 import { Search, Settings, Share2, Target, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
+import { activeView } from "@/workspace/ops";
 
 function RailButton({
   icon: Icon,
@@ -29,14 +30,14 @@ function RailButton({
 
 /** The thin left rail — navigation between Views (most are static until L6; see SHELL.md). */
 export function NavRail() {
-  const view = useApp((s) => s.view);
-  const setView = useApp((s) => s.setView);
+  const activeType = useApp((s) => activeView(s.workspace)?.type);
+  const openView = useApp((s) => s.openView);
   const setCommandOpen = useApp((s) => s.setCommandOpen);
   return (
     <nav className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-2">
-      <RailButton icon={Share2} label="Board" active={view === "board"} onClick={() => setView("board")} />
-      <RailButton icon={Users} label="People" active={view === "people"} onClick={() => setView("people")} />
-      <RailButton icon={Target} label="Goals" active={view === "goals"} onClick={() => setView("goals")} />
+      <RailButton icon={Share2} label="Board" active={activeType === "board"} onClick={() => openView({ type: "board" }, "tab")} />
+      <RailButton icon={Users} label="People" active={activeType === "people"} onClick={() => openView({ type: "people" }, "tab")} />
+      <RailButton icon={Target} label="Goals" active={activeType === "goals"} onClick={() => openView({ type: "goals" }, "tab")} />
       <RailButton icon={Search} label="Search (Ctrl-P)" onClick={() => setCommandOpen(true)} />
       <div className="mt-auto">
         <RailButton icon={Settings} label="Settings" />
