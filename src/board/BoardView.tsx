@@ -9,7 +9,7 @@ const LINK_SPAN = 8000; // SVG coordinate span (centered on origin) for drawing 
  * The board — a clean digital corkboard. Cards are placed and stay put (no physics);
  * dragging a card rigidly moves its whole subtree. Pan the empty board, scroll to zoom.
  */
-export function BoardView({ switchboard }: { switchboard: Switchboard }) {
+export function BoardView({ switchboard, photos }: { switchboard: Switchboard; photos: Map<string, string> }) {
   const model = useMemo(() => buildBoardModel(switchboard, new Date()), [switchboard]);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -127,7 +127,7 @@ export function BoardView({ switchboard }: { switchboard: Switchboard }) {
               className="absolute cursor-grab"
               style={{ left: p.x, top: p.y, transform: "translate(-50%, -50%)" }}
             >
-              <PersonCard card={card} />
+              <PersonCard card={card} photoSrc={photos.get(card.id)} />
             </div>
           );
         })}

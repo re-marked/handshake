@@ -1415,6 +1415,7 @@ dependencies = [
 name = "handshake"
 version = "0.1.0"
 dependencies = [
+ "base64 0.22.1",
  "notify-debouncer-mini",
  "serde",
  "serde_json",

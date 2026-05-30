@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Duration;
 
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use notify_debouncer_mini::notify::{RecommendedWatcher, RecursiveMode};
 use notify_debouncer_mini::{new_debouncer, DebounceEventResult, Debouncer};
 use serde::Serialize;
@@ -93,6 +94,30 @@ fn delete_file(vault: String, relpath: String, ledger: State<'_, Ledger>) -> Res
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
         Err(e) => Err(e.to_string()),
     }
+}
+
+/// Read an attachment image and return it as a base64 data URL for an <img> tag.
+/// Scoped to the vault's attachments/ folder.
+#[tauri::command]
+fn read_attachment(vault: String, relpath: String) -> Result<String, String> {
+    let normalized = relpath.replace('\\', "/");
+    if normalized.contains("..") {
+        return Err(format!("unsafe relpath: {relpath}"));
+    }
+    if !normalized.starts_with("attachments/") {
+        return Err(format!("not an attachment: {relpath}"));
+    }
+    let path = PathBuf::from(&vault).join(&normalized);
+    let bytes = fs::read(&path).map_err(|e| e.to_string())?;
+    let mime = match path.extension().and_then(|e| e.to_str()).map(str::to_ascii_lowercase).as_deref() {
+        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("png") => "image/png",
+        Some("gif") => "image/gif",
+        Some("webp") => "image/webp",
+        Some("svg") => "image/svg+xml",
+        _ => "application/octet-stream",
+    };
+    Ok(format!("data:{};base64,{}", mime, STANDARD.encode(bytes)))
 }
 
 /// Start watching the vault. External edits are emitted to the frontend as
@@ -220,7 +245,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .manage(Ledger::default())
         .manage(WatcherHolder::default())
-        .invoke_handler(tauri::generate_handler![read_vault, write_file, delete_file, start_watching])
+        .invoke_handler(tauri::generate_handler![read_vault, write_file, delete_file, start_watching, read_attachment])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

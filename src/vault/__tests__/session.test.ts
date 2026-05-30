@@ -29,6 +29,9 @@ class FakeIO implements VaultIO {
   async deleteFile(relpath: string): Promise<void> {
     this.files.delete(relpath);
   }
+  async readAttachment(): Promise<string> {
+    return "";
+  }
   async watch(onChange: (change: VaultChange) => void): Promise<() => void> {
     this.listeners.push(onChange);
     return () => {

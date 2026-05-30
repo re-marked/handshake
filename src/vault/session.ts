@@ -53,6 +53,11 @@ export class VaultSession {
     return result;
   }
 
+  /** Read an attachment (image) as a data URL the webview can display. */
+  readAttachment(relpath: string): Promise<string> {
+    return this.io.readAttachment(relpath);
+  }
+
   /** Begin reacting to external edits (Obsidian, git, etc.). Returns an unsubscribe fn. */
   async watch(onChange?: (change: VaultChange) => void): Promise<() => void> {
     return this.io.watch((change) => {

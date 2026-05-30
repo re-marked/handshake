@@ -19,6 +19,8 @@ export interface VaultIO {
   writeFile(relpath: string, text: string): Promise<void>;
   /** Delete one file (a no-op if it's already gone). */
   deleteFile(relpath: string): Promise<void>;
+  /** Read an attachment (image) as a data URL the webview can display. */
+  readAttachment(relpath: string): Promise<string>;
   /** React to external edits (not our own writes). Resolves to an unsubscribe fn. */
   watch(onChange: (change: VaultChange) => void): Promise<() => void>;
 }

@@ -10,6 +10,7 @@ const VAULT = import.meta.env.VITE_VAULT_PATH as string | undefined;
 
 export default function App() {
   const [switchboard, setSwitchboard] = useState<Switchboard | null>(null);
+  const [photos, setPhotos] = useState<Map<string, string>>(new Map());
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -18,7 +19,34 @@ export default function App() {
       return;
     }
     const session = new VaultSession(createTauriIO(VAULT));
-    session.load().then(setSwitchboard).catch((e: unknown) => setError(String(e)));
+    let cancelled = false;
+
+    (async () => {
+      const sb = await session.load();
+      if (cancelled) return;
+      setSwitchboard(sb);
+
+      // Resolve photos for anyone who has one; missing files just stay silhouettes.
+      const resolved = await Promise.all(
+        [...sb.people.values()]
+          .filter((p) => p.photo)
+          .map(async (p) => {
+            try {
+              return [p.id, await session.readAttachment(p.photo!)] as const;
+            } catch {
+              return null;
+            }
+          }),
+      );
+      if (cancelled) return;
+      setPhotos(new Map(resolved.filter((e): e is readonly [string, string] => e !== null)));
+    })().catch((e: unknown) => {
+      if (!cancelled) setError(String(e));
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (error) {
@@ -35,5 +63,5 @@ export default function App() {
       </div>
     );
   }
-  return <BoardView switchboard={switchboard} />;
+  return <BoardView switchboard={switchboard} photos={photos} />;
 }
