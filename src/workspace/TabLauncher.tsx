@@ -31,6 +31,7 @@ export function TabLauncher({ leafId }: { leafId: string }) {
           variant="ghost"
           size="icon-sm"
           aria-label="New tab"
+          title="New tab"
           className="shrink-0 rounded-lg text-muted-foreground hover:text-foreground"
         >
           <Plus />

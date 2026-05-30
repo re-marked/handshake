@@ -43,7 +43,7 @@ export function PersonPanel() {
   }, [openPersonId, closePerson]);
 
   return (
-    <div className="pointer-events-none absolute right-3 top-3 z-40 w-80">
+    <div className="pointer-events-none absolute right-3 top-14 z-40 w-80">
       <AnimatePresence mode="wait">
         {openPersonId && (
           <motion.div
@@ -52,7 +52,7 @@ export function PersonPanel() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 340, opacity: 0, transition: EXIT }}
             transition={ENTER}
-            className="pointer-events-auto flex max-h-[calc(100vh-6rem)] flex-col overflow-hidden rounded-xl border bg-card shadow-xl"
+            className="pointer-events-auto flex max-h-[calc(100vh-4.5rem)] flex-col overflow-hidden rounded-xl border bg-card shadow-xl"
           >
             <div className="flex h-9 shrink-0 items-center justify-between border-b px-3">
               <span className="text-xs text-muted-foreground">Note</span>
