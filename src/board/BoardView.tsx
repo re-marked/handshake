@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "motion/react";
+import { Plus, User } from "lucide-react";
 import { buildBoardModel, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { PersonCard } from "@/board/PersonCard";
 import { useApp } from "@/app/store";
+import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
 import type { Layout } from "@/vault/layout";
 
 const LINK_SPAN = 8000; // SVG coordinate span (centered on origin) for drawing links
@@ -34,6 +37,12 @@ export function BoardView() {
   const [positions, setPositions] = useState<Map<string, Pos>>(() => seedPositions(model, layout));
   const [pan, setPan] = useState<Pos>(() => layout.viewport?.pan ?? { x: 0, y: 0 });
   const [zoom, setZoom] = useState(() => layout.viewport?.zoom ?? 1);
+
+  // The "+" create-and-connect flow: a ghost card you name before it materializes.
+  const [composing, setComposing] = useState<{ sourceId: string; pos: Pos } | null>(null);
+  const [composeName, setComposeName] = useState("");
+  const [justCreated, setJustCreated] = useState<string | null>(null);
+  const composeBusy = useRef(false);
 
   // First-ever open (no saved viewport): center self (world origin) in the viewport.
   useEffect(() => {
@@ -167,6 +176,63 @@ export function BoardView() {
 
   const at = (id: string): Pos => positions.get(id) ?? { x: 0, y: 0 };
 
+  function startCompose(sourceId: string) {
+    const src = at(sourceId);
+    setComposeName("");
+    setComposing({ sourceId, pos: { x: src.x + 30, y: src.y + 200 } });
+  }
+
+  function cancelCompose() {
+    setComposing(null);
+    setComposeName("");
+  }
+
+  // Materialize the ghost: mint the id from the typed name, write the person + the edge
+  // to its source in one atomic diff, spring it solid, and open its note for editing.
+  async function materialize() {
+    const c = composing;
+    const name = composeName.trim();
+    if (!c || !name || composeBusy.current) {
+      if (!name) cancelCompose();
+      return;
+    }
+    composeBusy.current = true;
+    try {
+      const sb = useApp.getState().switchboard;
+      const id = mintPersonId(sb.people, name);
+      const person: Person = { kind: "person", id, name, isSelf: false, tags: [], handles: {}, body: "" };
+      const [pa, pb] = canonicalPair(c.sourceId, id);
+      const handshake: Handshake = {
+        kind: "handshake",
+        id: canonicalHandshakeId(c.sourceId, id),
+        people: [pa, pb],
+        strength: "cold",
+        body: "",
+      };
+      setPositions((prev) => new Map(prev).set(id, c.pos));
+      setJustCreated(id);
+      const res = await useApp.getState().commit([
+        { op: "createPerson", person },
+        { op: "createHandshake", handshake },
+      ]);
+      if (res.ok) {
+        cancelCompose();
+        schedulePersist();
+        useApp.getState().openPerson(id);
+        setTimeout(() => setJustCreated(null), 500);
+      } else {
+        setPositions((prev) => {
+          const n = new Map(prev);
+          n.delete(id);
+          return n;
+        });
+        setJustCreated(null);
+      }
+    } finally {
+      composeBusy.current = false;
+    }
+  }
+
   return (
     <div
       ref={containerRef}
@@ -189,6 +255,15 @@ export function BoardView() {
           {model.links.map((link) => (
             <LinkLine key={`${link.a}|${link.b}`} link={link} a={at(link.a)} b={at(link.b)} />
           ))}
+          {composing && (
+            <line
+              x1={at(composing.sourceId).x}
+              y1={at(composing.sourceId).y}
+              x2={composing.pos.x}
+              y2={composing.pos.y}
+              style={{ stroke: "var(--primary)", strokeWidth: 1.5, strokeOpacity: 0.5, strokeDasharray: "4 4" }}
+            />
+          )}
         </svg>
 
         {model.cards.map((card) => {
@@ -197,13 +272,70 @@ export function BoardView() {
             <div
               key={card.id}
               data-card-id={card.id}
-              className="absolute cursor-grab"
+              className="group absolute cursor-grab"
               style={{ left: p.x, top: p.y, transform: "translate(-50%, -50%)" }}
             >
-              <PersonCard card={card} photoSrc={photos.get(card.id)} />
+              <motion.div
+                initial={card.id === justCreated ? { scale: 0.5, opacity: 0 } : false}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              >
+                <PersonCard card={card} photoSrc={photos.get(card.id)} />
+              </motion.div>
+              <button
+                type="button"
+                aria-label={`Add someone connected to ${card.name}`}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  startCompose(card.id);
+                }}
+                className="absolute -bottom-2 -right-2 flex size-5 items-center justify-center rounded-full border bg-card text-muted-foreground opacity-30 shadow-sm transition-all group-hover:opacity-80 hover:border-primary hover:text-foreground hover:!opacity-100"
+              >
+                <Plus className="size-3" />
+              </button>
             </div>
           );
         })}
+
+        {composing && (
+          <motion.div
+            initial={{ scale: 0.7, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 480, damping: 30 }}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute"
+            style={{ left: composing.pos.x, top: composing.pos.y, transform: "translate(-50%, -50%)" }}
+          >
+            <div className="w-36 overflow-hidden rounded-md border border-dashed border-primary/60 bg-card shadow-sm">
+              <div className="flex aspect-square w-full items-center justify-center bg-muted">
+                <User strokeWidth={1.5} className="h-1/2 w-1/2 text-muted-foreground/40" />
+              </div>
+              <div className="px-2 py-2">
+                <input
+                  autoFocus
+                  value={composeName}
+                  onChange={(e) => setComposeName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void materialize();
+                    } else if (e.key === "Escape") {
+                      e.preventDefault();
+                      cancelCompose();
+                    }
+                  }}
+                  onBlur={() => {
+                    if (composeName.trim()) void materialize();
+                    else cancelCompose();
+                  }}
+                  placeholder="Name…"
+                  className="w-full bg-transparent text-sm font-medium leading-tight text-card-foreground outline-none placeholder:text-muted-foreground"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );
