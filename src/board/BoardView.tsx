@@ -185,13 +185,13 @@ export function BoardView() {
     const from = parent ? at(parent) : { x: src.x, y: src.y - 1 };
     const baseAngle = Math.atan2(src.y - from.y, src.x - from.x);
     const occupied = [...positions.values()];
-    const W = 172;
-    const H = 215;
+    const W = 186; // card is ~144 wide; leave a clear gutter
+    const H = 236; // ~196 tall + gutter
     const free = (p: Pos) => !occupied.some((q) => Math.abs(q.x - p.x) < W && Math.abs(q.y - p.y) < H);
-    for (let r = 210; r <= 660; r += 80) {
-      for (let k = 0; k <= 7; k++) {
+    for (let r = 240; r <= 720; r += 80) {
+      for (let k = 0; k <= 8; k++) {
         for (const s of k === 0 ? [0] : [1, -1]) {
-          const a = baseAngle + s * k * 0.45;
+          const a = baseAngle + s * k * 0.4;
           const cand = { x: src.x + r * Math.cos(a), y: src.y + r * Math.sin(a) };
           if (free(cand)) return cand;
         }
