@@ -28,9 +28,15 @@ describe("buildBoardModel", () => {
   });
 
   it("gives every card a position, self at the center", () => {
-    expect(model.positions.size).toBe(4);
+    expect(model.positions.size).toBe(model.cards.length); // every card (people + goals) placed
     const self = model.positions.get("self")!;
     expect(self.x).toBeCloseTo(0);
     expect(self.y).toBeCloseTo(0);
+  });
+
+  it("rides target goals along as faint goal cards", () => {
+    const goalCards = model.cards.filter((c) => c.isGoal);
+    expect(goalCards.length).toBeGreaterThan(0);
+    expect(goalCards.every((c) => c.id.startsWith("goal:") && c.goalId)).toBe(true);
   });
 });

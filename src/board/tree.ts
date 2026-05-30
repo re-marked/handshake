@@ -9,6 +9,9 @@ export interface BoardCard {
   company?: string;
   /** 0..1 recency → card opacity (staleness). */
   freshness: number;
+  /** A target goal riding on the board (faint dashed card); id is `goal:<goalId>`. */
+  isGoal?: boolean;
+  goalId?: string;
 }
 
 export interface BoardLink {
@@ -58,6 +61,12 @@ export function buildBoardModel(
     freshness: freshnessOf(lastInteractionDate(sb, p.id), now),
   }));
 
+  // Aspirational target goals ride along as faint dashed cards (open/active only). They sit
+  // outside the tree (no parent, no links) until ticked, which promotes them to a person.
+  const goalCards: BoardCard[] = [...sb.goals.values()]
+    .filter((g) => g.type === "target" && (g.status === "open" || g.status === "active"))
+    .map((g) => ({ id: `goal:${g.id}`, name: g.title, isSelf: false, freshness: 1, isGoal: true, goalId: g.id }));
+
   const links: BoardLink[] = [...sb.handshakes.values()]
     .filter((h) => sb.people.has(h.people[0]) && sb.people.has(h.people[1]))
     .map((h) => {
@@ -69,8 +78,12 @@ export function buildBoardModel(
   const positions = sb.self
     ? radialLayout(sb.self.id, childrenOf)
     : gridFallback([...sb.people.keys()]);
+  // seed goal cards in a row above the network; draggable + persisted from then on
+  goalCards.forEach((gc, i) => {
+    positions.set(gc.id, { x: (i - (goalCards.length - 1) / 2) * 200, y: -520 });
+  });
 
-  return { cards, links, parentOf, childrenOf, positions };
+  return { cards: [...cards, ...goalCards], links, parentOf, childrenOf, positions };
 }
 
 // parent(X) = (c) manual override ?? (a) introducer on the self↔X handshake

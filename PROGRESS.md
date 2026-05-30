@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Goals view shipped — pick the next thread.** The main area now swaps **Board ↔ Goals** from the rail (the first real "View"). Goals are a simple standalone checklist — add / inline-edit / status (open·active·done·abandoned) / delete — people you want to meet, off the board. **Freshness/staleness was dropped on purpose** (too CRM-y, needs diligent logging). Candidate next: **photo upload** (pick an image → polaroid), a **People view** (searchable list, the rail's Users icon), or **shell L3** (docked tabs → splits). Deferred: pathfinding (BFS `route` self→goal), per-goal notes/deadline/target-person link, markdown, undo. AI stays last.
+**Goals shipped (list + on the board) — pick the next thread.** Rail swaps **Board ↔ Goals**. Goals are short standalone aspirations (add / inline-edit / status / delete), AND each target goal rides on the board as a **faint dashed card**; **ticking it** (board card *or* list) graduates it into a real person connected to you — solidifying in place. **Freshness/staleness dropped on purpose** (too CRM-y). Candidate next: **photo upload** (pick an image → polaroid), a **People view** (searchable list, rail's Users icon), or **shell L3** (docked tabs → splits). Deferred: pathfinding (BFS `route` self→goal), per-goal notes/deadline/explicit target-person link, markdown, undo. AI stays last.
 
 ---
 
@@ -44,7 +44,7 @@ NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; 
 - [ ] Optimistic commit + undo toast
 
 ## Phase 4 — Pathfinding + drafting
-- [x] Goals as a standalone **view** (rail Target → swaps main area; add/inline-edit/status/delete). Short aspirations, not graph-linked. Optional target-person link + deadlines deferred.
+- [x] Goals: a standalone **view** (rail Target swaps the main area) AND faint dashed **cards on the board**; tick a goal (either place) **promotes** it into a connected person (solidifies in place). Short aspirations. Per-goal notes/deadline/explicit target-person link deferred.
 - [ ] BFS from self → target through handshake graph
 - [ ] Yarn highlights path
 - [ ] Anthropic Sonnet drafts intro ask

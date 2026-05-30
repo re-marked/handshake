@@ -13,10 +13,11 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
+import { promoteGoalDiff } from "@/app/goals";
 import { mintGoalId, type Goal, type GoalPatch, type GoalStatus } from "@/switchboard";
 
 const STATUS_ORDER: Record<GoalStatus, number> = { active: 0, open: 1, done: 2, abandoned: 3 };
-const STATUSES: GoalStatus[] = ["open", "active", "done", "abandoned"];
+const STATUSES: GoalStatus[] = ["open", "active", "abandoned"];
 
 /** Goals — short, standalone aspirations (people you want to meet). Not on the board. */
 export function GoalsView() {
@@ -91,14 +92,24 @@ function GoalRow({ goal }: { goal: Goal }) {
   useEffect(() => setTitle(goal.title), [goal.title]);
 
   const patch = (p: GoalPatch) => void commit([{ op: "updateGoal", id: goal.id, patch: p }]);
-  const muted = goal.status === "done" || goal.status === "abandoned";
+  const muted = goal.status === "abandoned";
+
+  async function promote() {
+    const { diff, personId } = promoteGoalDiff(useApp.getState().switchboard, goal);
+    const res = await commit(diff);
+    if (res.ok) {
+      useApp.getState().setView("board");
+      useApp.getState().openPerson(personId);
+    }
+  }
 
   return (
     <div className="group flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-accent/40">
       <button
         type="button"
-        aria-label="Toggle done"
-        onClick={() => patch({ status: goal.status === "done" ? "open" : "done" })}
+        aria-label="Mark met — add as a connection"
+        title="Mark met → add to the board as a connection"
+        onClick={() => void promote()}
         className="shrink-0 transition-transform hover:scale-110"
       >
         <StatusIcon status={goal.status} />

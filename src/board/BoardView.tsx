@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { Plus, User } from "lucide-react";
-import { buildBoardModel, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
+import { Check, Plus, User } from "lucide-react";
+import { buildBoardModel, type BoardCard, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { PersonCard } from "@/board/PersonCard";
+import { GoalCard } from "@/board/GoalCard";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConnectionMenuItems } from "@/app/ConnectionMenu";
+import { promoteGoalDiff } from "@/app/goals";
 import { useApp } from "@/app/store";
 import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person, type Strength } from "@/switchboard";
 import type { Layout } from "@/vault/layout";
@@ -176,12 +178,13 @@ export function BoardView() {
 
     // Is the cursor over a linkable card (not in the dragged subtree, not already tied)?
     const rect = containerRef.current?.getBoundingClientRect();
-    if (rect && d.cardId) {
+    if (rect && d.cardId && !d.cardId.startsWith("goal:")) {
       const px = (e.clientX - rect.left - pan.x) / zoom;
       const py = (e.clientY - rect.top - pan.y) / zoom;
       const subtree = new Set(d.subtree);
       let found: string | null = null;
       for (const card of model.cards) {
+        if (card.isGoal) continue;
         if (subtree.has(card.id)) continue;
         if (switchboard.handshakes.has(canonicalHandshakeId(d.cardId, card.id))) continue;
         const c = at(card.id);
@@ -205,9 +208,10 @@ export function BoardView() {
     if (!d) return;
     const moved = Math.hypot(e.clientX - d.downX, e.clientY - d.downY);
     if (d.mode === "card" && d.cardId) {
+      const isGoal = d.cardId.startsWith("goal:");
       if (moved < 5) {
-        togglePerson(d.cardId); // a barely-moved press is a click → open the note
-      } else if (d.dropTarget) {
+        if (!isGoal) togglePerson(d.cardId); // person click → note; goal click is a no-op (use the tick)
+      } else if (!isGoal && d.dropTarget) {
         // Dropped onto another card → link them, and snap the dragged subtree back so
         // nothing's left overlapping. (Drop in open space to reposition instead.)
         const target = d.dropTarget;
@@ -280,6 +284,32 @@ export function BoardView() {
   function startCompose(sourceId: string) {
     setComposeName("");
     setComposing({ sourceId, pos: findFreeSpot(sourceId) });
+  }
+
+  // Tick a goal card: graduate it into a real person (connected to you), solidifying in
+  // place where the dashed card sat, then open the new note.
+  async function promoteGoalCard(card: BoardCard) {
+    if (!card.goalId) return;
+    const sb = useApp.getState().switchboard;
+    const goal = sb.goals.get(card.goalId);
+    if (!goal) return;
+    const { diff, personId } = promoteGoalDiff(sb, goal);
+    const pos = at(card.id);
+    setPositions((prev) => {
+      const next = new Map(prev);
+      next.set(personId, pos);
+      next.delete(card.id);
+      return next;
+    });
+    setJustCreated(personId);
+    const res = await useApp.getState().commit(diff);
+    if (res.ok) {
+      schedulePersist();
+      useApp.getState().openPerson(personId);
+      setTimeout(() => setJustCreated(null), 500);
+    } else {
+      setJustCreated(null);
+    }
   }
 
   function cancelCompose() {
@@ -400,24 +430,44 @@ export function BoardView() {
                 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               >
-                <PersonCard
-                  card={card}
-                  photoSrc={photos.get(card.id)}
-                  highlighted={card.id === linkPreview?.to}
-                />
+                {card.isGoal ? (
+                  <GoalCard title={card.name} />
+                ) : (
+                  <PersonCard
+                    card={card}
+                    photoSrc={photos.get(card.id)}
+                    highlighted={card.id === linkPreview?.to}
+                  />
+                )}
               </motion.div>
-              <button
-                type="button"
-                aria-label={`Add someone connected to ${card.name}`}
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  startCompose(card.id);
-                }}
-                className="absolute left-full top-1/2 ml-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground opacity-30 shadow-sm transition-all group-hover:opacity-80 hover:border-primary hover:text-foreground hover:!opacity-100"
-              >
-                <Plus className="size-3" />
-              </button>
+              {card.isGoal ? (
+                <button
+                  type="button"
+                  aria-label={`Mark ${card.name} met — add as a connection`}
+                  title="Mark met → add as a connection"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void promoteGoalCard(card);
+                  }}
+                  className="absolute -left-2 -top-2 flex size-6 items-center justify-center rounded-full border border-primary/50 bg-card text-muted-foreground opacity-60 shadow-sm transition-all hover:border-primary hover:bg-primary hover:text-primary-foreground group-hover:opacity-90 hover:!opacity-100"
+                >
+                  <Check className="size-3.5" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  aria-label={`Add someone connected to ${card.name}`}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    startCompose(card.id);
+                  }}
+                  className="absolute left-full top-1/2 ml-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground opacity-30 shadow-sm transition-all group-hover:opacity-80 hover:border-primary hover:text-foreground hover:!opacity-100"
+                >
+                  <Plus className="size-3" />
+                </button>
+              )}
             </div>
           );
         })}
