@@ -12,13 +12,13 @@ import type { Layout } from "@/vault/layout";
 const LINK_SPAN = 8000; // SVG coordinate span (centered on origin) for drawing links
 const PERSIST_DELAY = 500;
 
-// Tie warmth as temperature — desaturated red (close/warm) → blue (cold/dormant). The
-// color carries the strength; kept dusty so it stays classy against the dark board.
+// Tie warmth as one hue, our rose — vivid (close) fading to dusty mauve-grey (dormant).
+// Strength reads from intensity, not a second color, so the board stays on-accent.
 const TIE_COLOR: Record<Strength, string> = {
-  close: "#e6585e", // warm red
-  warm: "#d98c75", // warm terracotta
-  cold: "#86a3b0", // dusty blue (warmed, greyer)
-  dormant: "#7b8388", // warm slate-grey
+  close: "#e25a92", // vivid rose
+  warm: "#c56a85", // dusty rose
+  cold: "#a06d78", // muted mauve
+  dormant: "#7d6168", // faded rose-grey
 };
 
 function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
