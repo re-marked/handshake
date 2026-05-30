@@ -256,6 +256,7 @@ export function BoardView() {
   }
 
   const at = (id: string): Pos => positions.get(id) ?? { x: 0, y: 0 };
+  const selfId = switchboard.self?.id;
 
   // Find an open spot for a new card: fan outward from the source (in its growth
   // direction, away from its parent), expanding the radius until it clears every
@@ -393,6 +394,20 @@ export function BoardView() {
               }
             />
           ))}
+          {/* aspirational dashed tie from you to each goal card */}
+          {selfId &&
+            model.cards.map((c) =>
+              c.isGoal ? (
+                <line
+                  key={`goal-tie:${c.id}`}
+                  x1={at(selfId).x}
+                  y1={at(selfId).y}
+                  x2={at(c.id).x}
+                  y2={at(c.id).y}
+                  style={{ stroke: "var(--primary)", strokeWidth: 1.25, strokeOpacity: 0.3, strokeDasharray: "3 7" }}
+                />
+              ) : null,
+            )}
           {composing && (
             <line
               x1={at(composing.sourceId).x}
