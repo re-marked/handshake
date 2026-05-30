@@ -290,7 +290,7 @@ export function BoardView() {
                   e.stopPropagation();
                   startCompose(card.id);
                 }}
-                className="absolute -bottom-2 -right-2 flex size-5 items-center justify-center rounded-full border bg-card text-muted-foreground opacity-30 shadow-sm transition-all group-hover:opacity-80 hover:border-primary hover:text-foreground hover:!opacity-100"
+                className="absolute left-full top-1/2 ml-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground opacity-30 shadow-sm transition-all group-hover:opacity-80 hover:border-primary hover:text-foreground hover:!opacity-100"
               >
                 <Plus className="size-3" />
               </button>
