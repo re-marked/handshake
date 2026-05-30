@@ -5,7 +5,7 @@ The living **"what's next"** tracker. Read the `▶ NEXT` line first.
 ---
 
 ## ▶ NEXT
-**Look at the graph, then iterate + build outward.** The clean force-directed graph renders the corkboard cast on the dark theme, in a real Tauri window (committed `0b9480a`). First: eyeball the aesthetic with Mark (rose shade, node/label treatment, force tuning) — the iterate-the-look loop. Then: persist positions to `.handshake/layout.json`, wire live updates (watcher + `commit`), and grow the Obsidian three-pane shell around the graph. AI stays last; BFS `route` deferred.
+**Iterate the board's look with Mark.** The card-tree corkboard renders the cast in a real window (`85d252e`): clean dark cards (monogram + name + role), links, self in rose, rigid subtree-drag. Known tuning: open with self centered; the radial seed reads linear with few cards; confirm only self is accented. Mark drives the look (card design, layout, rose shade, links); then persist positions to `.handshake/layout.json` (+ manual re-parent), live wiring (watcher + `commit`), and the three-pane shell. AI stays last; BFS `route` deferred.
 
 ---
 
@@ -26,15 +26,16 @@ The engine is **Switchboard** — pure TS in `src/switchboard/`, zero Tauri/Reac
 - [ ] BFS pathfinding: `route(sb, from, to)` — deferred to end (data-consuming)
 - [x] Fixture vault for tests (`src/switchboard/__tests__/fixtures/`); real people seeded later
 
-## Phase 2 — The graph (clean era — see rewritten UX.md)  ◀ current
+## Phase 2 — The board (card-tree corkboard — see UX.md)  ◀ current
+NOT a force/jelly graph: clean cards, fixed positions, hierarchy rooted at you; dragging a card moves its whole subtree rigidly.
 - [x] Strip dead WebGL deps; shadcn/Tailwind-v4 foundation + dark-first rose theme (re-tool)
-- [x] Clean force-directed graph (`d3-force` + Canvas 2D): people = nodes, handshakes = edges
-- [x] Render bound to `VaultSession` (loads the vault, draws the cast); pan / zoom / drag / hover / select
-- [x] Staleness as node opacity (from `lastInteractionDate`); warmth as edge weight
-- [ ] Iterate the look with Mark (rose shade, node/label treatment, force tuning)
-- [ ] Persist node positions + viewport to `.handshake/layout.json` (re-lays-out each load now)
-- [ ] Live wiring: subscribe to the watcher + reflect `commit()`s without a full reload
-- [ ] App shell: Obsidian three-pane workspace (left rail / center / inspector), command palette, person note
+- [x] Card-tree model (`board/tree.ts`): tree rooted at self (parent = introducer ?? nearest connector ?? you), all handshakes drawn, cross-links flagged, tidy radial seed + staleness. Tested.
+- [x] `BoardView`: clean DOM cards + SVG links; pan / zoom / rigid subtree-drag; bound to `VaultSession`
+- [x] Staleness as card opacity; warmth as link weight; self in rose
+- [ ] Iterate the look with Mark (card design, layout/centering, rose shade, link style)
+- [ ] Persist positions + viewport + manual re-parent to `.handshake/layout.json`
+- [ ] Live wiring: watcher + `commit()` reflected without a full reload
+- [ ] App shell: three-pane workspace (left rail / board / inspector), command palette, person note
 
 ## Phase 3 — Capture
 - [ ] Global hotkey (Tauri) → quick-add overlay
