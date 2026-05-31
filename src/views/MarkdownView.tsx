@@ -114,8 +114,8 @@ export function MarkdownView({
                   start: pos.start.offset,
                   end: pos.end.offset,
                   current,
-                  x: r.left,
-                  y: r.top + r.height / 2,
+                  x: r.left, // bottom-left of the highlight → palette opens below it, left-aligned
+                  y: r.bottom,
                 });
               }
             : undefined
@@ -138,9 +138,9 @@ export function MarkdownView({
             <PopoverAnchor style={{ position: "fixed", left: recolor.x, top: recolor.y }} />
           )}
           <PopoverContent
-            side="left"
-            align="center"
-            sideOffset={8}
+            side="bottom"
+            align="start"
+            sideOffset={6}
             className="w-auto p-2"
             onOpenAutoFocus={(e) => e.preventDefault()}
           >
