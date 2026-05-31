@@ -83,15 +83,9 @@ const editorTheme = EditorView.theme({
     minHeight: "6rem",
   },
   ".cm-line": { padding: "0" },
-  // Compact, dim line-number gutter — blends in, doesn't shout "code editor".
+  // Dim line-number gutter — normal size, just faint, so it blends in.
   ".cm-gutters": { backgroundColor: "transparent", border: "none", color: "var(--color-muted-foreground)" },
-  ".cm-lineNumbers .cm-gutterElement": {
-    fontFamily: MONO,
-    fontSize: "10.5px",
-    minWidth: "1.6em",
-    padding: "0 0.55em 0 0",
-    opacity: "0.4",
-  },
+  ".cm-lineNumbers .cm-gutterElement": { fontFamily: MONO, opacity: "0.4" },
   ".cm-cursor, .cm-dropCursor": { borderLeftColor: "var(--color-primary)" },
   ".cm-selectionBackground, &.cm-focused .cm-selectionBackground": {
     backgroundColor: "color-mix(in srgb, var(--color-primary) 22%, transparent)",

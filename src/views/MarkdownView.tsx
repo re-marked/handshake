@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { cn } from "@/lib/utils";
 import { HL_COLORS, type HlColor, remarkHighlight, rewriteHighlight } from "@/views/remarkHighlight";
@@ -109,7 +110,7 @@ export function MarkdownView({
 
   return (
     <div className={cn(PROSE, className)}>
-      <Markdown remarkPlugins={[remarkGfm, remarkHighlight]} components={{ a: Link, mark: Mark }}>
+      <Markdown remarkPlugins={[remarkGfm, remarkBreaks, remarkHighlight]} components={{ a: Link, mark: Mark }}>
         {source}
       </Markdown>
 
