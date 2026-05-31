@@ -12,7 +12,6 @@ import { useApp } from "@/app/store";
 import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
 import type { Layout } from "@/vault/layout";
 
-const LINK_SPAN = 8000; // SVG coordinate span (centered on origin) for drawing links
 const PERSIST_DELAY = 500;
 
 /**
@@ -413,11 +412,10 @@ export function BoardView({ boardId }: { boardId: string }) {
         className="absolute left-0 top-0 origin-top-left"
         style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
       >
-        <svg
-          className="pointer-events-none absolute"
-          style={{ left: -LINK_SPAN / 2, top: -LINK_SPAN / 2, width: LINK_SPAN, height: LINK_SPAN }}
-          viewBox={`${-LINK_SPAN / 2} ${-LINK_SPAN / 2} ${LINK_SPAN} ${LINK_SPAN}`}
-        >
+        {/* A 1×1 SVG at the world origin with overflow visible — links draw at world coords and
+            paint outside its box. (A giant fixed-size SVG rasterizes a huge GPU layer; two boards
+            at once blew past the layer limit and one board's links silently vanished — issue #3.) */}
+        <svg className="pointer-events-none absolute left-0 top-0 overflow-visible" width={1} height={1}>
           {model.links.map((link) => (
             <LinkLine
               key={`${link.a}|${link.b}`}

@@ -246,7 +246,7 @@ export function PersonView({ id }: { id: string }) {
         onChange={(e) => update({ body: e.target.value })}
         placeholder="Notes…"
         className={cn(
-          "min-h-24 resize-none border-0 bg-transparent px-0 text-[15px] leading-relaxed text-foreground/90 shadow-none",
+          "w-full min-w-0 [overflow-wrap:anywhere] min-h-24 resize-none border-0 bg-transparent px-0 text-[15px] leading-relaxed text-foreground/90 shadow-none",
           "focus-visible:ring-0 dark:bg-transparent",
         )}
       />

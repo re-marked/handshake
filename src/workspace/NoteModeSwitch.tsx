@@ -51,8 +51,8 @@ export function NoteModeSwitch({ id, current }: { id: string; current: NoteMode 
         variant="ghost"
         size="icon-sm"
         aria-pressed={isDefault}
-        title={isDefault ? "New notes open like this" : "Open new notes like this"}
-        onClick={() => useApp.getState().setNoteDefault(current)}
+        title={isDefault ? "New notes open like this — click to unpin" : "Open new notes like this"}
+        onClick={() => useApp.getState().setNoteDefault(isDefault ? "panel" : current)}
       >
         <Pin className={cn(isDefault ? "fill-primary text-primary" : "text-muted-foreground/50")} />
       </Button>

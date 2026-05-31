@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { motion } from "motion/react";
 import { Search, Settings, Share2, Target, User, Users, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { tabLabel, viewKey, type Leaf, type View } from "@/workspace/model";
@@ -109,7 +110,7 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
 
   return (
     <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border bg-card px-2">
-      <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+      <ScrollArea orientation="horizontal" className="min-w-0 flex-1" viewportClassName="[&>div]:!flex [&>div]:items-center [&>div]:gap-1">
         {leaf.tabs.map((view, i) => {
           const key = viewKey(view);
           const active = i === leaf.activeIndex;
@@ -158,7 +159,7 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
             </div>
           );
         })}
-      </div>
+      </ScrollArea>
       <TabLauncher leafId={leaf.id} mode="split" />
       <TabLauncher leafId={leaf.id} />
     </div>
