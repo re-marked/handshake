@@ -2,8 +2,8 @@ import { Camera, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * A clickable photo slot — shows the photo (or a silhouette) with a small camera badge so it's
- * always obviously settable, plus a hover overlay. Used in the person note and the new-card flow.
+ * A clickable photo slot — shows the photo (or a silhouette), with a camera overlay on hover so
+ * it reads as settable. Used in the person note (alongside an explicit button) and the new-card flow.
  */
 export function PhotoUpload({
   src,
@@ -35,18 +35,8 @@ export function PhotoUpload({
       ) : (
         <User className="size-1/2 text-muted-foreground/50" strokeWidth={1.75} />
       )}
-      {/* hover dim + camera, so changing is obvious */}
-      <span className="absolute inset-0 grid place-items-center bg-foreground/35 opacity-0 transition group-hover/photo:opacity-100">
+      <span className="absolute inset-0 grid place-items-center bg-foreground/30 opacity-0 transition group-hover/photo:opacity-100">
         <Camera className="size-2/5 max-h-6 max-w-6 text-white" strokeWidth={2} />
-      </span>
-      {/* always-on badge: this is a photo slot */}
-      <span
-        className={cn(
-          "absolute bottom-0 right-0 grid size-2/5 max-h-[18px] max-w-[18px] place-items-center rounded-full bg-primary text-primary-foreground ring-2 ring-card transition group-hover/photo:opacity-0",
-          round === "md" && "bottom-0.5 right-0.5",
-        )}
-      >
-        <Camera className="size-1/2" strokeWidth={2.25} />
       </span>
     </button>
   );
