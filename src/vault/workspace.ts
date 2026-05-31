@@ -120,7 +120,5 @@ export function parseWorkspace(json: string): Workspace {
   const floats = (Array.isArray(o.floats) ? o.floats.map(validFloat) : []).filter(
     (f): f is FloatingWindow => f !== undefined,
   );
-  const noteDefault = o.noteDefault === "float" || o.noteDefault === "tab" ? o.noteDefault : "panel";
-
-  return { root, floats, activeLeafId, noteDefault };
+  return { root, floats, activeLeafId };
 }

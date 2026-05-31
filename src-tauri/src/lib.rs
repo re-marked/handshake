@@ -158,6 +158,25 @@ fn write_workspace(vault: String, content: String) -> Result<(), String> {
     write_atomic(&dir.join("workspace.json"), &content).map_err(|e| e.to_string())
 }
 
+/// Read the per-network settings sidecar (.handshake/settings.json). Empty string if absent.
+#[tauri::command]
+fn read_settings(vault: String) -> Result<String, String> {
+    let path = PathBuf::from(&vault).join(".handshake").join("settings.json");
+    match fs::read_to_string(&path) {
+        Ok(content) => Ok(content),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(String::new()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Atomically write the per-network settings sidecar. The watcher ignores .handshake/.
+#[tauri::command]
+fn write_settings(vault: String, content: String) -> Result<(), String> {
+    let dir = PathBuf::from(&vault).join(".handshake");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    write_atomic(&dir.join("settings.json"), &content).map_err(|e| e.to_string())
+}
+
 /// App-level state (recent vaults / last opened) — lives in the OS app-config dir, NOT in any
 /// vault, since it tracks which vaults exist. Empty string if absent.
 #[tauri::command]
@@ -314,6 +333,8 @@ pub fn run() {
             write_layout,
             read_workspace,
             write_workspace,
+            read_settings,
+            write_settings,
             read_app_state,
             write_app_state
         ])

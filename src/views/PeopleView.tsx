@@ -55,7 +55,7 @@ export function PeopleView() {
   const handshakes = useApp((s) => s.switchboard.handshakes);
   const selfId = useApp((s) => s.switchboard.self?.id);
   const photos = useApp((s) => s.photos);
-  const density = useApp((s) => s.density);
+  const density = useApp((s) => s.settings.density);
   const setDensity = useApp((s) => s.setDensity);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"name" | "closeness">("name");
@@ -129,7 +129,7 @@ export function PeopleView() {
         kind: "handshake",
         id: canonicalHandshakeId(sid, id),
         people: [pa, pb],
-        strength: "cold",
+        strength: useApp.getState().settings.defaultTieStrength,
         body: "",
       };
       diff.push({ op: "createHandshake", handshake });

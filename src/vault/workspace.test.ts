@@ -10,8 +10,7 @@ function isEmptyWorkspace(ws: Workspace): boolean {
     ws.root.tabs[0].type === "board" &&
     ws.root.tabs[0].id === "main" &&
     ws.activeLeafId === ws.root.id &&
-    ws.floats.length === 0 &&
-    ws.noteDefault === "panel"
+    ws.floats.length === 0
   );
 }
 
@@ -30,7 +29,6 @@ describe("parseWorkspace", () => {
       },
       floats: [{ id: "f1", view: { type: "goals" }, x: 10, y: 20, w: 300, h: 400, z: 1 }],
       activeLeafId: "L2",
-      noteDefault: "tab",
     };
     expect(parseWorkspace(serializeWorkspace(ws))).toEqual(ws);
   });
@@ -121,19 +119,17 @@ describe("parseWorkspace", () => {
     expect(["a", "b"]).toContain(ws.activeLeafId);
   });
 
-  it("defaults noteDefault and drops malformed floats", () => {
+  it("drops malformed floats", () => {
     const ws = parseWorkspace(
       JSON.stringify({
         root: { kind: "leaf", id: "L", tabs: [{ type: "board", id: "main" }], activeIndex: 0 },
         activeLeafId: "L",
-        noteDefault: "nonsense",
         floats: [
           { id: "ok", view: { type: "people" }, x: 1, y: 2, w: 3, h: 4, z: 5 },
           { id: "bad", view: { type: "people" }, x: 1 }, // missing dims -> dropped
         ],
       }),
     );
-    expect(ws.noteDefault).toBe("panel");
     expect(ws.floats).toEqual([{ id: "ok", view: { type: "people" }, x: 1, y: 2, w: 3, h: 4, z: 5 }]);
   });
 });

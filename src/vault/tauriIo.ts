@@ -17,6 +17,8 @@ export function createTauriIO(vault: string): VaultIO {
     writeLayout: (content) => invoke<void>("write_layout", { vault, content }),
     readWorkspace: () => invoke<string>("read_workspace", { vault }),
     writeWorkspace: (content) => invoke<void>("write_workspace", { vault, content }),
+    readSettings: () => invoke<string>("read_settings", { vault }),
+    writeSettings: (content) => invoke<void>("write_settings", { vault, content }),
     watch: async (onChange) => {
       // Listen before starting the watcher so no early event slips through.
       const unlisten = await listen<VaultChange>("vault:change", (event) => onChange(event.payload));

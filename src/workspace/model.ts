@@ -52,7 +52,6 @@ export interface Workspace {
   root: Node;
   floats: FloatingWindow[];
   activeLeafId: string;
-  noteDefault: NoteMode;
 }
 
 /** Where openView places a View. */
@@ -91,8 +90,8 @@ export function tabLabel(v: View, nameOf: (id: string) => string | undefined): s
   }
 }
 
-/** The default workspace: a single leaf with just the board, panel notes. */
-export function emptyWorkspace(noteDefault: NoteMode = "panel"): Workspace {
+/** The default workspace: a single leaf with just the board. */
+export function emptyWorkspace(): Workspace {
   const leaf: Leaf = { kind: "leaf", id: newId(), tabs: [{ type: "board", id: "main" }], activeIndex: 0 };
-  return { root: leaf, floats: [], activeLeafId: leaf.id, noteDefault };
+  return { root: leaf, floats: [], activeLeafId: leaf.id };
 }

@@ -18,7 +18,7 @@ const MODES: { value: NoteMode; icon: LucideIcon; label: string }[] = [
  * rendered in, so it lights up its own slot.
  */
 export function NoteModeSwitch({ id, current }: { id: string; current: NoteMode }) {
-  const noteDefault = useApp((s) => s.workspace.noteDefault);
+  const noteDefault = useApp((s) => s.settings.noteDefault);
   const isDefault = noteDefault === current;
 
   return (

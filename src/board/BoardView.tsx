@@ -34,6 +34,7 @@ export function BoardView({ boardId }: { boardId: string }) {
   const saveLayout = useApp((s) => s.saveLayout);
   const deletingId = useApp((s) => s.deletingId);
   const locate = useApp((s) => s.locate);
+  const showGoals = useApp((s) => s.settings.showGoalsOnBoard);
   const containerRef = useRef<HTMLDivElement>(null);
   const model = useMemo(
     () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
@@ -256,7 +257,7 @@ export function BoardView({ boardId }: { boardId: string }) {
               kind: "handshake",
               id: canonicalHandshakeId(d.cardId, target),
               people: [pa, pb],
-              strength: "cold",
+              strength: useApp.getState().settings.defaultTieStrength,
               body: "",
             },
           },
@@ -365,7 +366,7 @@ export function BoardView({ boardId }: { boardId: string }) {
         kind: "handshake",
         id: canonicalHandshakeId(c.sourceId, id),
         people: [pa, pb],
-        strength: "cold",
+        strength: useApp.getState().settings.defaultTieStrength,
         body: "",
       };
       setPositions((prev) => new Map(prev).set(id, c.pos));
@@ -423,6 +424,7 @@ export function BoardView({ boardId }: { boardId: string }) {
           ))}
           {/* aspirational dashed tie from you to each goal card */}
           {selfId &&
+            showGoals &&
             model.cards.map((c) =>
               c.isGoal ? (
                 <line
@@ -455,7 +457,9 @@ export function BoardView({ boardId }: { boardId: string }) {
           )}
         </svg>
 
-        {model.cards.map((card) => {
+        {model.cards
+          .filter((card) => showGoals || !card.isGoal)
+          .map((card) => {
           const p = at(card.id);
           return (
             <div

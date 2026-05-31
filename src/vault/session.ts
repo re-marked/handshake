@@ -10,6 +10,7 @@ import {
 import type { VaultChange, VaultIO } from "./io";
 import { emptyLayout, parseLayout, serializeLayout, type Layout } from "./layout";
 import { parseWorkspace, serializeWorkspace } from "./workspace";
+import { parseSettings, serializeSettings, type Settings } from "./settings";
 import { emptyWorkspace, type Workspace } from "@/workspace/model";
 
 /**
@@ -87,6 +88,20 @@ export class VaultSession {
   /** Persist the workspace sidecar. */
   async saveWorkspace(workspace: Workspace): Promise<void> {
     await this.io.writeWorkspace(serializeWorkspace(workspace));
+  }
+
+  /** Load the per-network settings sidecar (appearance, note default, board prefs). */
+  async loadSettings(): Promise<Settings> {
+    try {
+      return parseSettings(await this.io.readSettings());
+    } catch {
+      return parseSettings("");
+    }
+  }
+
+  /** Persist the per-network settings sidecar. */
+  async saveSettings(settings: Settings): Promise<void> {
+    await this.io.writeSettings(serializeSettings(settings));
   }
 
   /** Begin reacting to external edits (Obsidian, git, etc.). Returns an unsubscribe fn. */

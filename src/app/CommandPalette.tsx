@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FolderOpen, Plus, Share2, User } from "lucide-react";
+import { FolderOpen, Plus, Settings, Share2, User } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -71,7 +71,7 @@ export function CommandPalette() {
         kind: "handshake",
         id: canonicalHandshakeId(selfId, id),
         people: [pa, pb],
-        strength: "cold",
+        strength: useApp.getState().settings.defaultTieStrength,
         body: "",
       };
       diff.push({ op: "createHandshake", handshake });
@@ -136,6 +136,15 @@ export function CommandPalette() {
             }}
           >
             <FolderOpen /> Open network…
+          </CommandItem>
+          <CommandItem
+            value="settings preferences"
+            onSelect={() => {
+              setOpen(false);
+              useApp.getState().setSettingsOpen(true);
+            }}
+          >
+            <Settings /> Settings…
           </CommandItem>
           {recents
             .filter((p) => p !== vaultPath)

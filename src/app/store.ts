@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
+import { DEFAULT_SETTINGS, type Density, type Settings } from "@/vault/settings";
 import { loadRecents, saveRecents, vaultName } from "@/vault/appState";
 import { clearBoardCache } from "@/board/boardCache";
 import {
@@ -41,16 +42,6 @@ import {
 
 type Status = "idle" | "no-vault" | "loading" | "ready" | "error";
 
-function readDensity(): "compact" | "comfortable" | "spacious" {
-  try {
-    const v = localStorage.getItem("handshake.density");
-    if (v === "compact" || v === "comfortable" || v === "spacious") return v;
-  } catch {
-    /* ignore */
-  }
-  return "comfortable";
-}
-
 /**
  * The app store — the backbone the whole shell reads from. Holds the live vault state +
  * the open person note, and routes writes through the one VaultSession. (The generic
@@ -71,10 +62,12 @@ interface AppState {
   commandOpen: boolean;
   /** Whether the "New network" dialog is open. */
   newNetworkOpen: boolean;
+  /** Whether the Settings modal is open. */
+  settingsOpen: boolean;
+  /** Per-network preferences (appearance, note default, board prefs). */
+  settings: Settings;
   /** The workspace: the Leaf/Split tree + floats + note default + layout skin (tabs ⇄ simple). */
   workspace: Workspace;
-  /** Row density for list views (People). Persisted to localStorage. */
-  density: "compact" | "comfortable" | "spacious";
   /** A request to center the board on a person (from the People view); nonce retriggers. */
   locate: { id: string; nonce: number } | null;
   /** The tab currently being dragged (source leaf + view key), or null. Transient; not saved. */
@@ -112,6 +105,10 @@ interface AppState {
   setCommandOpen: (open: boolean) => void;
   /** Open/close the "New network" dialog. */
   setNewNetworkOpen: (open: boolean) => void;
+  /** Open/close the Settings modal. */
+  setSettingsOpen: (open: boolean) => void;
+  /** Patch one or more settings (persisted to the network's settings.json). */
+  updateSettings: (patch: Partial<Settings>) => void;
   /** Open a View into a target (tab / panel / split / float). */
   openView: (view: View, target?: OpenTarget) => void;
   /** Make a leaf the active one (the focused pane). */
@@ -152,8 +149,8 @@ interface AppState {
   splitNoteWithBoard: (id: string) => void;
   /** Reset the workspace to a single board tab (recovery from a bad layout). */
   resetWorkspace: () => void;
-  /** Set the list-view row density (persists to localStorage). */
-  setDensity: (density: "compact" | "comfortable" | "spacious") => void;
+  /** Set the list-view row density. */
+  setDensity: (density: Density) => void;
   /** Switch to the board and center it on a person (+ a brief highlight). */
   locatePerson: (id: string) => void;
 }
@@ -169,8 +166,9 @@ export const useApp = create<AppState>()((set, get) => ({
   deletingId: null,
   commandOpen: false,
   newNetworkOpen: false,
+  settingsOpen: false,
+  settings: DEFAULT_SETTINGS,
   workspace: emptyWorkspace(),
-  density: readDensity(),
   locate: null,
   tabDrag: null,
   tabDragOver: null,
@@ -206,13 +204,14 @@ export const useApp = create<AppState>()((set, get) => ({
     const session = new VaultSession(createTauriIO(path));
     set({ session });
     try {
-      const [switchboard, layout, workspace] = await Promise.all([
+      const [switchboard, layout, workspace, settings] = await Promise.all([
         session.load(),
         session.loadLayout(),
         session.loadWorkspace(),
+        session.loadSettings(),
       ]);
       clearBoardCache(); // old board layouts belong to the previous network
-      set({ switchboard, layout, workspace, status: "ready", switching: false });
+      set({ switchboard, layout, workspace, settings, status: "ready", switching: false });
 
       const resolved = await Promise.all(
         [...switchboard.people.values()]
@@ -293,7 +292,7 @@ export const useApp = create<AppState>()((set, get) => ({
       if (opts?.toggle) get().closePerson(); // panel: tap the same card again to close
       return;
     }
-    const mode = s.workspace.noteDefault; // not shown anywhere → open in the remembered mode
+    const mode = s.settings.noteDefault; // not shown anywhere → open in the remembered mode
     if (mode === "panel") get().openPerson(id);
     else get().openView({ type: "person", id }, mode);
   },
@@ -334,6 +333,14 @@ export const useApp = create<AppState>()((set, get) => ({
 
   setNewNetworkOpen(open) {
     set({ newNetworkOpen: open });
+  },
+
+  setSettingsOpen(open) {
+    set({ settingsOpen: open });
+  },
+
+  updateSettings(patch) {
+    set((s) => ({ settings: { ...s.settings, ...patch } }));
   },
 
   openView(view, target = "tab") {
@@ -499,7 +506,7 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   setNoteDefault(mode) {
-    set((s) => ({ workspace: { ...s.workspace, noteDefault: mode } }));
+    set((s) => ({ settings: { ...s.settings, noteDefault: mode } }));
   },
 
   splitNoteWithBoard(id) {
@@ -527,12 +534,7 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   setDensity(density) {
-    try {
-      localStorage.setItem("handshake.density", density);
-    } catch {
-      /* ignore */
-    }
-    set({ density });
+    set((s) => ({ settings: { ...s.settings, density } }));
   },
 
   locatePerson(id) {
@@ -541,9 +543,9 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 }));
 
-// Persist the workspace (tabs / pane tiling / floats / note default) ~500ms after it changes,
-// mirroring BoardView's debounced layout writer. Transient bits (openPersonId, locate, command,
-// deletingId) live outside `workspace`, so they never trigger a write.
+// Persist the workspace (tabs / pane tiling / floats) ~500ms after it changes, mirroring
+// BoardView's debounced layout writer. Transient bits (openPersonId, locate, command, deletingId)
+// live outside `workspace`, so they never trigger a write.
 let workspaceSaveTimer: ReturnType<typeof setTimeout> | null = null;
 useApp.subscribe((state, prev) => {
   if (state.workspace === prev.workspace) return;
@@ -552,5 +554,17 @@ useApp.subscribe((state, prev) => {
   if (workspaceSaveTimer) clearTimeout(workspaceSaveTimer);
   workspaceSaveTimer = setTimeout(() => {
     void session.saveWorkspace(useApp.getState().workspace).catch(() => {});
+  }, 500);
+});
+
+// Persist the network's settings the same way.
+let settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
+useApp.subscribe((state, prev) => {
+  if (state.settings === prev.settings) return;
+  const { session, status } = state;
+  if (!session || status !== "ready") return;
+  if (settingsSaveTimer) clearTimeout(settingsSaveTimer);
+  settingsSaveTimer = setTimeout(() => {
+    void session.saveSettings(useApp.getState().settings).catch(() => {});
   }, 500);
 });

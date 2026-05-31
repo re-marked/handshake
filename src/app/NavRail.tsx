@@ -40,7 +40,7 @@ export function NavRail() {
       <RailButton icon={Target} label="Goals" active={activeType === "goals"} onClick={() => openView({ type: "goals" }, "tab")} />
       <RailButton icon={Search} label="Search (Ctrl-P)" onClick={() => setCommandOpen(true)} />
       <div className="mt-auto">
-        <RailButton icon={Settings} label="Settings" />
+        <RailButton icon={Settings} label="Settings" onClick={() => useApp.getState().setSettingsOpen(true)} />
       </div>
     </nav>
   );

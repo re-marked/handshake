@@ -46,6 +46,13 @@ class FakeIO implements VaultIO {
   async writeWorkspace(content: string): Promise<void> {
     this.workspaceJson = content;
   }
+  private settingsJson = "";
+  async readSettings(): Promise<string> {
+    return this.settingsJson;
+  }
+  async writeSettings(content: string): Promise<void> {
+    this.settingsJson = content;
+  }
   async watch(onChange: (change: VaultChange) => void): Promise<() => void> {
     this.listeners.push(onChange);
     return () => {
