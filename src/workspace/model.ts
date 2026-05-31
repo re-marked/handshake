@@ -1,9 +1,8 @@
 // ── The workspace model ──────────────────────────────────────────────────────
 // Pure, serializable types for the Obsidian-grade workspace: everything you can
 // look at is a `View`; Views live in a recursive tab/split tree, plus a floating
-// layer. No React/Tauri imports here (mirrors src/vault/layout.ts). One model, two
-// render skins: `layoutMode` "tabs" = per-leaf tab strips (Obsidian); "simple" =
-// one top bar that follows the focused pane.
+// layer. No React/Tauri imports here (mirrors src/vault/layout.ts). Obsidian-style:
+// each Leaf carries its own tab strip.
 
 import { nanoid } from "nanoid";
 
@@ -49,16 +48,11 @@ export interface FloatingWindow {
 /** How a person's note is shown. `panel` is the slide-in (the signature peek). */
 export type NoteMode = "panel" | "float" | "tab";
 
-/** Which workspace layout the user prefers. `tabs` = per-pane tab strips (Obsidian);
- *  `simple` = a single top bar that follows the focused pane. Same tree either way. */
-export type LayoutMode = "tabs" | "simple";
-
 export interface Workspace {
   root: Node;
   floats: FloatingWindow[];
   activeLeafId: string;
   noteDefault: NoteMode;
-  layoutMode: LayoutMode;
 }
 
 /** Where openView places a View. */
@@ -97,8 +91,8 @@ export function tabLabel(v: View, nameOf: (id: string) => string | undefined): s
   }
 }
 
-/** The default workspace: a single leaf with just the board; per-pane tabs, panel notes. */
+/** The default workspace: a single leaf with just the board, panel notes. */
 export function emptyWorkspace(noteDefault: NoteMode = "panel"): Workspace {
   const leaf: Leaf = { kind: "leaf", id: newId(), tabs: [{ type: "board", id: "main" }], activeIndex: 0 };
-  return { root: leaf, floats: [], activeLeafId: leaf.id, noteDefault, layoutMode: "tabs" };
+  return { root: leaf, floats: [], activeLeafId: leaf.id, noteDefault };
 }

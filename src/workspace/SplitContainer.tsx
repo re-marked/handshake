@@ -9,7 +9,7 @@ import { WorkspaceRenderer } from "@/workspace/WorkspaceRenderer";
  * its layout (percentages → fractions) into the model on change so it persists. Children are
  * a flat panel/handle array (react-resizable-panels registers by child position, not Fragments).
  */
-export function SplitContainer({ split, simple = false }: { split: Split; simple?: boolean }) {
+export function SplitContainer({ split }: { split: Split }) {
   const resizeSplit = useApp((s) => s.resizeSplit);
 
   const children: ReactNode[] = [];
@@ -23,7 +23,7 @@ export function SplitContainer({ split, simple = false }: { split: Split; simple
         defaultSize={(split.sizes[i] ?? 1 / split.children.length) * 100}
         minSize={15}
       >
-        <WorkspaceRenderer node={child} simple={simple} />
+        <WorkspaceRenderer node={child} />
       </ResizablePanel>,
     );
   });

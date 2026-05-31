@@ -11,13 +11,12 @@ function isEmptyWorkspace(ws: Workspace): boolean {
     ws.root.tabs[0].id === "main" &&
     ws.activeLeafId === ws.root.id &&
     ws.floats.length === 0 &&
-    ws.noteDefault === "panel" &&
-    ws.layoutMode === "tabs"
+    ws.noteDefault === "panel"
   );
 }
 
 describe("parseWorkspace", () => {
-  it("round-trips a split of two leaves + a float + simple mode", () => {
+  it("round-trips a split of two leaves + a float", () => {
     const ws: Workspace = {
       root: {
         kind: "split",
@@ -32,7 +31,6 @@ describe("parseWorkspace", () => {
       floats: [{ id: "f1", view: { type: "goals" }, x: 10, y: 20, w: 300, h: 400, z: 1 }],
       activeLeafId: "L2",
       noteDefault: "tab",
-      layoutMode: "simple",
     };
     expect(parseWorkspace(serializeWorkspace(ws))).toEqual(ws);
   });
@@ -123,13 +121,12 @@ describe("parseWorkspace", () => {
     expect(["a", "b"]).toContain(ws.activeLeafId);
   });
 
-  it("defaults noteDefault + layoutMode and drops malformed floats", () => {
+  it("defaults noteDefault and drops malformed floats", () => {
     const ws = parseWorkspace(
       JSON.stringify({
         root: { kind: "leaf", id: "L", tabs: [{ type: "board", id: "main" }], activeIndex: 0 },
         activeLeafId: "L",
         noteDefault: "nonsense",
-        layoutMode: "bogus",
         floats: [
           { id: "ok", view: { type: "people" }, x: 1, y: 2, w: 3, h: 4, z: 5 },
           { id: "bad", view: { type: "people" }, x: 1 }, // missing dims -> dropped
@@ -137,7 +134,6 @@ describe("parseWorkspace", () => {
       }),
     );
     expect(ws.noteDefault).toBe("panel");
-    expect(ws.layoutMode).toBe("tabs");
     expect(ws.floats).toEqual([{ id: "ok", view: { type: "people" }, x: 1, y: 2, w: 3, h: 4, z: 5 }]);
   });
 });

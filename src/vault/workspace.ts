@@ -2,14 +2,7 @@
 // vault/layout.ts: any malformed shape falls back gracefully rather than throwing. The
 // types live in @/workspace/model; this file owns only the disk encoding.
 
-import {
-  emptyWorkspace,
-  type FloatingWindow,
-  type LayoutMode,
-  type Node,
-  type View,
-  type Workspace,
-} from "@/workspace/model";
+import { emptyWorkspace, type FloatingWindow, type Node, type View, type Workspace } from "@/workspace/model";
 import { findView, leaves, mapLeaf } from "@/workspace/ops";
 
 export function serializeWorkspace(ws: Workspace): string {
@@ -128,7 +121,6 @@ export function parseWorkspace(json: string): Workspace {
     (f): f is FloatingWindow => f !== undefined,
   );
   const noteDefault = o.noteDefault === "float" || o.noteDefault === "tab" ? o.noteDefault : "panel";
-  const layoutMode: LayoutMode = o.layoutMode === "simple" ? "simple" : "tabs";
 
-  return { root, floats, activeLeafId, noteDefault, layoutMode };
+  return { root, floats, activeLeafId, noteDefault };
 }

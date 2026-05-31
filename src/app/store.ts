@@ -9,7 +9,6 @@ import {
   viewKey,
   type FloatingWindow,
   type Leaf,
-  type LayoutMode,
   type NoteMode,
   type OpenTarget,
   type Split,
@@ -111,9 +110,7 @@ interface AppState {
   setNoteDefault: (mode: NoteMode) => void;
   /** Quick layout: this note on the left, the board on the right (a one-tap sane split). */
   splitNoteWithBoard: (id: string) => void;
-  /** Switch the workspace layout skin (per-pane tabs ⇄ one bar). Instant + lossless. */
-  setLayoutMode: (mode: LayoutMode) => void;
-  /** Reset the workspace to a single board tab (recovery), preserving the layout mode. */
+  /** Reset the workspace to a single board tab (recovery from a bad layout). */
   resetWorkspace: () => void;
   /** Set the list-view row density (persists to localStorage). */
   setDensity: (density: "compact" | "comfortable" | "spacious") => void;
@@ -275,8 +272,9 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   closeTab(leafId, key) {
-    if (key === "board:main") return; // the home board is un-closable
     set((s) => {
+      // Any tab is closable, including the board. Closing the last tab leaves an empty leaf
+      // (the "no tabs open" state); collapseEmpty unwraps emptied panes within a split.
       const root = collapseEmpty(mapLeaf(s.workspace.root, leafId, (l) => removeTab(l, key)));
       const ids = new Set(leaves(root).map((l) => l.id));
       const activeLeafId = ids.has(s.workspace.activeLeafId) ? s.workspace.activeLeafId : leaves(root)[0].id;
@@ -389,12 +387,8 @@ export const useApp = create<AppState>()((set, get) => ({
     }));
   },
 
-  setLayoutMode(mode) {
-    set((s) => ({ workspace: { ...s.workspace, layoutMode: mode } }));
-  },
-
   resetWorkspace() {
-    set((s) => ({ workspace: { ...emptyWorkspace(), layoutMode: s.workspace.layoutMode } }));
+    set({ workspace: emptyWorkspace() });
   },
 
   setDensity(density) {

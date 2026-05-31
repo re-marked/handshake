@@ -47,7 +47,6 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
         {leaf.tabs.map((view, i) => {
           const key = viewKey(view);
           const active = i === leaf.activeIndex;
-          const closable = !(view.type === "board" && view.id === "main");
           return (
             <div
               key={key}
@@ -73,19 +72,17 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
                 <TabIcon view={view} photo={view.type === "person" ? photos.get(view.id) : undefined} />
                 <span className="max-w-44 truncate">{tabLabel(view, nameOf)}</span>
               </span>
-              {closable && (
-                <button
-                  type="button"
-                  aria-label="Close tab"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    closeTab(leaf.id, key);
-                  }}
-                  className="relative z-10 -mr-0.5 grid size-5 shrink-0 place-items-center rounded-md text-muted-foreground/70 opacity-0 transition hover:bg-background hover:text-foreground group-hover/tab:opacity-100"
-                >
-                  <X className="size-3.5" />
-                </button>
-              )}
+              <button
+                type="button"
+                aria-label="Close tab"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closeTab(leaf.id, key);
+                }}
+                className="relative z-10 -mr-0.5 grid size-5 shrink-0 place-items-center rounded-md text-muted-foreground/70 opacity-0 transition hover:bg-background hover:text-foreground group-hover/tab:opacity-100"
+              >
+                <X className="size-3.5" />
+              </button>
             </div>
           );
         })}

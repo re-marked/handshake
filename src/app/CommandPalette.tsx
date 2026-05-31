@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PanelsTopLeft, Plus, User } from "lucide-react";
+import { Plus, User } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -27,7 +27,6 @@ export function CommandPalette() {
   const setOpen = useApp((s) => s.setCommandOpen);
   const people = useApp((s) => s.switchboard.people);
   const self = useApp((s) => s.switchboard.self);
-  const layoutMode = useApp((s) => s.workspace.layoutMode);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -115,20 +114,6 @@ export function CommandPalette() {
             </CommandItem>
           </CommandGroup>
         )}
-        <CommandGroup heading="Workspace">
-          <CommandItem
-            value="toggle layout per-pane tabs one top bar obsidian simple"
-            onSelect={() => {
-              setOpen(false);
-              useApp.getState().setLayoutMode(layoutMode === "tabs" ? "simple" : "tabs");
-            }}
-          >
-            <PanelsTopLeft />
-            <span className="truncate">
-              Switch layout to {layoutMode === "tabs" ? "one top bar" : "per-pane tabs"}
-            </span>
-          </CommandItem>
-        </CommandGroup>
       </CommandList>
     </CommandDialog>
   );

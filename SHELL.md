@@ -144,14 +144,13 @@ people sit vs which panes are open).
 ## 7. Build in layers
 
 > **Status (built):** the workspace is a single **Leaf/Split tree** (`Leaf{tabs,activeIndex} | Split`)
-> in `src/workspace/`, with a `layoutMode` toggle over two render skins — **tabs** (per-pane tab
-> strips, Obsidian-style, the default) and **simple** (one top bar that follows the focused pane).
-> We briefly shipped a "one global bar + bare panes" browser model but it was confusing on splits
-> (issue #5), so the model was reworked to this. Done: per-pane tabs · resizable splits · multiple
-> independent boards · floating windows · inline note-mode switch (panel⇄float⇄tab) + remembered
-> default · one-tap note|board split · the tabs⇄simple layout toggle (NavRail + ⌘P) · persistence
-> (`.handshake/workspace.json`). Still open: dragging tabs between panes. The layer notes below are
-> kept for the original intent.
+> in `src/workspace/` — Obsidian-style, each leaf draws its own tab strip. We briefly shipped a
+> "one global bar + bare panes" browser model, then a tabs⇄simple toggle, but both one-bar variants
+> were confusing/unpredictable (issue #5) and were cut — **per-pane tabs is the only layout**. Done:
+> per-pane tabs · resizable splits · multiple independent boards · floating windows · inline
+> note-mode switch (panel⇄float⇄tab) + remembered default · one-tap note|board split · every tab
+> closable + an empty-leaf state · persistence (`.handshake/workspace.json`). Still open: dragging
+> tabs between panes. The layer notes below are kept for the original intent.
 
 Each layer is shippable and assumes the model above — no re-architecting.
 
