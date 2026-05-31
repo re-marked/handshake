@@ -1,0 +1,58 @@
+# Keep the "release" version pill in README.md in sync with the latest GitHub release.
+#
+# Why a workflow instead of a dynamic shields.io badge: this repo is private, so shields.io
+# (unauthenticated) can't read its releases — a live `github/v/release` badge would render as
+# "inaccessible". Instead we keep a *static* shields badge in the README and rewrite its
+# version string here whenever a release is published. A static badge renders for anyone who
+# can already see the repo.
+#
+# Fires when you publish the release that release.yml drafted; also runnable by hand.
+name: readme-version-pill
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Resolve latest release tag
+        id: rel
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VER="$EVENT_TAG"
+          # workflow_dispatch has no release payload — ask the API for the latest.
+          [ -n "$VER" ] || VER="$(gh release view --json tagName -q .tagName)"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite the pill
+        env:
+          VER: ${{ steps.rel.outputs.version }}
+        run: |
+          # shields static badge looks like .../badge/release-<message>-<color> — swap the message only.
+          sed -i -E "s#(img\.shields\.io/badge/release-)[^-?]*(-[0-9a-fA-F]{6})#\1${VER}\2#" README.md
+
+      - name: Commit if changed
+        env:
+          VER: ${{ steps.rel.outputs.version }}
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "Pill already at $VER — nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: bump README release pill to $VER"
+          git push
