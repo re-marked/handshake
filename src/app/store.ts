@@ -18,6 +18,7 @@ import {
 import {
   collapseEmpty,
   detachView,
+  dropTab as applyDropTab,
   findLeaf,
   findView,
   insertTab,
@@ -26,6 +27,7 @@ import {
   removeTab,
   setSizes,
   splitNode,
+  type DropSide,
 } from "@/workspace/ops";
 
 type Status = "idle" | "loading" | "ready" | "error";
@@ -64,6 +66,8 @@ interface AppState {
   density: "compact" | "comfortable" | "spacious";
   /** A request to center the board on a person (from the People view); nonce retriggers. */
   locate: { id: string; nonce: number } | null;
+  /** The tab currently being dragged (source leaf + view key), or null. Transient; not saved. */
+  tabDrag: { srcLeafId: string; key: string } | null;
 
   init: (vault: string) => Promise<void>;
   /** Route a diff through the funnel, persist it, and swap in the new state. The board
@@ -90,6 +94,12 @@ interface AppState {
   closeTab: (leafId: string, key: string) => void;
   /** Split a leaf (row/col), opening a view in the new pane. */
   splitLeaf: (leafId: string, dir: "row" | "col", view: View) => void;
+  /** Begin dragging a tab (drag-and-drop between panes). */
+  beginTabDrag: (srcLeafId: string, key: string) => void;
+  /** End a tab drag (drop finished or cancelled). */
+  endTabDrag: () => void;
+  /** Drop the dragged tab onto a leaf — `center` moves it in; an edge splits there. */
+  dropTab: (destLeafId: string, side: DropSide) => void;
   /** Focus (or open) the home board in the active leaf. */
   focusBoard: () => void;
   /** Update a split's pane sizes (fractions). */
@@ -131,6 +141,7 @@ export const useApp = create<AppState>()((set, get) => ({
   workspace: emptyWorkspace(),
   density: readDensity(),
   locate: null,
+  tabDrag: null,
 
   async init(vault) {
     if (get().status !== "idle") return; // guard against StrictMode double-invoke
@@ -287,6 +298,20 @@ export const useApp = create<AppState>()((set, get) => ({
     if (!findLeaf(ws.root, leafId)) return;
     const newLeaf: Leaf = { kind: "leaf", id: newId(), tabs: [view], activeIndex: 0 };
     set({ workspace: { ...ws, root: splitNode(ws.root, leafId, dir, newLeaf), activeLeafId: newLeaf.id } });
+  },
+
+  beginTabDrag(srcLeafId, key) {
+    set({ tabDrag: { srcLeafId, key } });
+  },
+
+  endTabDrag() {
+    if (get().tabDrag) set({ tabDrag: null });
+  },
+
+  dropTab(destLeafId, side) {
+    const d = get().tabDrag;
+    if (!d) return;
+    set((s) => ({ workspace: applyDropTab(s.workspace, d.srcLeafId, d.key, destLeafId, side), tabDrag: null }));
   },
 
   focusBoard() {

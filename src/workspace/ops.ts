@@ -79,11 +79,19 @@ export function replaceNode(node: Node, id: string, replacement: Node): Node {
   return node;
 }
 
-/** Wrap a leaf in a new Split alongside a new leaf (50/50). */
-export function splitNode(root: Node, leafId: string, dir: "row" | "col", newLeaf: Leaf): Node {
+/** Wrap a leaf in a new Split alongside a new leaf (50/50). `before` puts the new leaf first
+ *  (i.e. left/top of the target) instead of after it. */
+export function splitNode(
+  root: Node,
+  leafId: string,
+  dir: "row" | "col",
+  newLeaf: Leaf,
+  before = false,
+): Node {
   const target = findNode(root, leafId);
   if (!target) return root;
-  const split: Split = { kind: "split", id: newId(), dir, children: [target, newLeaf], sizes: [0.5, 0.5] };
+  const children = before ? [newLeaf, target] : [target, newLeaf];
+  const split: Split = { kind: "split", id: newId(), dir, children, sizes: [0.5, 0.5] };
   return replaceNode(root, leafId, split);
 }
 
@@ -126,4 +134,47 @@ export function detachView(ws: Workspace, key: string): Workspace {
   const ids = new Set(leaves(root).map((l) => l.id));
   const activeLeafId = ids.has(ws.activeLeafId) ? ws.activeLeafId : leaves(root)[0].id;
   return { ...ws, root, floats, activeLeafId };
+}
+
+/** Where a dragged tab lands on a target leaf: its body (`center` → move into the leaf) or an
+ *  edge (→ split the leaf, the dragged tab taking the new pane on that side). */
+export type DropSide = "left" | "right" | "top" | "bottom" | "center";
+
+/**
+ * Drag a tab (`key`, from `srcLeafId`) onto `destLeafId`. `center` moves it into that leaf;
+ * an edge splits the leaf with the tab in a new pane on that side. Removing it from the source
+ * collapses an emptied leaf. No-ops that would do nothing useful (center onto its own leaf, or
+ * edge-splitting a leaf that holds only this one tab against itself) return the workspace as-is.
+ */
+export function dropTab(
+  ws: Workspace,
+  srcLeafId: string,
+  key: string,
+  destLeafId: string,
+  side: DropSide,
+): Workspace {
+  const srcLeaf = findLeaf(ws.root, srcLeafId);
+  const view = srcLeaf?.tabs.find((v) => viewKey(v) === key);
+  if (!view) return ws;
+  if (srcLeafId === destLeafId) {
+    if (side === "center") return ws; // dropped back where it started
+    if (srcLeaf!.tabs.length <= 1) return ws; // nothing to split this lone tab against
+  }
+
+  let root = mapLeaf(ws.root, srcLeafId, (l) => removeTab(l, key)); // pull it out of the source
+
+  if (side === "center") {
+    root = collapseEmpty(mapLeaf(root, destLeafId, (l) => insertTab(l, view)));
+    const ids = new Set(leaves(root).map((l) => l.id));
+    const activeLeafId = ids.has(destLeafId) ? destLeafId : leaves(root)[0].id;
+    return { ...ws, root, activeLeafId };
+  }
+
+  const dir: "row" | "col" = side === "left" || side === "right" ? "row" : "col";
+  const before = side === "left" || side === "top";
+  const newLeaf: Leaf = { kind: "leaf", id: newId(), tabs: [view], activeIndex: 0 };
+  root = collapseEmpty(splitNode(root, destLeafId, dir, newLeaf, before));
+  const ids = new Set(leaves(root).map((l) => l.id));
+  const activeLeafId = ids.has(newLeaf.id) ? newLeaf.id : leaves(root)[0].id;
+  return { ...ws, root, activeLeafId };
 }

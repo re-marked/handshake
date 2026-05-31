@@ -4,6 +4,7 @@ import {
   activeView,
   collapseEmpty,
   detachView,
+  dropTab,
   findView,
   insertTab,
   leafOf,
@@ -150,5 +151,55 @@ describe("workspace ops", () => {
   it("normalizeSizes equal-splits when the count changes, renormalizes otherwise", () => {
     expect(normalizeSizes([0.5, 0.5], 3)).toEqual([1 / 3, 1 / 3, 1 / 3]);
     expect(normalizeSizes([2, 2], 2)).toEqual([0.5, 0.5]);
+  });
+
+  it("dropTab center moves a tab into another leaf and collapses the emptied source", () => {
+    // split: A=[board] | B=[people]; drag people from B into A
+    const ws = emptyWorkspace();
+    const root = splitNode(ws.root, (ws.root as Leaf).id, "row", {
+      kind: "leaf",
+      id: "B",
+      tabs: [{ type: "people" }],
+      activeIndex: 0,
+    });
+    const aId = (ws.root as Leaf).id;
+    const out = dropTab({ ...ws, root, activeLeafId: "B" }, "B", "people", aId, "center");
+    expect(out.root.kind).toBe("leaf"); // B emptied → split collapsed to A
+    expect(out.activeLeafId).toBe(aId);
+    if (out.root.kind === "leaf") expect(out.root.tabs.map(viewKey)).toEqual(["board:main", "people"]);
+  });
+
+  it("dropTab edge splits a leaf with the dragged tab in a new pane on that side", () => {
+    // one leaf [board, people]; drag people to the right edge → row split [rest | people]
+    const ws = emptyWorkspace();
+    const root = mapLeaf(ws.root, (ws.root as Leaf).id, (l) => insertTab(l, { type: "people" }));
+    const leafId = (ws.root as Leaf).id;
+    const out = dropTab({ ...ws, root }, leafId, "people", leafId, "right");
+    expect(out.root.kind).toBe("split");
+    if (out.root.kind === "split") {
+      expect(out.root.dir).toBe("row");
+      const [left, right] = out.root.children;
+      expect((left as Leaf).tabs.map(viewKey)).toEqual(["board:main"]);
+      expect((right as Leaf).tabs.map(viewKey)).toEqual(["people"]);
+      expect(out.activeLeafId).toBe((right as Leaf).id);
+    }
+  });
+
+  it("dropTab left puts the new pane before the target", () => {
+    const ws = emptyWorkspace();
+    const root = mapLeaf(ws.root, (ws.root as Leaf).id, (l) => insertTab(l, { type: "people" }));
+    const leafId = (ws.root as Leaf).id;
+    const out = dropTab({ ...ws, root }, leafId, "people", leafId, "left");
+    if (out.root.kind === "split") {
+      expect((out.root.children[0] as Leaf).tabs.map(viewKey)).toEqual(["people"]);
+      expect((out.root.children[1] as Leaf).tabs.map(viewKey)).toEqual(["board:main"]);
+    }
+  });
+
+  it("dropTab is a no-op for center-onto-self and for edge-splitting a lone tab", () => {
+    const ws = emptyWorkspace();
+    const leafId = (ws.root as Leaf).id;
+    expect(dropTab(ws, leafId, "board:main", leafId, "center")).toBe(ws);
+    expect(dropTab(ws, leafId, "board:main", leafId, "right")).toBe(ws); // only one tab
   });
 });

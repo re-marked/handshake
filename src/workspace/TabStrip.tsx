@@ -52,6 +52,13 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
               key={key}
               role="button"
               tabIndex={0}
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData("text/plain", key);
+                useApp.getState().beginTabDrag(leaf.id, key);
+              }}
+              onDragEnd={() => useApp.getState().endTabDrag()}
               onClick={() => setActiveTab(leaf.id, key)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") setActiveTab(leaf.id, key);

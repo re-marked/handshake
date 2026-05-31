@@ -5,6 +5,7 @@ import { useApp } from "@/app/store";
 import { viewKey, type Leaf as LeafNode } from "@/workspace/model";
 import { leaves } from "@/workspace/ops";
 import { TabStrip } from "@/workspace/TabStrip";
+import { TabDropLayer } from "@/workspace/TabDropLayer";
 import { ViewHost } from "@/workspace/ViewHost";
 
 /** Shown when a leaf has no open tabs (you closed them all, board included). */
@@ -29,12 +30,13 @@ function EmptyLeaf() {
 export function Leaf({ leaf }: { leaf: LeafNode }) {
   const active = useApp((s) => s.workspace.activeLeafId === leaf.id);
   const tiled = useApp((s) => leaves(s.workspace.root).length > 1);
+  const dragging = useApp((s) => s.tabDrag !== null);
   const empty = leaf.tabs.length === 0;
 
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col",
+        "relative flex h-full w-full flex-col",
         tiled && active && "rounded-sm ring-1 ring-inset ring-primary/40",
       )}
       onPointerDown={() => {
@@ -53,6 +55,7 @@ export function Leaf({ leaf }: { leaf: LeafNode }) {
           ))
         )}
       </div>
+      {dragging && <TabDropLayer leafId={leaf.id} />}
     </div>
   );
 }

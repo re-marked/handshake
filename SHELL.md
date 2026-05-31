@@ -149,8 +149,8 @@ people sit vs which panes are open).
 > were confusing/unpredictable (issue #5) and were cut — **per-pane tabs is the only layout**. Done:
 > per-pane tabs · resizable splits · multiple independent boards · floating windows · inline
 > note-mode switch (panel⇄float⇄tab) + remembered default · one-tap note|board split · every tab
-> closable + an empty-leaf state · persistence (`.handshake/workspace.json`). Still open: dragging
-> tabs between panes. The layer notes below are kept for the original intent.
+> closable + an empty-leaf state · tab drag-between-panes + drag-to-edge-to-split · persistence
+> (`.handshake/workspace.json`). The layer notes below are kept for the original intent.
 
 Each layer is shippable and assumes the model above — no re-architecting.
 
