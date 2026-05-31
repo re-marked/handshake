@@ -5,6 +5,7 @@ import { CommandPalette } from "@/app/CommandPalette";
 import { WorkspaceBoundary } from "@/app/WorkspaceBoundary";
 import { WorkspaceRenderer } from "@/workspace/WorkspaceRenderer";
 import { FloatingLayer } from "@/workspace/FloatingLayer";
+import { TabDragGhost } from "@/workspace/TabDragGhost";
 
 /** The app frame: nav rail + the workspace tree (per-pane tabs) + the slide-in note + palette. */
 export function Shell() {
@@ -39,6 +40,7 @@ export function Shell() {
         <PersonPanel />
       </main>
       <CommandPalette />
+      <TabDragGhost />
     </div>
   );
 }

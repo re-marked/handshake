@@ -7,6 +7,7 @@ import { useApp } from "@/app/store";
 import { tabLabel, viewKey, type Leaf, type View } from "@/workspace/model";
 import type { DropSide } from "@/workspace/ops";
 import { zoneAt } from "@/workspace/dropZone";
+import { dragX, dragY } from "@/workspace/tabDragMotion";
 import { TabLauncher } from "@/workspace/TabLauncher";
 
 const TAB_SPRING = { type: "spring", stiffness: 520, damping: 40 } as const;
@@ -70,9 +71,13 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
     if (!d.started) {
       if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < DRAG_THRESHOLD) return;
       d.started = true;
+      dragX.set(e.clientX); // seed before the ghost mounts so its spring starts at the cursor
+      dragY.set(e.clientY);
       document.body.style.cursor = "grabbing";
       useApp.getState().beginTabDrag(leaf.id, d.key);
     }
+    dragX.set(e.clientX);
+    dragY.set(e.clientY);
     useApp.getState().setTabDragOver(hitTest(e.clientX, e.clientY));
   }
 

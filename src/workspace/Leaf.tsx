@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react";
 import { Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -57,16 +58,24 @@ export function Leaf({ leaf }: { leaf: LeafNode }) {
           ))
         )}
       </div>
-      {over && (
-        <div className="pointer-events-none absolute inset-0 z-10">
-          <div
-            className={cn(
-              "absolute rounded-md bg-primary/20 ring-2 ring-inset ring-primary/60 transition-all duration-100",
-              ZONE_CLASS[over],
-            )}
-          />
-        </div>
-      )}
+      <AnimatePresence>
+        {over && (
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.12 }}
+          >
+            <div
+              className={cn(
+                "absolute rounded-md bg-primary/20 ring-2 ring-inset ring-primary/60 transition-all duration-100",
+                ZONE_CLASS[over],
+              )}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
