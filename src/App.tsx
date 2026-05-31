@@ -46,7 +46,7 @@ const SCALE_PCT: Record<string, string> = {
 };
 const FONT_STACK: Record<string, string> = {
   system: "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-  serif: "ui-serif, Georgia, Cambria, 'Times New Roman', serif",
+  serif: "'Fraunces Variable', Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, ui-serif, serif",
   mono: "ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, monospace",
 };
 const WEIGHT: Record<string, string> = { light: "300", normal: "400", medium: "500" };

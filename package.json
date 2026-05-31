@@ -13,6 +13,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
     "@tailwindcss/vite": "^4.3.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",
