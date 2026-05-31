@@ -10,6 +10,20 @@ export function vaultName(path: string): string {
   return path.split(/[\\/]/).filter(Boolean).pop() ?? path;
 }
 
+/** A filesystem-safe folder name from a network name (strips path-illegal chars; keeps spaces). */
+export function sanitizeFolderName(name: string): string {
+  return name
+    .replace(/[\\/:*?"<>|]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Join a parent path + child using the parent's own separator (Windows backslash vs POSIX). */
+export function joinPath(parent: string, child: string): string {
+  const sep = parent.includes("\\") ? "\\" : "/";
+  return `${parent.replace(/[\\/]+$/, "")}${sep}${child}`;
+}
+
 /** Load the recent vault paths (most-recent first). Empty on first run / any error. */
 export async function loadRecents(): Promise<string[]> {
   try {
