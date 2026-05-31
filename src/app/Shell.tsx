@@ -30,9 +30,13 @@ export function Shell() {
   }
   return (
     <div className="flex h-full w-full flex-col overflow-hidden bg-background text-foreground">
+      {/* App top bar — the network switcher lives top-left. */}
+      <header className="flex h-9 shrink-0 items-center border-b border-border bg-card px-1.5">
+        <NetworkSwitcher />
+      </header>
       <div className="flex min-h-0 flex-1">
         <NavRail />
-        <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden pt-2">
+        <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
           <div className="relative min-h-0 flex-1">
             <WorkspaceBoundary>
               <WorkspaceRenderer node={root} />
@@ -42,10 +46,6 @@ export function Shell() {
           <PersonPanel />
         </main>
       </div>
-      {/* Slim bottom bar — the network switcher lives bottom-left (Obsidian-style). */}
-      <footer className="flex h-7 shrink-0 items-center border-t border-border bg-card px-1.5">
-        <NetworkSwitcher />
-      </footer>
       <CommandPalette />
       <TabDragGhost />
     </div>

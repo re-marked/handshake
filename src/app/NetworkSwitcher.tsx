@@ -12,9 +12,8 @@ import { useApp } from "@/app/store";
 import { pickFolder, vaultName } from "@/vault/appState";
 
 /**
- * The network switcher, bottom-left (Obsidian-style): the current network's name with a
- * chevrons-up-down affordance; the dropdown lists your networks (a check on the current one) and
- * opens upward, with New / Open at the bottom.
+ * The network switcher, top-left: the current network's name with a chevrons-up-down affordance;
+ * the dropdown lists your networks (a check on the current one), with New / Open at the bottom.
  */
 export function NetworkSwitcher() {
   const vaultPath = useApp((s) => s.vaultPath);
@@ -37,7 +36,7 @@ export function NetworkSwitcher() {
           <span className="truncate">{current}</span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side="top" sideOffset={6} className="w-60">
+      <DropdownMenuContent align="start" side="bottom" sideOffset={6} className="w-60">
         <DropdownMenuLabel className="text-xs text-muted-foreground">Networks</DropdownMenuLabel>
         {recents.map((path) => (
           <DropdownMenuItem
