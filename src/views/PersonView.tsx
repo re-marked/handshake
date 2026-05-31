@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Plus, User, X } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConnectionMenuItems } from "@/app/ConnectionMenu";
+import { PhotoUpload } from "@/app/PhotoUpload";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import type { Handshake, Person, PersonPatch } from "@/switchboard";
@@ -131,12 +131,12 @@ export function PersonView({ id }: { id: string }) {
   return (
     <div className="flex flex-col gap-3.5 text-[15px] leading-relaxed">
       <div className="flex items-center gap-3">
-        <Avatar className="size-14">
-          {photo && <AvatarImage src={photo} alt="" />}
-          <AvatarFallback>
-            <User className="size-6 text-muted-foreground/60" strokeWidth={1.75} />
-          </AvatarFallback>
-        </Avatar>
+        <PhotoUpload
+          src={photo}
+          onClick={() => void useApp.getState().setPersonPhoto(id)}
+          className="size-14"
+          label={photo ? "Change photo" : "Add a photo"}
+        />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <Input
             value={draft.name}

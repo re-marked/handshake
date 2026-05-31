@@ -4,6 +4,7 @@ import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
 import { DEFAULT_SETTINGS, type Density, type Settings } from "@/vault/settings";
 import { loadRecents, saveRecents, vaultName } from "@/vault/appState";
+import { importPhoto } from "@/vault/photos";
 import { clearBoardCache } from "@/board/boardCache";
 import {
   emptySwitchboard,
@@ -101,6 +102,8 @@ interface AppState {
   closePerson: () => void;
   /** Delete a person and all their ties; animates the card out, then commits. */
   deletePerson: (id: string) => Promise<void>;
+  /** Pick an image and set it as a person's photo (imports it, commits, shows it). */
+  setPersonPhoto: (id: string) => Promise<void>;
   /** Open/close the command palette. */
   setCommandOpen: (open: boolean) => void;
   /** Open/close the "New network" dialog. */
@@ -325,6 +328,17 @@ export const useApp = create<AppState>()((set, get) => ({
     ];
     await commit(diff);
     set({ deletingId: null });
+  },
+
+  async setPersonPhoto(id) {
+    const session = get().session;
+    if (!session) return;
+    const picked = await importPhoto(session, id);
+    if (!picked) return; // cancelled
+    const res = await get().commit([{ op: "updatePerson", id, patch: { photo: picked.rel } }]);
+    if (res.ok && picked.dataUrl) {
+      set((s) => ({ photos: new Map(s.photos).set(id, picked.dataUrl!) }));
+    }
   },
 
   setCommandOpen(open) {

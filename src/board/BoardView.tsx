@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { Check, Plus, User } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { buildBoardModel, type BoardCard, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { boardCache } from "@/board/boardCache";
+import { PhotoUpload } from "@/app/PhotoUpload";
+import { importPhoto } from "@/vault/photos";
+import { newId } from "@/workspace/model";
 import { PersonCard } from "@/board/PersonCard";
 import { GoalCard } from "@/board/GoalCard";
 import { TIE_COLOR } from "@/board/ties";
@@ -49,7 +52,11 @@ export function BoardView({ boardId }: { boardId: string }) {
   const [zoom, setZoom] = useState(() => cached?.zoom ?? layout.viewport?.zoom ?? 1);
 
   // The "+" create-and-connect flow: a ghost card you name before it materializes.
-  const [composing, setComposing] = useState<{ sourceId: string; pos: Pos } | null>(null);
+  const [composing, setComposing] = useState<{
+    sourceId: string;
+    pos: Pos;
+    photo?: { rel: string; dataUrl?: string };
+  } | null>(null);
   const [composeName, setComposeName] = useState("");
   const [justCreated, setJustCreated] = useState<string | null>(null);
   const composeBusy = useRef(false);
@@ -347,6 +354,14 @@ export function BoardView({ boardId }: { boardId: string }) {
     setComposeName("");
   }
 
+  // Pick a photo for the ghost before it's materialized; previewed on the card, written on create.
+  async function pickComposePhoto() {
+    const session = useApp.getState().session;
+    if (!session) return;
+    const picked = await importPhoto(session, newId());
+    if (picked) setComposing((c) => (c ? { ...c, photo: picked } : c));
+  }
+
   // Materialize the ghost: mint the id from the typed name, write the person + the edge
   // to its source in one atomic diff, spring it solid, and open its note for editing.
   async function materialize() {
@@ -360,7 +375,7 @@ export function BoardView({ boardId }: { boardId: string }) {
     try {
       const sb = useApp.getState().switchboard;
       const id = mintPersonId(sb.people, name);
-      const person: Person = { kind: "person", id, name, isSelf: false, tags: [], handles: {}, body: "" };
+      const person: Person = { kind: "person", id, name, isSelf: false, tags: [], handles: {}, body: "", photo: c.photo?.rel };
       const [pa, pb] = canonicalPair(c.sourceId, id);
       const handshake: Handshake = {
         kind: "handshake",
@@ -376,6 +391,7 @@ export function BoardView({ boardId }: { boardId: string }) {
         { op: "createHandshake", handshake },
       ]);
       if (res.ok) {
+        if (c.photo?.dataUrl) useApp.setState((s) => ({ photos: new Map(s.photos).set(id, c.photo!.dataUrl!) }));
         cancelCompose();
         schedulePersist();
         useApp.getState().revealPerson(id);
@@ -528,9 +544,13 @@ export function BoardView({ boardId }: { boardId: string }) {
             style={{ left: composing.pos.x, top: composing.pos.y, transform: "translate(-50%, -50%)" }}
           >
             <div className="w-36 overflow-hidden rounded-md border border-dashed border-primary/60 bg-card shadow-sm">
-              <div className="flex aspect-square w-full items-center justify-center bg-muted">
-                <User strokeWidth={1.5} className="h-1/2 w-1/2 text-muted-foreground/40" />
-              </div>
+              <PhotoUpload
+                src={composing.photo?.dataUrl}
+                onClick={pickComposePhoto}
+                round="md"
+                className="aspect-square w-full rounded-none"
+                label="Add a photo"
+              />
               <div className="px-2 py-2">
                 <input
                   autoFocus

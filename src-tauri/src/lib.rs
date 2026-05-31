@@ -158,6 +158,25 @@ fn write_workspace(vault: String, content: String) -> Result<(), String> {
     write_atomic(&dir.join("workspace.json"), &content).map_err(|e| e.to_string())
 }
 
+/// Copy an external image into the vault's attachments/ folder, named after `name` (+ the
+/// source extension). Overwrites an existing same-named file. Returns the vault-relative path.
+#[tauri::command]
+fn import_attachment(vault: String, src: String, name: String) -> Result<String, String> {
+    let src_path = PathBuf::from(&src);
+    let ext = src_path
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("png")
+        .to_lowercase();
+    let safe: String = name.chars().filter(|c| c.is_alphanumeric() || *c == '-' || *c == '_').collect();
+    let safe = if safe.is_empty() { "photo".to_string() } else { safe };
+    let rel = format!("attachments/{safe}.{ext}");
+    let dir = PathBuf::from(&vault).join("attachments");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    fs::copy(&src_path, PathBuf::from(&vault).join(&rel)).map_err(|e| e.to_string())?;
+    Ok(rel)
+}
+
 /// Read the per-network settings sidecar (.handshake/settings.json). Empty string if absent.
 #[tauri::command]
 fn read_settings(vault: String) -> Result<String, String> {
@@ -329,6 +348,7 @@ pub fn run() {
             delete_file,
             start_watching,
             read_attachment,
+            import_attachment,
             read_layout,
             write_layout,
             read_workspace,

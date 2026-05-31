@@ -21,6 +21,8 @@ export interface VaultIO {
   deleteFile(relpath: string): Promise<void>;
   /** Read an attachment (image) as a data URL the webview can display. */
   readAttachment(relpath: string): Promise<string>;
+  /** Copy an external image into the vault's attachments/ folder; returns the vault-relative path. */
+  importAttachment(srcPath: string, name: string): Promise<string>;
   /** Read the board layout sidecar (raw JSON; empty string if absent). */
   readLayout(): Promise<string>;
   /** Atomically write the board layout sidecar. */

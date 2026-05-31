@@ -62,6 +62,11 @@ export class VaultSession {
     return this.io.readAttachment(relpath);
   }
 
+  /** Copy an external image into attachments/; returns the vault-relative path. */
+  importAttachment(srcPath: string, name: string): Promise<string> {
+    return this.io.importAttachment(srcPath, name);
+  }
+
   /** Load the board layout sidecar (positions, viewport, parent overrides). */
   async loadLayout(): Promise<Layout> {
     try {

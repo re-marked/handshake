@@ -32,6 +32,9 @@ class FakeIO implements VaultIO {
   async readAttachment(): Promise<string> {
     return "";
   }
+  async importAttachment(_srcPath: string, name: string): Promise<string> {
+    return `attachments/${name}.png`;
+  }
   private layoutJson = "";
   async readLayout(): Promise<string> {
     return this.layoutJson;

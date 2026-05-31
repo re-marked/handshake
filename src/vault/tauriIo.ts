@@ -13,6 +13,7 @@ export function createTauriIO(vault: string): VaultIO {
     writeFile: (relpath, text) => invoke<void>("write_file", { vault, relpath, content: text }),
     deleteFile: (relpath) => invoke<void>("delete_file", { vault, relpath }),
     readAttachment: (relpath) => invoke<string>("read_attachment", { vault, relpath }),
+    importAttachment: (srcPath, name) => invoke<string>("import_attachment", { vault, src: srcPath, name }),
     readLayout: () => invoke<string>("read_layout", { vault }),
     writeLayout: (content) => invoke<void>("write_layout", { vault, content }),
     readWorkspace: () => invoke<string>("read_workspace", { vault }),
