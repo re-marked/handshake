@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Camera, Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,23 +130,13 @@ export function PersonView({ id }: { id: string }) {
 
   return (
     <div className="flex flex-col gap-3.5 text-[15px] leading-relaxed">
-      <div className="flex items-center gap-3">
-        <div className="flex shrink-0 flex-col items-center gap-1">
-          <PhotoUpload
-            src={photo}
-            onClick={() => void useApp.getState().setPersonPhoto(id)}
-            className="size-14"
-            label={photo ? "Change photo" : "Add a photo"}
-          />
-          <Button
-            variant="ghost"
-            size="xs"
-            className="h-auto px-1.5 py-0.5 text-[11px] font-normal text-muted-foreground"
-            onClick={() => void useApp.getState().setPersonPhoto(id)}
-          >
-            {photo ? "Change" : "Add photo"}
-          </Button>
-        </div>
+      <div className="flex items-start gap-3">
+        <PhotoUpload
+          src={photo}
+          onClick={() => void useApp.getState().setPersonPhoto(id)}
+          className="size-14"
+          label={photo ? "Change photo" : "Add a photo"}
+        />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <Input
             value={draft.name}
@@ -166,6 +156,18 @@ export function PersonView({ id }: { id: string }) {
             placeholder="Company"
             className={cn(inline, "-ml-1.5 text-sm text-muted-foreground")}
           />
+        </div>
+        {/* Per-note actions — an icon toolbar; future note tools / local settings slot in here. */}
+        <div className="flex shrink-0 items-center gap-0.5 text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={photo ? "Change photo" : "Add a photo"}
+            title={photo ? "Change photo" : "Add a photo"}
+            onClick={() => void useApp.getState().setPersonPhoto(id)}
+          >
+            <Camera />
+          </Button>
         </div>
       </div>
 
