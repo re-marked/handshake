@@ -1,7 +1,7 @@
 import { visit } from "unist-util-visit";
 
-/** The curated highlight palette. `default` is the plain `==x==`; the rest carry a `{color}` suffix. */
-export const HL_COLORS = ["default", "yellow", "green", "blue", "pink", "purple"] as const;
+/** The curated highlight palette. Yellow is the implicit default (plain `==x==`, no suffix). */
+export const HL_COLORS = ["yellow", "green", "blue", "pink", "purple"] as const;
 export type HlColor = (typeof HL_COLORS)[number];
 
 const PALETTE = new Set<string>(HL_COLORS);
@@ -10,9 +10,9 @@ const PALETTE = new Set<string>(HL_COLORS);
 // must sit flush against the closing ==. Unknown color names fall back to the default style.
 const HIGHLIGHT = /==(?!=)([^\n]+?)==(?:\{([a-z]+)\})?/g;
 
-/** Resolve a raw `{color}` capture to a palette color (default when absent/unknown). */
+/** Resolve a raw `{color}` capture to a palette color (yellow — the default — when absent/unknown). */
 export function normalizeHlColor(raw: string | undefined): HlColor {
-  return raw && PALETTE.has(raw) ? (raw as HlColor) : "default";
+  return raw && PALETTE.has(raw) ? (raw as HlColor) : "yellow";
 }
 
 /**
@@ -28,7 +28,8 @@ export function rewriteHighlight(
   const span = source.slice(start, end);
   const m = span.match(/^==([\s\S]*?)==(?:\{[a-z]+\})?$/);
   const inner = m ? m[1] : span.replace(/^==/, "").replace(/==(?:\{[a-z]+\})?$/, "");
-  const next = color === "remove" ? inner : color === "default" ? `==${inner}==` : `==${inner}=={${color}}`;
+  // Yellow is the default form (no suffix); other colors get an explicit {color}; remove unwraps.
+  const next = color === "remove" ? inner : color === "yellow" ? `==${inner}==` : `==${inner}=={${color}}`;
   return source.slice(0, start) + next + source.slice(end);
 }
 

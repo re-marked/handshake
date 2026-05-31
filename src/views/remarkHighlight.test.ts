@@ -15,21 +15,21 @@ function transform(text: string) {
 }
 
 describe("normalizeHlColor", () => {
-  it("keeps palette colors and falls back to default", () => {
+  it("keeps palette colors and falls back to yellow (the default)", () => {
     expect(normalizeHlColor("green")).toBe("green");
     expect(normalizeHlColor("purple")).toBe("purple");
-    expect(normalizeHlColor("chartreuse")).toBe("default");
-    expect(normalizeHlColor(undefined)).toBe("default");
+    expect(normalizeHlColor("chartreuse")).toBe("yellow");
+    expect(normalizeHlColor(undefined)).toBe("yellow");
   });
 });
 
 describe("remarkHighlight parsing", () => {
-  it("turns ==text== into a default mark element", () => {
+  it("turns ==text== into a default (yellow) mark element", () => {
     const kids = transform("a ==hi== b");
     expect(kids).toHaveLength(3);
     expect(kids[0]).toMatchObject({ type: "text", value: "a " });
     expect(kids[1].data.hName).toBe("mark");
-    expect(kids[1].data.hProperties.className).toEqual(["hl", "hl-default"]);
+    expect(kids[1].data.hProperties.className).toEqual(["hl", "hl-yellow"]);
     expect(kids[1].children[0].value).toBe("hi");
     expect(kids[2]).toMatchObject({ type: "text", value: " b" });
   });
@@ -76,8 +76,8 @@ describe("rewriteHighlight", () => {
     expect(rewriteHighlight(src, start, end, "green")).toBe("x ==hey=={green} y");
   });
 
-  it("default drops the {color} suffix", () => {
-    expect(rewriteHighlight(src, start, end, "default")).toBe("x ==hey== y");
+  it("yellow (the default) drops the {color} suffix", () => {
+    expect(rewriteHighlight(src, start, end, "yellow")).toBe("x ==hey== y");
   });
 
   it("remove unwraps to plain text", () => {

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConnectionMenuItems } from "@/app/ConnectionMenu";
 import { PhotoUpload } from "@/app/PhotoUpload";
@@ -85,7 +86,8 @@ function usePersonEditor(id: string) {
 export function PersonView({ id }: { id: string }) {
   const { draft, setDraft } = usePersonEditor(id);
   const photo = useApp((s) => s.photos.get(id));
-  const [editingBody, setEditingBody] = useState(false);
+  // Notes open rendered (read) when they have content, in the editor when blank.
+  const [mode, setMode] = useState<"edit" | "preview">(() => (draft?.body.trim() ? "preview" : "edit"));
   const [tagInput, setTagInput] = useState("");
   const [rows, setRows] = useState<Array<{ channel: string; value: string }>>(() => {
     const h = useApp.getState().switchboard.people.get(id)?.handles ?? {};
@@ -161,17 +163,6 @@ export function PersonView({ id }: { id: string }) {
         </div>
         {/* Per-note actions — an icon toolbar; future note tools / local settings slot in here. */}
         <div className="flex shrink-0 items-center gap-0.5 text-muted-foreground">
-          {draft.body.trim() && (
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={editingBody ? "Preview notes" : "Edit notes"}
-              title={editingBody ? "Preview" : "Edit"}
-              onClick={() => setEditingBody((v) => !v)}
-            >
-              {editingBody ? <Eye /> : <PenLine />}
-            </Button>
-          )}
           <Button
             variant="ghost"
             size="icon-sm"
@@ -266,22 +257,48 @@ export function PersonView({ id }: { id: string }) {
       )}
 
       <Separator />
-      {editingBody || !draft.body.trim() ? (
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-medium text-muted-foreground">Notes</span>
+        {/* The note's read/write tumbler — labelled + iconned, sat right above the field. */}
+        <ToggleGroup
+          type="single"
+          value={mode}
+          variant="outline"
+          size="sm"
+          onValueChange={(v) => v && setMode(v as "edit" | "preview")}
+        >
+          <ToggleGroupItem value="edit" className="gap-1.5 px-3 text-xs">
+            <PenLine className="size-3.5" /> Edit
+          </ToggleGroupItem>
+          <ToggleGroupItem value="preview" className="gap-1.5 px-3 text-xs">
+            <Eye className="size-3.5" /> Preview
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+      {mode === "edit" ? (
         <Textarea
-          autoFocus={editingBody}
+          autoFocus
           value={draft.body}
           onChange={(e) => update({ body: e.target.value })}
-          placeholder="Notes… (markdown supported)"
+          placeholder="Notes… (markdown supported — try **bold**, - lists, ==highlights==)"
           className={cn(
             "w-full min-w-0 [overflow-wrap:anywhere] min-h-24 resize-none border-0 bg-transparent px-0 text-[15px] leading-relaxed text-foreground/90 shadow-none",
             "focus-visible:ring-0 dark:bg-transparent",
           )}
         />
-      ) : (
+      ) : draft.body.trim() ? (
         // Rendered markdown; click bare text to edit, click a highlight to recolor it.
-        <div className="-mx-0.5 cursor-text rounded-sm px-0.5 py-0.5" onClick={() => setEditingBody(true)}>
+        <div className="-mx-0.5 cursor-text rounded-sm px-0.5 py-0.5" onClick={() => setMode("edit")}>
           <MarkdownView source={draft.body} onChange={(body) => update({ body })} />
         </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setMode("edit")}
+          className="cursor-text text-left text-[15px] text-muted-foreground/60 italic"
+        >
+          Nothing here yet — switch to Edit to write.
+        </button>
       )}
     </div>
   );

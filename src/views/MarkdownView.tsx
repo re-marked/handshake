@@ -23,12 +23,21 @@ function Link({ href, children }: { href?: string; children?: React.ReactNode })
 }
 
 const COLOR_LABEL: Record<HlColor, string> = {
-  default: "Yellow (default)",
   yellow: "Yellow",
   green: "Green",
   blue: "Blue",
   pink: "Pink",
   purple: "Purple",
+};
+
+// Solid, clearly-visible versions of each pastel for the picker chips (the in-text washes are
+// translucent and would be near-invisible as little swatches).
+const SWATCH: Record<HlColor, string> = {
+  yellow: "oklch(0.86 0.14 95)",
+  green: "oklch(0.82 0.15 150)",
+  blue: "oklch(0.78 0.13 235)",
+  pink: "oklch(0.8 0.14 5)",
+  purple: "oklch(0.74 0.15 305)",
 };
 
 type Recolor = { start: number; end: number; current: HlColor; x: number; y: number };
@@ -86,7 +95,7 @@ export function MarkdownView({
     const colorMatch: string | undefined = (cls ?? "").match(/hl-([a-z]+)/)?.[1];
     const current = (HL_COLORS as readonly string[]).includes(colorMatch ?? "")
       ? (colorMatch as HlColor)
-      : "default";
+      : "yellow";
     const pos = node?.position;
     const canEdit = editable && pos?.start?.offset != null && pos?.end?.offset != null;
     return (
@@ -142,7 +151,7 @@ export function MarkdownView({
                     recolor?.current === c ? "ring-2 ring-primary" : "ring-border/70",
                   )}
                 >
-                  <span className={cn("block size-full rounded-[5px]", "hl", `hl-${c}`)} />
+                  <span className="block size-full rounded-[5px]" style={{ backgroundColor: SWATCH[c] }} />
                 </button>
               ))}
               <div className="mx-0.5 h-6 w-px bg-border" />
