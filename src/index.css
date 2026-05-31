@@ -61,6 +61,30 @@
   --ring: oklch(0.65 0.15 350);
 }
 
+.paper {
+  /* Paper theme — a warm ivory canvas with soft brown ink. Easy, bookish, low-glare.
+   * Cards sit a touch brighter (a fresh sheet) over the cream; the rose accent stays. */
+  --background: oklch(0.965 0.014 85);
+  --foreground: oklch(0.30 0.016 65);
+  --card: oklch(0.99 0.008 85);
+  --card-foreground: oklch(0.30 0.016 65);
+  --popover: oklch(0.99 0.008 85);
+  --popover-foreground: oklch(0.30 0.016 65);
+  --primary: oklch(0.55 0.16 350);
+  --primary-foreground: oklch(0.98 0.01 350);
+  --secondary: oklch(0.93 0.014 85);
+  --secondary-foreground: oklch(0.32 0.016 65);
+  --muted: oklch(0.93 0.014 85);
+  --muted-foreground: oklch(0.50 0.016 70);
+  --accent: oklch(0.92 0.016 85);
+  --accent-foreground: oklch(0.32 0.016 65);
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.98 0.01 27);
+  --border: oklch(0.885 0.014 85);
+  --input: oklch(0.885 0.014 85);
+  --ring: oklch(0.55 0.16 350);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

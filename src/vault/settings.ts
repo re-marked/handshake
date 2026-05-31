@@ -6,7 +6,7 @@
 import type { Strength } from "@/switchboard";
 import type { NoteMode } from "@/workspace/model";
 
-export type Theme = "dark" | "light" | "system";
+export type Theme = "dark" | "light" | "paper" | "system";
 export type Density = "compact" | "comfortable" | "spacious";
 
 export interface Settings {
@@ -52,7 +52,7 @@ export function parseSettings(json: string): Settings {
   if (!data || typeof data !== "object") return { ...DEFAULT_SETTINGS };
   const o = data as Record<string, unknown>;
   return {
-    theme: oneOf(o.theme, ["dark", "light", "system"] as const, DEFAULT_SETTINGS.theme),
+    theme: oneOf(o.theme, ["dark", "light", "paper", "system"] as const, DEFAULT_SETTINGS.theme),
     density: oneOf(o.density, ["compact", "comfortable", "spacious"] as const, DEFAULT_SETTINGS.density),
     reduceMotion: typeof o.reduceMotion === "boolean" ? o.reduceMotion : DEFAULT_SETTINGS.reduceMotion,
     noteDefault: oneOf(o.noteDefault, ["panel", "float", "tab"] as const, DEFAULT_SETTINGS.noteDefault),

@@ -68,13 +68,14 @@ function AppearanceSection() {
   const set = useApp.getState().updateSettings;
   return (
     <>
-      <Row label="Theme" description="Light, dark, or follow your system.">
+      <Row label="Theme" description="Dark, light, warm paper, or follow your system.">
         <Seg
           value={s.theme}
           onChange={(theme) => set({ theme })}
           options={[
             { value: "dark", label: "Dark" },
             { value: "light", label: "Light" },
+            { value: "paper", label: "Paper" },
             { value: "system", label: "System" },
           ]}
         />
