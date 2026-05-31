@@ -6,10 +6,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { tabLabel, viewKey, type Leaf, type View } from "@/workspace/model";
-import type { DropSide } from "@/workspace/ops";
+import { leaves, type DropSide } from "@/workspace/ops";
 import { zoneAt } from "@/workspace/dropZone";
 import { dragX, dragY } from "@/workspace/tabDragMotion";
 import { TabLauncher } from "@/workspace/TabLauncher";
+import { NetworkSwitcher } from "@/app/NetworkSwitcher";
 
 const TAB_SPRING = { type: "spring", stiffness: 520, damping: 40 } as const;
 const DRAG_THRESHOLD = 5; // px before a press becomes a drag (vs a click)
@@ -54,6 +55,9 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
   const setActiveTab = useApp((s) => s.setActiveTab);
   const closeTab = useApp((s) => s.closeTab);
   const tabDrag = useApp((s) => s.tabDrag);
+  // The network switcher rides the top-left of the browser tab nav — only on the first (leftmost)
+  // pane's strip, so it shows exactly once even when the workspace is split.
+  const isFirstLeaf = useApp((s) => leaves(s.workspace.root)[0]?.id === leaf.id);
   const nameOf = (id: string) => people.get(id)?.name;
 
   // One drag at a time; track the press so we can tell a click from a drag.
@@ -110,6 +114,12 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
 
   return (
     <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border bg-card px-2">
+      {isFirstLeaf && (
+        <>
+          <NetworkSwitcher />
+          <div className="mx-0.5 h-5 w-px shrink-0 bg-border" />
+        </>
+      )}
       <ScrollArea orientation="horizontal" className="min-w-0 flex-1" viewportClassName="[&>div]:!flex [&>div]:items-center [&>div]:gap-1">
         {leaf.tabs.map((view, i) => {
           const key = viewKey(view);
