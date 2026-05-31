@@ -8,14 +8,26 @@ import {
   newId,
   viewKey,
   type FloatingWindow,
+  type Leaf,
+  type LayoutMode,
   type NoteMode,
   type OpenTarget,
-  type Pane,
   type Split,
   type View,
   type Workspace,
 } from "@/workspace/model";
-import { findPane, paneShowing, panes, removePane, setPaneView, setSizes, splitPane } from "@/workspace/ops";
+import {
+  collapseEmpty,
+  detachView,
+  findLeaf,
+  findView,
+  insertTab,
+  leaves,
+  mapLeaf,
+  removeTab,
+  setSizes,
+  splitNode,
+} from "@/workspace/ops";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
@@ -47,7 +59,7 @@ interface AppState {
   deletingId: string | null;
   /** Whether the command palette (Ctrl-P) is open. */
   commandOpen: boolean;
-  /** The workspace: open tabs (the single top bar) + the pane tiling below + floats + note default. */
+  /** The workspace: the Leaf/Split tree + floats + note default + layout skin (tabs ⇄ simple). */
   workspace: Workspace;
   /** Row density for list views (People). Persisted to localStorage. */
   density: "compact" | "comfortable" | "spacious";
@@ -71,17 +83,15 @@ interface AppState {
   setCommandOpen: (open: boolean) => void;
   /** Open a View into a target (tab / panel / split / float). */
   openView: (view: View, target?: OpenTarget) => void;
-  /** Open a page in the focused pane (or focus its pane if already shown). */
-  openTab: (view: View) => void;
-  /** Click a tab: focus its pane, else swap it into the focused pane. */
-  selectTab: (key: string) => void;
-  /** Close a page (and its pane, if it's currently shown). */
-  closeTab: (key: string) => void;
-  /** Split the focused pane, showing a view in the new pane. */
-  splitActive: (dir: "row" | "col", view: View) => void;
-  /** Focus a pane. */
-  setActivePane: (id: string) => void;
-  /** Focus (or open) the home board in the active pane. */
+  /** Make a leaf the active one (the focused pane). */
+  setActiveLeaf: (leafId: string) => void;
+  /** Make a tab active within its leaf (and focus that leaf). */
+  setActiveTab: (leafId: string, key: string) => void;
+  /** Close a tab in a leaf; collapses an emptied leaf (board:main is un-closable). */
+  closeTab: (leafId: string, key: string) => void;
+  /** Split a leaf (row/col), opening a view in the new pane. */
+  splitLeaf: (leafId: string, dir: "row" | "col", view: View) => void;
+  /** Focus (or open) the home board in the active leaf. */
   focusBoard: () => void;
   /** Update a split's pane sizes (fractions). */
   resizeSplit: (splitId: string, sizes: number[]) => void;
@@ -101,7 +111,9 @@ interface AppState {
   setNoteDefault: (mode: NoteMode) => void;
   /** Quick layout: this note on the left, the board on the right (a one-tap sane split). */
   splitNoteWithBoard: (id: string) => void;
-  /** Reset the workspace to a single board tab (recovery from a bad layout). */
+  /** Switch the workspace layout skin (per-pane tabs ⇄ one bar). Instant + lossless. */
+  setLayoutMode: (mode: LayoutMode) => void;
+  /** Reset the workspace to a single board tab (recovery), preserving the layout mode. */
   resetWorkspace: () => void;
   /** Set the list-view row density (persists to localStorage). */
   setDensity: (density: "compact" | "comfortable" | "spacious") => void;
@@ -174,8 +186,9 @@ export const useApp = create<AppState>()((set, get) => ({
       get().focusFloat(floating.id); // already floating → raise it
       return;
     }
-    if (s.workspace.tabs.some((t) => viewKey(t) === key)) {
-      get().selectTab(key); // already a docked tab/pane → focus it
+    const hit = findView(s.workspace.root, key);
+    if (hit) {
+      get().setActiveTab(hit.leaf.id, key); // already a docked tab → focus it
       return;
     }
     if (s.openPersonId === id) {
@@ -201,16 +214,13 @@ export const useApp = create<AppState>()((set, get) => ({
     const ties = [...switchboard.handshakes.values()]
       .filter((h) => h.people.includes(id))
       .map((h) => h.id);
+    // detachView drops the docked tab (collapsing an emptied leaf) + any float and repairs the
+    // active leaf; clear the slide-in panel too (it lives outside the workspace).
     set((s) => ({
       deletingId: id,
-      openPersonId: null,
-      // drop any floating note for this person; a docked tab is cleaned up below.
-      workspace: {
-        ...s.workspace,
-        floats: s.workspace.floats.filter((f) => !(f.view.type === "person" && f.view.id === id)),
-      },
+      openPersonId: s.openPersonId === id ? null : s.openPersonId,
+      workspace: detachView(s.workspace, `person:${id}`),
     }));
-    get().closeTab(`person:${id}`);
     await new Promise((r) => setTimeout(r, 190)); // let the card spring out first
     const diff: Diff = [
       ...ties.map((hid) => ({ op: "deleteHandshake", id: hid }) as const),
@@ -234,77 +244,59 @@ export const useApp = create<AppState>()((set, get) => ({
       return;
     }
     if (typeof target === "object") {
-      get().splitActive(target.split, view);
+      get().splitLeaf(get().workspace.activeLeafId, target.split, view);
       return;
     }
-    get().openTab(view);
-  },
-
-  openTab(view) {
+    // "tab": dedupe-then-focus across the whole tree, else insert into the active leaf.
     const ws = get().workspace;
-    const key = viewKey(view);
-    const tabs = ws.tabs.some((t) => viewKey(t) === key) ? ws.tabs : [...ws.tabs, view];
-    const shown = paneShowing(ws.layout, key);
-    if (shown) {
-      set({ workspace: { ...ws, tabs, activePaneId: shown.id } }); // already visible → focus it
+    const hit = findView(ws.root, viewKey(view));
+    if (hit) {
+      get().setActiveTab(hit.leaf.id, viewKey(view));
       return;
     }
-    set({ workspace: { ...ws, tabs, layout: setPaneView(ws.layout, ws.activePaneId, view) } });
-  },
-
-  selectTab(key) {
-    const ws = get().workspace;
-    const shown = paneShowing(ws.layout, key);
-    if (shown) {
-      set({ workspace: { ...ws, activePaneId: shown.id } });
-      return;
-    }
-    const view = ws.tabs.find((t) => viewKey(t) === key);
-    if (view) set({ workspace: { ...ws, layout: setPaneView(ws.layout, ws.activePaneId, view) } });
-  },
-
-  splitActive(dir, view) {
-    const ws = get().workspace;
-    const key = viewKey(view);
-    const tabs = ws.tabs.some((t) => viewKey(t) === key) ? ws.tabs : [...ws.tabs, view];
-    const newPane: Pane = { kind: "pane", id: newId(), view };
+    const leafId = findLeaf(ws.root, ws.activeLeafId) ? ws.activeLeafId : leaves(ws.root)[0].id;
     set({
-      workspace: {
-        ...ws,
-        tabs,
-        layout: splitPane(ws.layout, ws.activePaneId, dir, newPane),
-        activePaneId: newPane.id,
-      },
+      workspace: { ...ws, root: mapLeaf(ws.root, leafId, (l) => insertTab(l, view)), activeLeafId: leafId },
     });
   },
 
-  closeTab(key) {
-    const ws = get().workspace;
-    const tabs = ws.tabs.filter((t) => viewKey(t) !== key);
-    if (tabs.length === 0) return; // never close the last page (board "main" is un-closable anyway)
-    const shown = paneShowing(ws.layout, key);
-    let layout = ws.layout;
-    let activePaneId = ws.activePaneId;
-    if (shown) {
-      layout =
-        panes(ws.layout).length > 1
-          ? removePane(ws.layout, shown.id) // collapse the pane
-          : setPaneView(ws.layout, shown.id, tabs[0]); // sole pane → show another page
-      if (!findPane(layout, activePaneId)) activePaneId = panes(layout)[0]?.id ?? activePaneId;
-    }
-    set({ workspace: { ...ws, tabs, layout, activePaneId } });
+  setActiveLeaf(leafId) {
+    set((s) => ({ workspace: { ...s.workspace, activeLeafId: leafId } }));
   },
 
-  setActivePane(id) {
-    set((s) => ({ workspace: { ...s.workspace, activePaneId: id } }));
+  setActiveTab(leafId, key) {
+    set((s) => {
+      const root = mapLeaf(s.workspace.root, leafId, (l) => {
+        const i = l.tabs.findIndex((v) => viewKey(v) === key);
+        return i >= 0 ? { ...l, activeIndex: i } : l;
+      });
+      return { workspace: { ...s.workspace, root, activeLeafId: leafId } };
+    });
+  },
+
+  closeTab(leafId, key) {
+    if (key === "board:main") return; // the home board is un-closable
+    set((s) => {
+      const root = collapseEmpty(mapLeaf(s.workspace.root, leafId, (l) => removeTab(l, key)));
+      const ids = new Set(leaves(root).map((l) => l.id));
+      const activeLeafId = ids.has(s.workspace.activeLeafId) ? s.workspace.activeLeafId : leaves(root)[0].id;
+      return { workspace: { ...s.workspace, root, activeLeafId } };
+    });
+  },
+
+  splitLeaf(leafId, dir, view) {
+    const ws = get().workspace;
+    if (!findLeaf(ws.root, leafId)) return;
+    const newLeaf: Leaf = { kind: "leaf", id: newId(), tabs: [view], activeIndex: 0 };
+    set({ workspace: { ...ws, root: splitNode(ws.root, leafId, dir, newLeaf), activeLeafId: newLeaf.id } });
   },
 
   focusBoard() {
-    get().openTab({ type: "board", id: "main" });
+    get().openView({ type: "board", id: "main" }, "tab");
   },
 
   resizeSplit(splitId, sizes) {
-    set((s) => ({ workspace: { ...s.workspace, layout: setSizes(s.workspace.layout, splitId, sizes) } }));
+    set((s) => ({ workspace: { ...s.workspace, root: setSizes(s.workspace.root, splitId, sizes) } }));
   },
 
   addFloat(view) {
@@ -362,18 +354,15 @@ export const useApp = create<AppState>()((set, get) => ({
 
   setNoteMode(id, mode) {
     const view: View = { type: "person", id };
-    const key = `person:${id}`;
-    const s = get();
     // Detach from every container first — a person lives in exactly one place.
-    set({
+    set((s) => ({
       openPersonId: s.openPersonId === id ? null : s.openPersonId,
-      workspace: { ...s.workspace, floats: s.workspace.floats.filter((f) => viewKey(f.view) !== key) },
-    });
-    get().closeTab(key); // drops a docked tab + collapses its pane, if present
+      workspace: detachView(s.workspace, `person:${id}`),
+    }));
     // Re-attach in the target mode.
     if (mode === "panel") set({ openPersonId: id });
     else if (mode === "float") get().addFloat(view);
-    else get().openTab(view);
+    else get().openView(view, "tab");
   },
 
   setNoteDefault(mode) {
@@ -381,29 +370,31 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   splitNoteWithBoard(id) {
-    const ws = get().workspace;
     const note: View = { type: "person", id };
     const board: View = { type: "board", id: "main" };
-    const left: Pane = { kind: "pane", id: newId(), view: note };
-    const right: Pane = { kind: "pane", id: newId(), view: board };
-    const layout: Split = { kind: "split", id: newId(), dir: "row", children: [left, right], sizes: [0.42, 0.58] };
-    const tabs = [...ws.tabs];
-    for (const v of [note, board]) if (!tabs.some((t) => viewKey(t) === viewKey(v))) tabs.push(v);
-    set({
-      // the note moves into the left pane, so detach it from the panel/floats.
-      openPersonId: get().openPersonId === id ? null : get().openPersonId,
+    const left: Leaf = { kind: "leaf", id: newId(), tabs: [note], activeIndex: 0 };
+    const right: Leaf = { kind: "leaf", id: newId(), tabs: [board], activeIndex: 0 };
+    const root: Split = { kind: "split", id: newId(), dir: "row", children: [left, right], sizes: [0.42, 0.58] };
+    // A "snap to this layout" action: it replaces the tiling with note | board (other open
+    // views are dropped — there's no global bar to keep them). The note moves into the left
+    // pane, so detach it from the panel/floats.
+    set((s) => ({
+      openPersonId: s.openPersonId === id ? null : s.openPersonId,
       workspace: {
-        ...ws,
-        tabs,
-        layout,
-        activePaneId: left.id,
-        floats: ws.floats.filter((f) => viewKey(f.view) !== `person:${id}`),
+        ...s.workspace,
+        root,
+        activeLeafId: left.id,
+        floats: s.workspace.floats.filter((f) => viewKey(f.view) !== `person:${id}`),
       },
-    });
+    }));
+  },
+
+  setLayoutMode(mode) {
+    set((s) => ({ workspace: { ...s.workspace, layoutMode: mode } }));
   },
 
   resetWorkspace() {
-    set({ workspace: emptyWorkspace() });
+    set((s) => ({ workspace: { ...emptyWorkspace(), layoutMode: s.workspace.layoutMode } }));
   },
 
   setDensity(density) {

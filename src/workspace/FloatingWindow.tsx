@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/app/store";
 import { tabLabel, type FloatingWindow as FloatWin } from "@/workspace/model";
-import { TabIcon } from "@/workspace/TopBar";
+import { TabIcon } from "@/workspace/TabStrip";
 import { ViewHost } from "@/workspace/ViewHost";
 import { NoteModeSwitch } from "@/workspace/NoteModeSwitch";
 

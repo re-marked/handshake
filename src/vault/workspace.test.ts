@@ -2,117 +2,134 @@ import { describe, expect, it } from "vitest";
 import { parseWorkspace, serializeWorkspace } from "@/vault/workspace";
 import type { Workspace } from "@/workspace/model";
 
-/** True when `ws` is structurally the default workspace (ignoring the random pane id). */
+/** True when `ws` is structurally the default workspace (ignoring the random leaf id). */
 function isEmptyWorkspace(ws: Workspace): boolean {
   return (
-    ws.layout.kind === "pane" &&
-    ws.layout.view.type === "board" &&
-    ws.layout.view.id === "main" &&
-    ws.activePaneId === ws.layout.id &&
-    ws.tabs.length === 1 &&
-    ws.tabs[0].type === "board" &&
+    ws.root.kind === "leaf" &&
+    ws.root.tabs.length === 1 &&
+    ws.root.tabs[0].type === "board" &&
+    ws.root.tabs[0].id === "main" &&
+    ws.activeLeafId === ws.root.id &&
     ws.floats.length === 0 &&
-    ws.noteDefault === "panel"
+    ws.noteDefault === "panel" &&
+    ws.layoutMode === "tabs"
   );
 }
 
 describe("parseWorkspace", () => {
-  it("round-trips a workspace with a split and a person tab", () => {
+  it("round-trips a split of two leaves + a float + simple mode", () => {
     const ws: Workspace = {
-      tabs: [
-        { type: "board", id: "main" },
-        { type: "people" },
-        { type: "person", id: "sarah-chen" },
-      ],
-      layout: {
+      root: {
         kind: "split",
         id: "s1",
         dir: "row",
         children: [
-          { kind: "pane", id: "p1", view: { type: "board", id: "main" } },
-          { kind: "pane", id: "p2", view: { type: "person", id: "sarah-chen" } },
+          { kind: "leaf", id: "L1", tabs: [{ type: "board", id: "main" }, { type: "people" }], activeIndex: 1 },
+          { kind: "leaf", id: "L2", tabs: [{ type: "person", id: "sarah-chen" }], activeIndex: 0 },
         ],
         sizes: [0.6, 0.4],
       },
-      activePaneId: "p2",
-      floats: [{ id: "f1", view: { type: "people" }, x: 10, y: 20, w: 300, h: 400, z: 1 }],
+      floats: [{ id: "f1", view: { type: "goals" }, x: 10, y: 20, w: 300, h: 400, z: 1 }],
+      activeLeafId: "L2",
       noteDefault: "tab",
+      layoutMode: "simple",
     };
     expect(parseWorkspace(serializeWorkspace(ws))).toEqual(ws);
   });
 
-  it("falls back to an empty workspace for missing/blank/garbage input", () => {
+  it("falls back to an empty workspace for missing/blank/garbage and the OLD pane shape", () => {
     expect(isEmptyWorkspace(parseWorkspace(""))).toBe(true);
     expect(isEmptyWorkspace(parseWorkspace("   "))).toBe(true);
     expect(isEmptyWorkspace(parseWorkspace("not json"))).toBe(true);
     expect(isEmptyWorkspace(parseWorkspace("[]"))).toBe(true);
-    expect(isEmptyWorkspace(parseWorkspace(JSON.stringify({ tabs: [] })))).toBe(true); // no layout
+    // pre-rework on-disk shape had {tabs, layout, activePaneId} and no `root` → one-time reset.
+    const oldShape = JSON.stringify({
+      tabs: [{ type: "board", id: "main" }],
+      layout: { kind: "pane", id: "p", view: { type: "board", id: "main" } },
+      activePaneId: "p",
+    });
+    expect(isEmptyWorkspace(parseWorkspace(oldShape))).toBe(true);
   });
 
-  it("always keeps a board:main tab and includes every shown view", () => {
+  it("injects the home board into the first leaf when it's missing", () => {
     const ws = parseWorkspace(
       JSON.stringify({
-        tabs: [{ type: "people" }],
-        layout: { kind: "pane", id: "p1", view: { type: "goals" } },
-        activePaneId: "p1",
+        root: { kind: "leaf", id: "L", tabs: [{ type: "people" }], activeIndex: 0 },
+        activeLeafId: "L",
       }),
     );
-    const keys = ws.tabs.map((t) => (t.type === "board" ? `board:${t.id}` : t.type));
-    expect(keys).toContain("board:main"); // home board is always present
-    expect(keys).toContain("goals"); // the shown view is promoted into the bar
-    expect(keys).toContain("people");
+    expect(ws.root.kind).toBe("leaf");
+    if (ws.root.kind === "leaf") {
+      expect(ws.root.tabs.some((t) => t.type === "board" && t.id === "main")).toBe(true);
+      expect(ws.root.tabs.some((t) => t.type === "people")).toBe(true);
+    }
   });
 
-  it("collapses a single-child split and drops malformed views", () => {
+  it("collapses a single-child split", () => {
     const ws = parseWorkspace(
       JSON.stringify({
-        tabs: [{ type: "board", id: "main" }, { type: "person" }, { type: "bogus" }],
-        layout: {
+        root: {
           kind: "split",
-          id: "s1",
+          id: "s",
           dir: "row",
-          children: [{ kind: "pane", id: "only", view: { type: "board", id: "main" } }],
+          children: [{ kind: "leaf", id: "only", tabs: [{ type: "board", id: "main" }], activeIndex: 0 }],
           sizes: [1],
         },
-        activePaneId: "only",
+        activeLeafId: "only",
       }),
     );
-    expect(ws.layout).toEqual({ kind: "pane", id: "only", view: { type: "board", id: "main" } });
-    // person with no id + unknown type are dropped; only board:main survives
-    expect(ws.tabs).toEqual([{ type: "board", id: "main" }]);
+    expect(ws.root).toEqual({ kind: "leaf", id: "only", tabs: [{ type: "board", id: "main" }], activeIndex: 0 });
   });
 
-  it("renormalizes split sizes to sum 1 and repairs a bad activePaneId", () => {
+  it("drops malformed views and clamps a bad activeIndex", () => {
     const ws = parseWorkspace(
       JSON.stringify({
-        tabs: [{ type: "board", id: "main" }],
-        layout: {
+        root: {
+          kind: "leaf",
+          id: "L",
+          tabs: [{ type: "board", id: "main" }, { type: "bogus" }, { type: "person" }],
+          activeIndex: 9,
+        },
+        activeLeafId: "L",
+      }),
+    );
+    expect(ws.root.kind).toBe("leaf");
+    if (ws.root.kind === "leaf") {
+      expect(ws.root.tabs.map((t) => t.type)).toEqual(["board"]); // bogus + idless person dropped
+      expect(ws.root.activeIndex).toBe(0); // clamped into range
+    }
+  });
+
+  it("renormalizes split sizes to sum 1 and repairs a bad activeLeafId", () => {
+    const ws = parseWorkspace(
+      JSON.stringify({
+        root: {
           kind: "split",
-          id: "s1",
+          id: "s",
           dir: "col",
           children: [
-            { kind: "pane", id: "a", view: { type: "board", id: "main" } },
-            { kind: "pane", id: "b", view: { type: "people" } },
+            { kind: "leaf", id: "a", tabs: [{ type: "board", id: "main" }], activeIndex: 0 },
+            { kind: "leaf", id: "b", tabs: [{ type: "people" }], activeIndex: 0 },
           ],
           sizes: [3, 1], // not normalized
         },
-        activePaneId: "ghost", // references no pane
+        activeLeafId: "ghost", // references no leaf
       }),
     );
-    const split = ws.layout;
-    if (split.kind !== "split") throw new Error("expected a split");
-    expect(split.sizes[0] + split.sizes[1]).toBeCloseTo(1);
-    expect(split.sizes).toEqual([0.75, 0.25]);
-    expect(["a", "b"]).toContain(ws.activePaneId);
+    const root = ws.root;
+    if (root.kind !== "split") throw new Error("expected a split");
+    expect(root.sizes[0] + root.sizes[1]).toBeCloseTo(1);
+    expect(root.sizes).toEqual([0.75, 0.25]);
+    expect(["a", "b"]).toContain(ws.activeLeafId);
   });
 
-  it("defaults noteDefault and drops malformed floats", () => {
+  it("defaults noteDefault + layoutMode and drops malformed floats", () => {
     const ws = parseWorkspace(
       JSON.stringify({
-        tabs: [{ type: "board", id: "main" }],
-        layout: { kind: "pane", id: "p1", view: { type: "board", id: "main" } },
-        activePaneId: "p1",
+        root: { kind: "leaf", id: "L", tabs: [{ type: "board", id: "main" }], activeIndex: 0 },
+        activeLeafId: "L",
         noteDefault: "nonsense",
+        layoutMode: "bogus",
         floats: [
           { id: "ok", view: { type: "people" }, x: 1, y: 2, w: 3, h: 4, z: 5 },
           { id: "bad", view: { type: "people" }, x: 1 }, // missing dims -> dropped
@@ -120,6 +137,7 @@ describe("parseWorkspace", () => {
       }),
     );
     expect(ws.noteDefault).toBe("panel");
+    expect(ws.layoutMode).toBe("tabs");
     expect(ws.floats).toEqual([{ id: "ok", view: { type: "people" }, x: 1, y: 2, w: 3, h: 4, z: 5 }]);
   });
 });

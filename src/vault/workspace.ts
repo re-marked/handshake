@@ -4,13 +4,13 @@
 
 import {
   emptyWorkspace,
-  viewKey,
   type FloatingWindow,
-  type NoteMode,
-  type PaneNode,
+  type LayoutMode,
+  type Node,
   type View,
   type Workspace,
 } from "@/workspace/model";
+import { findView, leaves, mapLeaf } from "@/workspace/ops";
 
 export function serializeWorkspace(ws: Workspace): string {
   return JSON.stringify(ws, null, 2);
@@ -57,20 +57,25 @@ function normalizeSizes(raw: unknown, n: number): number[] {
   return Array.from({ length: n }, () => 1 / n);
 }
 
-function validPane(v: unknown): PaneNode | undefined {
+function validNode(v: unknown): Node | undefined {
   if (!v || typeof v !== "object") return undefined;
   const o = v as Record<string, unknown>;
-  if (o.kind === "pane") {
+  if (o.kind === "leaf") {
     const id = str(o.id);
-    const view = validView(o.view);
-    return id && view ? { kind: "pane", id, view } : undefined;
+    const tabs = (Array.isArray(o.tabs) ? o.tabs.map(validView) : []).filter(
+      (t): t is View => t !== undefined,
+    );
+    if (!id || tabs.length === 0) return undefined; // drop empty/idless leaves
+    const ai = num(o.activeIndex);
+    const activeIndex = ai !== undefined ? Math.min(Math.max(0, Math.floor(ai)), tabs.length - 1) : 0;
+    return { kind: "leaf", id, tabs, activeIndex };
   }
   if (o.kind === "split") {
     const id = str(o.id);
     const dir = o.dir === "col" ? "col" : "row";
     const children = (Array.isArray(o.children) ? o.children : [])
-      .map(validPane)
-      .filter((c): c is PaneNode => c !== undefined);
+      .map(validNode)
+      .filter((c): c is Node => c !== undefined);
     if (!id || children.length === 0) return undefined;
     if (children.length === 1) return children[0]; // collapse a 1-child split
     return { kind: "split", id, dir, children, sizes: normalizeSizes(o.sizes, children.length) };
@@ -93,18 +98,6 @@ function validFloat(v: unknown): FloatingWindow | undefined {
   return { id, view, x, y, w, h, z: num(o.z) ?? 0 };
 }
 
-function paneViews(node: PaneNode, out: View[] = []): View[] {
-  if (node.kind === "pane") out.push(node.view);
-  else node.children.forEach((c) => paneViews(c, out));
-  return out;
-}
-
-function paneIds(node: PaneNode, out: Set<string> = new Set()): Set<string> {
-  if (node.kind === "pane") out.add(node.id);
-  else node.children.forEach((c) => paneIds(c, out));
-  return out;
-}
-
 export function parseWorkspace(json: string): Workspace {
   if (!json.trim()) return emptyWorkspace();
   let data: unknown;
@@ -116,23 +109,26 @@ export function parseWorkspace(json: string): Workspace {
   if (!data || typeof data !== "object") return emptyWorkspace();
   const o = data as Record<string, unknown>;
 
-  const layout = validPane(o.layout);
-  if (!layout) return emptyWorkspace();
+  // The root tree. (Pre-rework files used a {tabs,layout,activePaneId} shape with no `root`;
+  // they fail validation here and fall back to a fresh workspace — a one-time reset.)
+  let root = validNode(o.root);
+  if (!root) return emptyWorkspace();
 
-  // tabs ⊇ every shown view, always include the home board, deduped by key.
-  const byKey = new Map<string, View>();
-  for (const v of Array.isArray(o.tabs) ? o.tabs.map(validView) : []) if (v) byKey.set(viewKey(v), v);
-  for (const v of paneViews(layout)) byKey.set(viewKey(v), v);
-  if (!byKey.has("board:main")) byKey.set("board:main", { type: "board", id: "main" });
+  // Always keep the home board reachable — inject it into the first leaf if it went missing.
+  if (!findView(root, "board:main")) {
+    const firstLeafId = leaves(root)[0].id;
+    root = mapLeaf(root, firstLeafId, (l) => ({ ...l, tabs: [{ type: "board", id: "main" }, ...l.tabs] }));
+  }
 
-  const ids = paneIds(layout);
-  const wantActive = str(o.activePaneId);
-  const activePaneId = wantActive && ids.has(wantActive) ? wantActive : [...ids][0];
+  const ids = new Set(leaves(root).map((l) => l.id));
+  const wantActive = str(o.activeLeafId);
+  const activeLeafId = wantActive && ids.has(wantActive) ? wantActive : leaves(root)[0].id;
 
   const floats = (Array.isArray(o.floats) ? o.floats.map(validFloat) : []).filter(
     (f): f is FloatingWindow => f !== undefined,
   );
-  const noteDefault: NoteMode = o.noteDefault === "float" || o.noteDefault === "tab" ? o.noteDefault : "panel";
+  const noteDefault = o.noteDefault === "float" || o.noteDefault === "tab" ? o.noteDefault : "panel";
+  const layoutMode: LayoutMode = o.layoutMode === "simple" ? "simple" : "tabs";
 
-  return { tabs: [...byKey.values()], layout, activePaneId, floats, noteDefault };
+  return { root, floats, activeLeafId, noteDefault, layoutMode };
 }
