@@ -80,6 +80,18 @@ function AppearanceSection() {
           ]}
         />
       </Row>
+      {s.theme === "paper" && (
+        <Row label="Paper style" description="Soft ivory, or an aged sepia with a touch of grain.">
+          <Seg
+            value={s.paperVariant}
+            onChange={(paperVariant) => set({ paperVariant })}
+            options={[
+              { value: "soft", label: "Soft" },
+              { value: "vintage", label: "Vintage" },
+            ]}
+          />
+        </Row>
+      )}
       <Row label="Density" description="Row spacing in list views like People.">
         <Seg
           value={s.density}

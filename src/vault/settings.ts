@@ -7,11 +7,14 @@ import type { Strength } from "@/switchboard";
 import type { NoteMode } from "@/workspace/model";
 
 export type Theme = "dark" | "light" | "paper" | "system";
+export type PaperVariant = "soft" | "vintage";
 export type Density = "compact" | "comfortable" | "spacious";
 
 export interface Settings {
   /** App appearance. `system` follows the OS color scheme. */
   theme: Theme;
+  /** Which paper look, when `theme` is `paper`. `soft` = gentle ivory; `vintage` = aged sepia + grain. */
+  paperVariant: PaperVariant;
   /** Row density for list views (People). */
   density: Density;
   /** Tone down motion (springs/transitions) — respects framer's MotionConfig. */
@@ -26,6 +29,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
+  paperVariant: "soft",
   density: "comfortable",
   reduceMotion: false,
   noteDefault: "panel",
@@ -53,6 +57,7 @@ export function parseSettings(json: string): Settings {
   const o = data as Record<string, unknown>;
   return {
     theme: oneOf(o.theme, ["dark", "light", "paper", "system"] as const, DEFAULT_SETTINGS.theme),
+    paperVariant: oneOf(o.paperVariant, ["soft", "vintage"] as const, DEFAULT_SETTINGS.paperVariant),
     density: oneOf(o.density, ["compact", "comfortable", "spacious"] as const, DEFAULT_SETTINGS.density),
     reduceMotion: typeof o.reduceMotion === "boolean" ? o.reduceMotion : DEFAULT_SETTINGS.reduceMotion,
     noteDefault: oneOf(o.noteDefault, ["panel", "float", "tab"] as const, DEFAULT_SETTINGS.noteDefault),

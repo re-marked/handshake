@@ -11,28 +11,31 @@ import { WorkspaceBoundary } from "@/app/WorkspaceBoundary";
 // Normal launches reopen the last network; the front door handles everything else.
 const DEV_VAULT = import.meta.env.VITE_VAULT_PATH as string | undefined;
 
-/** Reflect the `theme` setting onto <html> (the `.dark` / `.paper` class); `system` follows the
- *  OS between dark and light. `light` and `paper` are manual choices. */
-function applyThemeClass(resolved: "dark" | "light" | "paper") {
+type ThemeClass = "dark" | "paper" | "paper-vintage" | null;
+
+/** Reflect the `theme` (+ paper variant) onto <html>. `light` = no class (the :root tokens);
+ *  `system` follows the OS between dark and light. */
+function applyThemeClass(cls: ThemeClass) {
   const root = document.documentElement;
-  root.classList.remove("dark", "paper");
-  if (resolved === "dark") root.classList.add("dark");
-  else if (resolved === "paper") root.classList.add("paper");
-  // light → no class (the :root tokens)
+  root.classList.remove("dark", "paper", "paper-vintage");
+  if (cls) root.classList.add(cls);
 }
 
 function useTheme() {
   const theme = useApp((s) => s.settings.theme);
+  const paperVariant = useApp((s) => s.settings.paperVariant);
   useEffect(() => {
     if (theme === "system") {
       const mq = window.matchMedia("(prefers-color-scheme: dark)");
-      const sync = () => applyThemeClass(mq.matches ? "dark" : "light");
+      const sync = () => applyThemeClass(mq.matches ? "dark" : null);
       sync();
       mq.addEventListener("change", sync);
       return () => mq.removeEventListener("change", sync);
     }
-    applyThemeClass(theme);
-  }, [theme]);
+    if (theme === "paper") applyThemeClass(paperVariant === "vintage" ? "paper-vintage" : "paper");
+    else if (theme === "dark") applyThemeClass("dark");
+    else applyThemeClass(null); // light
+  }, [theme, paperVariant]);
 }
 
 export default function App() {
