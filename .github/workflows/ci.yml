@@ -1,0 +1,27 @@
+# Fast guard on every push to main and every PR: type-check, run the test suite, and build the
+# frontend. (The full cross-platform Tauri build lives in release.yml, on version tags.)
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # version from package.json "packageManager"
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
+      - name: Test
+        run: pnpm test
+      - name: Build (tsc + vite)
+        run: pnpm build
