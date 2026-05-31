@@ -1,12 +1,16 @@
+import { useRef } from "react";
 import { motion } from "motion/react";
 import { Search, Settings, Share2, Target, User, Users, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { tabLabel, viewKey, type Leaf, type View } from "@/workspace/model";
+import type { DropSide } from "@/workspace/ops";
+import { zoneAt } from "@/workspace/dropZone";
 import { TabLauncher } from "@/workspace/TabLauncher";
 
 const TAB_SPRING = { type: "spring", stiffness: 520, damping: 40 } as const;
+const DRAG_THRESHOLD = 5; // px before a press becomes a drag (vs a click)
 
 export function TabIcon({ view, photo }: { view: View; photo?: string }) {
   if (view.type === "person") {
@@ -32,14 +36,71 @@ export function TabIcon({ view, photo }: { view: View; photo?: string }) {
   return <Icon className="size-4 shrink-0" strokeWidth={1.75} />;
 }
 
-/** A browser-style tab bar for one leaf: roomy pills, per-tab icons, and a rose-muted
- *  highlight that glides between tabs. Board is pinned (un-closable). */
+/** elementFromPoint → the leaf under the cursor + which drop zone, for pointer-drag hit-testing. */
+function hitTest(x: number, y: number): { leafId: string; side: DropSide } | null {
+  const el = document.elementFromPoint(x, y) as HTMLElement | null;
+  const leafEl = el?.closest<HTMLElement>("[data-leaf-id]");
+  if (!leafEl?.dataset.leafId) return null;
+  return { leafId: leafEl.dataset.leafId, side: zoneAt(leafEl.getBoundingClientRect(), x, y) };
+}
+
+/** A browser-style tab bar for one leaf: roomy pills, per-tab icons, and a rose-muted highlight
+ *  that glides between tabs. Tabs are pointer-draggable between panes (and to an edge to split). */
 export function TabStrip({ leaf }: { leaf: Leaf }) {
   const people = useApp((s) => s.switchboard.people);
   const photos = useApp((s) => s.photos);
   const setActiveTab = useApp((s) => s.setActiveTab);
   const closeTab = useApp((s) => s.closeTab);
+  const tabDrag = useApp((s) => s.tabDrag);
   const nameOf = (id: string) => people.get(id)?.name;
+
+  // One drag at a time; track the press so we can tell a click from a drag.
+  const drag = useRef<{ x: number; y: number; key: string; started: boolean } | null>(null);
+
+  function onPointerDown(e: React.PointerEvent, key: string) {
+    if (e.button !== 0) return;
+    if ((e.target as HTMLElement).closest("[data-no-tab-drag]")) return; // the close button
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    drag.current = { x: e.clientX, y: e.clientY, key, started: false };
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    const d = drag.current;
+    if (!d) return;
+    if (!d.started) {
+      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < DRAG_THRESHOLD) return;
+      d.started = true;
+      document.body.style.cursor = "grabbing";
+      useApp.getState().beginTabDrag(leaf.id, d.key);
+    }
+    useApp.getState().setTabDragOver(hitTest(e.clientX, e.clientY));
+  }
+
+  function endDrag(e: React.PointerEvent) {
+    (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+    document.body.style.cursor = "";
+  }
+
+  function onPointerUp(e: React.PointerEvent) {
+    const d = drag.current;
+    drag.current = null;
+    endDrag(e);
+    if (!d) return;
+    if (!d.started) {
+      setActiveTab(leaf.id, d.key); // never moved → it was a click
+      return;
+    }
+    const over = useApp.getState().tabDragOver;
+    if (over) useApp.getState().dropTab(over.leafId, over.side);
+    else useApp.getState().endTabDrag();
+  }
+
+  function onPointerCancel(e: React.PointerEvent) {
+    const d = drag.current;
+    drag.current = null;
+    endDrag(e);
+    if (d?.started) useApp.getState().endTabDrag();
+  }
 
   return (
     <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border bg-card px-2">
@@ -47,25 +108,23 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
         {leaf.tabs.map((view, i) => {
           const key = viewKey(view);
           const active = i === leaf.activeIndex;
+          const dragging = tabDrag?.srcLeafId === leaf.id && tabDrag?.key === key;
           return (
             <div
               key={key}
               role="button"
               tabIndex={0}
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = "move";
-                e.dataTransfer.setData("text/plain", key);
-                useApp.getState().beginTabDrag(leaf.id, key);
-              }}
-              onDragEnd={() => useApp.getState().endTabDrag()}
-              onClick={() => setActiveTab(leaf.id, key)}
+              onPointerDown={(e) => onPointerDown(e, key)}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerCancel={onPointerCancel}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") setActiveTab(leaf.id, key);
               }}
               className={cn(
-                "group/tab relative flex h-8 shrink-0 cursor-pointer select-none items-center gap-2 rounded-lg pl-2.5 pr-2 text-sm outline-none transition-colors",
+                "group/tab relative flex h-8 shrink-0 cursor-pointer touch-none select-none items-center gap-2 rounded-lg pl-2.5 pr-2 text-sm outline-none transition-colors",
                 active ? "text-foreground" : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
+                dragging && "opacity-50",
               )}
             >
               {active && (
@@ -81,6 +140,7 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
               </span>
               <button
                 type="button"
+                data-no-tab-drag
                 aria-label="Close tab"
                 onClick={(e) => {
                   e.stopPropagation();

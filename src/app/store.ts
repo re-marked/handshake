@@ -68,6 +68,8 @@ interface AppState {
   locate: { id: string; nonce: number } | null;
   /** The tab currently being dragged (source leaf + view key), or null. Transient; not saved. */
   tabDrag: { srcLeafId: string; key: string } | null;
+  /** The leaf + side currently hovered during a tab drag (drives the drop overlay), or null. */
+  tabDragOver: { leafId: string; side: DropSide } | null;
 
   init: (vault: string) => Promise<void>;
   /** Route a diff through the funnel, persist it, and swap in the new state. The board
@@ -94,9 +96,11 @@ interface AppState {
   closeTab: (leafId: string, key: string) => void;
   /** Split a leaf (row/col), opening a view in the new pane. */
   splitLeaf: (leafId: string, dir: "row" | "col", view: View) => void;
-  /** Begin dragging a tab (drag-and-drop between panes). */
+  /** Begin dragging a tab (pointer drag between panes). */
   beginTabDrag: (srcLeafId: string, key: string) => void;
-  /** End a tab drag (drop finished or cancelled). */
+  /** Update the hovered drop target during a drag (null when over nothing droppable). */
+  setTabDragOver: (over: { leafId: string; side: DropSide } | null) => void;
+  /** End a tab drag (cancelled / dropped on nothing). */
   endTabDrag: () => void;
   /** Drop the dragged tab onto a leaf — `center` moves it in; an edge splits there. */
   dropTab: (destLeafId: string, side: DropSide) => void;
@@ -142,6 +146,7 @@ export const useApp = create<AppState>()((set, get) => ({
   density: readDensity(),
   locate: null,
   tabDrag: null,
+  tabDragOver: null,
 
   async init(vault) {
     if (get().status !== "idle") return; // guard against StrictMode double-invoke
@@ -304,14 +309,30 @@ export const useApp = create<AppState>()((set, get) => ({
     set({ tabDrag: { srcLeafId, key } });
   },
 
+  setTabDragOver(over) {
+    set((s) => {
+      const cur = s.tabDragOver;
+      if (cur === over) return {};
+      if (cur && over && cur.leafId === over.leafId && cur.side === over.side) return {}; // unchanged
+      return { tabDragOver: over };
+    });
+  },
+
   endTabDrag() {
-    if (get().tabDrag) set({ tabDrag: null });
+    if (get().tabDrag || get().tabDragOver) set({ tabDrag: null, tabDragOver: null });
   },
 
   dropTab(destLeafId, side) {
     const d = get().tabDrag;
-    if (!d) return;
-    set((s) => ({ workspace: applyDropTab(s.workspace, d.srcLeafId, d.key, destLeafId, side), tabDrag: null }));
+    if (!d) {
+      set({ tabDragOver: null });
+      return;
+    }
+    set((s) => ({
+      workspace: applyDropTab(s.workspace, d.srcLeafId, d.key, destLeafId, side),
+      tabDrag: null,
+      tabDragOver: null,
+    }));
   },
 
   focusBoard() {

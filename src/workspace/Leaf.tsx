@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { viewKey, type Leaf as LeafNode } from "@/workspace/model";
 import { leaves } from "@/workspace/ops";
+import { ZONE_CLASS } from "@/workspace/dropZone";
 import { TabStrip } from "@/workspace/TabStrip";
-import { TabDropLayer } from "@/workspace/TabDropLayer";
 import { ViewHost } from "@/workspace/ViewHost";
 
 /** Shown when a leaf has no open tabs (you closed them all, board included). */
@@ -25,16 +25,18 @@ function EmptyLeaf() {
 /**
  * A tabbed pane. All tabs stay mounted (hidden when inactive) so heavy views — the board
  * especially — keep their state across tab switches. An empty leaf (every tab closed) shows
- * the "weird place" state with a way back to the board.
+ * the "weird place" state. `data-leaf-id` lets the tab-drag hit-test find this pane; a drop
+ * overlay highlights the zone (move / split) while a tab is dragged over it.
  */
 export function Leaf({ leaf }: { leaf: LeafNode }) {
   const active = useApp((s) => s.workspace.activeLeafId === leaf.id);
   const tiled = useApp((s) => leaves(s.workspace.root).length > 1);
-  const dragging = useApp((s) => s.tabDrag !== null);
+  const over = useApp((s) => (s.tabDragOver?.leafId === leaf.id ? s.tabDragOver.side : null));
   const empty = leaf.tabs.length === 0;
 
   return (
     <div
+      data-leaf-id={leaf.id}
       className={cn(
         "relative flex h-full w-full flex-col",
         tiled && active && "rounded-sm ring-1 ring-inset ring-primary/40",
@@ -55,7 +57,16 @@ export function Leaf({ leaf }: { leaf: LeafNode }) {
           ))
         )}
       </div>
-      {dragging && <TabDropLayer leafId={leaf.id} />}
+      {over && (
+        <div className="pointer-events-none absolute inset-0 z-10">
+          <div
+            className={cn(
+              "absolute rounded-md bg-primary/20 ring-2 ring-inset ring-primary/60 transition-all duration-100",
+              ZONE_CLASS[over],
+            )}
+          />
+        </div>
+      )}
     </div>
   );
 }
