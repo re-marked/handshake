@@ -41,8 +41,26 @@ export function CommandPalette() {
         s.setCommandOpen(!s.commandOpen);
       }
     }
+    // Right-click anywhere → the command palette, instead of the webview's browser menu.
+    // Text fields keep their native menu (copy/paste/spellcheck); highlights handle their own
+    // right-click (recolor) and stop propagation, so this never fires for them.
+    function onContext(e: MouseEvent) {
+      const t = e.target as HTMLElement | null;
+      // Highlights own their right-click (recolor) — suppress the browser menu, let them handle it.
+      if (t?.closest("mark.hl")) {
+        e.preventDefault();
+        return;
+      }
+      if (t?.closest("input, textarea, [contenteditable='true'], [contenteditable='']")) return;
+      e.preventDefault();
+      useApp.getState().setCommandOpen(true);
+    }
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("contextmenu", onContext);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("contextmenu", onContext);
+    };
   }, []);
 
   useEffect(() => {

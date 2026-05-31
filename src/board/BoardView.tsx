@@ -153,6 +153,7 @@ export function BoardView({ boardId }: { boardId: string }) {
   }
 
   function onPointerDown(e: React.PointerEvent) {
+    if (e.button !== 0) return; // left button only — right-click is reserved for the command palette
     const cardEl = (e.target as HTMLElement).closest<HTMLElement>("[data-card-id]");
     containerRef.current?.setPointerCapture(e.pointerId);
     if (cardEl?.dataset.cardId) {
