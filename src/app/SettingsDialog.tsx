@@ -10,8 +10,6 @@ import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { pickFolder } from "@/vault/appState";
 
-const APP_VERSION = "0.2.0";
-
 const SECTIONS = [
   { id: "appearance", label: "Appearance", icon: Palette },
   { id: "notes", label: "Notes & workspace", icon: StickyNote },
@@ -219,11 +217,21 @@ function NetworksSection() {
 }
 
 function AboutSection() {
+  const b = __BUILD_INFO__;
+  const built = (() => {
+    try {
+      return new Date(b.time).toLocaleString();
+    } catch {
+      return b.time;
+    }
+  })();
+  const meta = [b.tag || `v${b.version}`, b.sha, `built ${built}`].filter(Boolean).join(" · ");
   return (
     <div className="space-y-2 text-sm text-muted-foreground">
-      <p className="text-base font-medium text-foreground">Handshake {APP_VERSION}</p>
+      <p className="text-base font-medium text-foreground">Handshake {b.version}</p>
       <p>Obsidian for your network — a local-first map of the people you know.</p>
       <p>Your data is a folder of Markdown files on your machine.</p>
+      <p className="pt-1 font-mono text-xs text-muted-foreground/80">{meta}</p>
     </div>
   );
 }

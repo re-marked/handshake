@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Camera, Plus, X } from "lucide-react";
+import { Camera, Eye, PenLine, Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConnectionMenuItems } from "@/app/ConnectionMenu";
 import { PhotoUpload } from "@/app/PhotoUpload";
+import { MarkdownView } from "@/views/MarkdownView";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import type { Handshake, Person, PersonPatch } from "@/switchboard";
@@ -84,6 +85,7 @@ function usePersonEditor(id: string) {
 export function PersonView({ id }: { id: string }) {
   const { draft, setDraft } = usePersonEditor(id);
   const photo = useApp((s) => s.photos.get(id));
+  const [editingBody, setEditingBody] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [rows, setRows] = useState<Array<{ channel: string; value: string }>>(() => {
     const h = useApp.getState().switchboard.people.get(id)?.handles ?? {};
@@ -159,6 +161,17 @@ export function PersonView({ id }: { id: string }) {
         </div>
         {/* Per-note actions — an icon toolbar; future note tools / local settings slot in here. */}
         <div className="flex shrink-0 items-center gap-0.5 text-muted-foreground">
+          {draft.body.trim() && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={editingBody ? "Preview notes" : "Edit notes"}
+              title={editingBody ? "Preview" : "Edit"}
+              onClick={() => setEditingBody((v) => !v)}
+            >
+              {editingBody ? <Eye /> : <PenLine />}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon-sm"
@@ -253,15 +266,23 @@ export function PersonView({ id }: { id: string }) {
       )}
 
       <Separator />
-      <Textarea
-        value={draft.body}
-        onChange={(e) => update({ body: e.target.value })}
-        placeholder="Notes…"
-        className={cn(
-          "w-full min-w-0 [overflow-wrap:anywhere] min-h-24 resize-none border-0 bg-transparent px-0 text-[15px] leading-relaxed text-foreground/90 shadow-none",
-          "focus-visible:ring-0 dark:bg-transparent",
-        )}
-      />
+      {editingBody || !draft.body.trim() ? (
+        <Textarea
+          autoFocus={editingBody}
+          value={draft.body}
+          onChange={(e) => update({ body: e.target.value })}
+          placeholder="Notes… (markdown supported)"
+          className={cn(
+            "w-full min-w-0 [overflow-wrap:anywhere] min-h-24 resize-none border-0 bg-transparent px-0 text-[15px] leading-relaxed text-foreground/90 shadow-none",
+            "focus-visible:ring-0 dark:bg-transparent",
+          )}
+        />
+      ) : (
+        // Rendered markdown; click anywhere in it to drop into edit mode.
+        <div className="-mx-0.5 cursor-text rounded-sm px-0.5 py-0.5" onClick={() => setEditingBody(true)}>
+          <MarkdownView source={draft.body} />
+        </div>
+      )}
     </div>
   );
 }
