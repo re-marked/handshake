@@ -100,18 +100,22 @@ export function MarkdownView({
     const canEdit = editable && pos?.start?.offset != null && pos?.end?.offset != null;
     return (
       <mark
-        className={cn(cls, canEdit && "cursor-pointer")}
-        title={canEdit ? "Click to recolor" : undefined}
-        onClick={
+        className={cls}
+        title={canEdit ? "Right-click to recolor" : undefined}
+        // Recolor on right-click: it intercepts the browser context menu and never trips the
+        // left-click "enter edit mode" handler, so picking a color just changes the color.
+        onContextMenu={
           canEdit
             ? (e: React.MouseEvent) => {
+                e.preventDefault();
                 e.stopPropagation();
+                const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
                 setRecolor({
                   start: pos.start.offset,
                   end: pos.end.offset,
                   current,
-                  x: e.clientX,
-                  y: e.clientY,
+                  x: r.left,
+                  y: r.top + r.height / 2,
                 });
               }
             : undefined
@@ -134,7 +138,8 @@ export function MarkdownView({
             <PopoverAnchor style={{ position: "fixed", left: recolor.x, top: recolor.y }} />
           )}
           <PopoverContent
-            align="start"
+            side="left"
+            align="center"
             sideOffset={8}
             className="w-auto p-2"
             onOpenAutoFocus={(e) => e.preventDefault()}
