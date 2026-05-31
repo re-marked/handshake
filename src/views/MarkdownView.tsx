@@ -1,7 +1,11 @@
+import { useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { X } from "lucide-react";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { HL_COLORS, type HlColor, remarkHighlight, rewriteHighlight } from "@/views/remarkHighlight";
 
 /** Links open in the system browser, never navigating the webview away from the app. */
 function Link({ href, children }: { href?: string; children?: React.ReactNode }) {
@@ -17,6 +21,17 @@ function Link({ href, children }: { href?: string; children?: React.ReactNode })
     </a>
   );
 }
+
+const COLOR_LABEL: Record<HlColor, string> = {
+  default: "Yellow (default)",
+  yellow: "Yellow",
+  green: "Green",
+  blue: "Blue",
+  pink: "Pink",
+  purple: "Purple",
+};
+
+type Recolor = { start: number; end: number; current: HlColor; x: number; y: number };
 
 // Opinionated, theme-aware markdown styling — all in one place, easy to tune. Inherits the note
 // font/weight from the body; the rose-tinted blockquote + accent links tie it to the brand.
@@ -44,13 +59,105 @@ const PROSE = cn(
   "[&_input]:mr-1.5 [&_input]:align-middle",
 );
 
-/** Renders a markdown string as styled prose (GFM: tables, task lists, strikethrough). */
-export function MarkdownView({ source, className }: { source: string; className?: string }) {
+/**
+ * Renders a markdown string as styled prose (GFM + `==highlights==`). When `onChange` is supplied,
+ * highlights become clickable — click one to recolor it from a soft pastel palette; the change is
+ * written straight back into the markdown source.
+ */
+export function MarkdownView({
+  source,
+  className,
+  onChange,
+}: {
+  source: string;
+  className?: string;
+  onChange?: (next: string) => void;
+}) {
+  const [recolor, setRecolor] = useState<Recolor | null>(null);
+  const editable = !!onChange;
+
+  function pick(color: HlColor | "remove") {
+    if (recolor && onChange) onChange(rewriteHighlight(source, recolor.start, recolor.end, color));
+    setRecolor(null);
+  }
+
+  // Custom <mark>: clickable (when editable) to open the recolor palette anchored at the cursor.
+  function Mark({ node, className: cls, children }: any) {
+    const colorMatch: string | undefined = (cls ?? "").match(/hl-([a-z]+)/)?.[1];
+    const current = (HL_COLORS as readonly string[]).includes(colorMatch ?? "")
+      ? (colorMatch as HlColor)
+      : "default";
+    const pos = node?.position;
+    const canEdit = editable && pos?.start?.offset != null && pos?.end?.offset != null;
+    return (
+      <mark
+        className={cn(cls, canEdit && "cursor-pointer")}
+        title={canEdit ? "Click to recolor" : undefined}
+        onClick={
+          canEdit
+            ? (e: React.MouseEvent) => {
+                e.stopPropagation();
+                setRecolor({
+                  start: pos.start.offset,
+                  end: pos.end.offset,
+                  current,
+                  x: e.clientX,
+                  y: e.clientY,
+                });
+              }
+            : undefined
+        }
+      >
+        {children}
+      </mark>
+    );
+  }
+
   return (
     <div className={cn(PROSE, className)}>
-      <Markdown remarkPlugins={[remarkGfm]} components={{ a: Link }}>
+      <Markdown remarkPlugins={[remarkGfm, remarkHighlight]} components={{ a: Link, mark: Mark }}>
         {source}
       </Markdown>
+
+      {editable && (
+        <Popover open={!!recolor} onOpenChange={(o) => !o && setRecolor(null)}>
+          {recolor && (
+            <PopoverAnchor style={{ position: "fixed", left: recolor.x, top: recolor.y }} />
+          )}
+          <PopoverContent
+            align="start"
+            sideOffset={8}
+            className="w-auto p-2"
+            onOpenAutoFocus={(e) => e.preventDefault()}
+          >
+            <div className="flex items-center gap-1.5">
+              {HL_COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  title={COLOR_LABEL[c]}
+                  onClick={() => pick(c)}
+                  className={cn(
+                    "size-7 overflow-hidden rounded-md ring-1 ring-inset transition-all hover:scale-110",
+                    recolor?.current === c ? "ring-2 ring-primary" : "ring-border/70",
+                  )}
+                >
+                  <span className={cn("block size-full rounded-[5px]", "hl", `hl-${c}`)} />
+                </button>
+              ))}
+              <div className="mx-0.5 h-6 w-px bg-border" />
+              <button
+                type="button"
+                title="Remove highlight"
+                onClick={() => pick("remove")}
+                className="flex size-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-inset ring-border/70 transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 }

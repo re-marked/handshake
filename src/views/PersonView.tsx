@@ -278,9 +278,9 @@ export function PersonView({ id }: { id: string }) {
           )}
         />
       ) : (
-        // Rendered markdown; click anywhere in it to drop into edit mode.
+        // Rendered markdown; click bare text to edit, click a highlight to recolor it.
         <div className="-mx-0.5 cursor-text rounded-sm px-0.5 py-0.5" onClick={() => setEditingBody(true)}>
-          <MarkdownView source={draft.body} />
+          <MarkdownView source={draft.body} onChange={(body) => update({ body })} />
         </div>
       )}
     </div>

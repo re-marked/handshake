@@ -169,3 +169,51 @@
     color: var(--color-primary-foreground);
   }
 }
+
+/* ==highlight== marks. Very soft, translucent pastels so the same colors read gently on light,
+   dark, and paper alike; text keeps the surrounding foreground color. Recolorable in the reader. */
+@layer base {
+  mark.hl {
+    color: inherit;
+    border-radius: 0.25em;
+    padding: 0.02em 0.18em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    background-color: oklch(0.9 0.09 95 / 0.32); /* default — soft butter yellow */
+    transition: background-color 0.15s ease;
+  }
+  mark.hl-yellow {
+    background-color: oklch(0.9 0.1 95 / 0.34);
+  }
+  mark.hl-green {
+    background-color: oklch(0.88 0.1 150 / 0.3);
+  }
+  mark.hl-blue {
+    background-color: oklch(0.86 0.08 235 / 0.32);
+  }
+  mark.hl-pink {
+    background-color: oklch(0.87 0.1 5 / 0.3);
+  }
+  mark.hl-purple {
+    background-color: oklch(0.85 0.1 305 / 0.3);
+  }
+  /* Slightly stronger on dark so the wash doesn't disappear into the charcoal. */
+  .dark mark.hl {
+    background-color: oklch(0.85 0.11 95 / 0.26);
+  }
+  .dark mark.hl-yellow {
+    background-color: oklch(0.85 0.12 95 / 0.28);
+  }
+  .dark mark.hl-green {
+    background-color: oklch(0.83 0.12 150 / 0.26);
+  }
+  .dark mark.hl-blue {
+    background-color: oklch(0.8 0.1 235 / 0.3);
+  }
+  .dark mark.hl-pink {
+    background-color: oklch(0.82 0.12 5 / 0.28);
+  }
+  .dark mark.hl-purple {
+    background-color: oklch(0.8 0.12 305 / 0.28);
+  }
+}
