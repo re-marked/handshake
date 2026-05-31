@@ -55,9 +55,12 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
   const setActiveTab = useApp((s) => s.setActiveTab);
   const closeTab = useApp((s) => s.closeTab);
   const tabDrag = useApp((s) => s.tabDrag);
-  // The network switcher rides the top-left of the browser tab nav — only on the first (leftmost)
-  // pane's strip, so it shows exactly once even when the workspace is split.
-  const isFirstLeaf = useApp((s) => leaves(s.workspace.root)[0]?.id === leaf.id);
+  // The network switcher rides the far right of the browser tab nav (after the +) — only on the
+  // last (rightmost) pane's strip, so it shows exactly once even when the workspace is split.
+  const isLastLeaf = useApp((s) => {
+    const ls = leaves(s.workspace.root);
+    return ls[ls.length - 1]?.id === leaf.id;
+  });
   const nameOf = (id: string) => people.get(id)?.name;
 
   // One drag at a time; track the press so we can tell a click from a drag.
@@ -114,12 +117,6 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
 
   return (
     <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border bg-card px-2">
-      {isFirstLeaf && (
-        <>
-          <NetworkSwitcher />
-          <div className="mx-0.5 h-5 w-px shrink-0 bg-border" />
-        </>
-      )}
       <ScrollArea orientation="horizontal" className="min-w-0 flex-1" viewportClassName="[&>div]:!flex [&>div]:items-center [&>div]:gap-1">
         {leaf.tabs.map((view, i) => {
           const key = viewKey(view);
@@ -172,6 +169,12 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
       </ScrollArea>
       <TabLauncher leafId={leaf.id} mode="split" />
       <TabLauncher leafId={leaf.id} />
+      {isLastLeaf && (
+        <>
+          <div className="mx-0.5 h-5 w-px shrink-0 bg-border" />
+          <NetworkSwitcher />
+        </>
+      )}
     </div>
   );
 }

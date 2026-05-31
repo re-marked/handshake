@@ -36,7 +36,7 @@ export function NetworkSwitcher() {
           <span className="truncate">{current}</span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side="bottom" sideOffset={6} className="w-60">
+      <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="w-60">
         <DropdownMenuLabel className="text-xs text-muted-foreground">Networks</DropdownMenuLabel>
         {recents.map((path) => (
           <DropdownMenuItem
