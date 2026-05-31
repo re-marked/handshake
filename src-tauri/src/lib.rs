@@ -158,6 +158,26 @@ fn write_workspace(vault: String, content: String) -> Result<(), String> {
     write_atomic(&dir.join("workspace.json"), &content).map_err(|e| e.to_string())
 }
 
+/// App-level state (recent vaults / last opened) — lives in the OS app-config dir, NOT in any
+/// vault, since it tracks which vaults exist. Empty string if absent.
+#[tauri::command]
+fn read_app_state(app: AppHandle) -> Result<String, String> {
+    let path = app.path().app_config_dir().map_err(|e| e.to_string())?.join("state.json");
+    match fs::read_to_string(&path) {
+        Ok(content) => Ok(content),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(String::new()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Atomically write the app-level state file in the OS app-config dir.
+#[tauri::command]
+fn write_app_state(app: AppHandle, content: String) -> Result<(), String> {
+    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    write_atomic(&dir.join("state.json"), &content).map_err(|e| e.to_string())
+}
+
 /// Start watching the vault. External edits are emitted to the frontend as
 /// "vault:change"; our own writes are suppressed via the ledger.
 #[tauri::command]
@@ -281,6 +301,7 @@ fn classify_change(records: &HashMap<PathBuf, WriteRecord>, root: &Path, path: &
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .manage(Ledger::default())
         .manage(WatcherHolder::default())
         .invoke_handler(tauri::generate_handler![
@@ -292,7 +313,9 @@ pub fn run() {
             read_layout,
             write_layout,
             read_workspace,
-            write_workspace
+            write_workspace,
+            read_app_state,
+            write_app_state
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, User } from "lucide-react";
+import { FolderOpen, Plus, Share2, User } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -9,6 +9,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useApp } from "@/app/store";
+import { pickFolder, vaultName } from "@/vault/appState";
 import {
   canonicalHandshakeId,
   canonicalPair,
@@ -27,6 +28,8 @@ export function CommandPalette() {
   const setOpen = useApp((s) => s.setCommandOpen);
   const people = useApp((s) => s.switchboard.people);
   const self = useApp((s) => s.switchboard.self);
+  const vaultPath = useApp((s) => s.vaultPath);
+  const recents = useApp((s) => s.recents);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -114,6 +117,42 @@ export function CommandPalette() {
             </CommandItem>
           </CommandGroup>
         )}
+        <CommandGroup heading="Networks">
+          <CommandItem
+            value="new network"
+            onSelect={() => {
+              setOpen(false);
+              useApp.getState().setNewNetworkOpen(true);
+            }}
+          >
+            <Plus /> New network…
+          </CommandItem>
+          <CommandItem
+            value="open network"
+            onSelect={async () => {
+              setOpen(false);
+              const path = await pickFolder("Open a network folder");
+              if (path) void useApp.getState().switchVault(path);
+            }}
+          >
+            <FolderOpen /> Open network…
+          </CommandItem>
+          {recents
+            .filter((p) => p !== vaultPath)
+            .map((path) => (
+              <CommandItem
+                key={path}
+                value={`switch network ${vaultName(path)} ${path}`}
+                onSelect={() => {
+                  setOpen(false);
+                  void useApp.getState().switchVault(path);
+                }}
+              >
+                <Share2 />
+                <span className="truncate">Switch to {vaultName(path)}</span>
+              </CommandItem>
+            ))}
+        </CommandGroup>
       </CommandList>
     </CommandDialog>
   );

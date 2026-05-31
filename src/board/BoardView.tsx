@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Check, Plus, User } from "lucide-react";
 import { buildBoardModel, type BoardCard, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
+import { boardCache } from "@/board/boardCache";
 import { PersonCard } from "@/board/PersonCard";
 import { GoalCard } from "@/board/GoalCard";
 import { TIE_COLOR } from "@/board/ties";
@@ -13,14 +14,6 @@ import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type
 import type { Layout } from "@/vault/layout";
 
 const PERSIST_DELAY = 500;
-
-/**
- * Per-board live layout, kept in-memory so a board's arrangement + viewport survive a
- * split-remount. The "main" board also persists to layout.json; extra boards are session views
- * (reload persistence for extras lands with workspace.json).
- */
-type BoardSnapshot = { positions: Map<string, Pos>; pan: Pos; zoom: number };
-const boardCache = new Map<string, BoardSnapshot>();
 
 function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
   const out = new Map(model.positions); // tidy radial seed
@@ -90,6 +83,7 @@ export function BoardView({ boardId }: { boardId: string }) {
   latest.current = { positions, pan, zoom };
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   function persistNow() {
+    if (useApp.getState().switching) return; // a vault switch is tearing down — don't write to it
     const snap = latest.current;
     boardCache.set(boardId, { positions: new Map(snap.positions), pan: snap.pan, zoom: snap.zoom });
     if (boardId === "main") {

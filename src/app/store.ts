@@ -2,7 +2,16 @@ import { create } from "zustand";
 import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
-import { emptySwitchboard, type ApplyResult, type Diff, type Switchboard } from "@/switchboard";
+import { loadRecents, saveRecents, vaultName } from "@/vault/appState";
+import { clearBoardCache } from "@/board/boardCache";
+import {
+  emptySwitchboard,
+  mintPersonId,
+  type ApplyResult,
+  type Diff,
+  type Person,
+  type Switchboard,
+} from "@/switchboard";
 import {
   emptyWorkspace,
   newId,
@@ -30,7 +39,7 @@ import {
   type DropSide,
 } from "@/workspace/ops";
 
-type Status = "idle" | "loading" | "ready" | "error";
+type Status = "idle" | "no-vault" | "loading" | "ready" | "error";
 
 function readDensity(): "compact" | "comfortable" | "spacious" {
   try {
@@ -60,6 +69,8 @@ interface AppState {
   deletingId: string | null;
   /** Whether the command palette (Ctrl-P) is open. */
   commandOpen: boolean;
+  /** Whether the "New network" dialog is open. */
+  newNetworkOpen: boolean;
   /** The workspace: the Leaf/Split tree + floats + note default + layout skin (tabs ⇄ simple). */
   workspace: Workspace;
   /** Row density for list views (People). Persisted to localStorage. */
@@ -70,8 +81,21 @@ interface AppState {
   tabDrag: { srcLeafId: string; key: string } | null;
   /** The leaf + side currently hovered during a tab drag (drives the drop overlay), or null. */
   tabDragOver: { leafId: string; side: DropSide } | null;
+  /** The currently-open vault's absolute path (the active "network"), or null. */
+  vaultPath: string | null;
+  /** Recently-opened vault paths, most-recent first (persisted in the OS app-config dir). */
+  recents: string[];
+  /** True while tearing down one vault and loading another — boards skip persisting then. */
+  switching: boolean;
 
-  init: (vault: string) => Promise<void>;
+  /** Boot: open the last network (or `seed`/dev fallback), else show the front door. */
+  init: (seed?: string) => Promise<void>;
+  /** Open a vault by path: tear down the current one, load it, remember it in recents. */
+  switchVault: (path: string) => Promise<void>;
+  /** Create a new network in `path` (an empty folder) seeded with your "self" card, then open it. */
+  createNetwork: (path: string, selfName: string) => Promise<void>;
+  /** Drop a path from recents (e.g. it no longer exists). */
+  forgetVault: (path: string) => void;
   /** Route a diff through the funnel, persist it, and swap in the new state. The board
    *  updates in place — no reload — because applyDiff hands back the derived next state. */
   commit: (diff: Diff) => Promise<ApplyResult>;
@@ -86,6 +110,8 @@ interface AppState {
   deletePerson: (id: string) => Promise<void>;
   /** Open/close the command palette. */
   setCommandOpen: (open: boolean) => void;
+  /** Open/close the "New network" dialog. */
+  setNewNetworkOpen: (open: boolean) => void;
   /** Open a View into a target (tab / panel / split / float). */
   openView: (view: View, target?: OpenTarget) => void;
   /** Make a leaf the active one (the focused pane). */
@@ -142,16 +168,42 @@ export const useApp = create<AppState>()((set, get) => ({
   openPersonId: null,
   deletingId: null,
   commandOpen: false,
+  newNetworkOpen: false,
   workspace: emptyWorkspace(),
   density: readDensity(),
   locate: null,
   tabDrag: null,
   tabDragOver: null,
+  vaultPath: null,
+  recents: [],
+  switching: false,
 
-  async init(vault) {
+  async init(seed) {
     if (get().status !== "idle") return; // guard against StrictMode double-invoke
-    set({ status: "loading" });
-    const session = new VaultSession(createTauriIO(vault));
+    const recents = await loadRecents();
+    set({ recents });
+    const target = recents[0] ?? seed; // last network, else the dev fallback
+    if (target) await get().switchVault(target);
+    else set({ status: "no-vault" });
+  },
+
+  async switchVault(path) {
+    // Tear down the current vault and load `path`. Reset transient UI + clear the board cache so
+    // the new network's cards don't inherit the old network's positions.
+    set({
+      switching: true,
+      status: "loading",
+      error: null,
+      vaultPath: path,
+      photos: new Map(),
+      openPersonId: null,
+      deletingId: null,
+      commandOpen: false,
+      locate: null,
+      tabDrag: null,
+      tabDragOver: null,
+    });
+    const session = new VaultSession(createTauriIO(path));
     set({ session });
     try {
       const [switchboard, layout, workspace] = await Promise.all([
@@ -159,7 +211,8 @@ export const useApp = create<AppState>()((set, get) => ({
         session.loadLayout(),
         session.loadWorkspace(),
       ]);
-      set({ switchboard, layout, workspace, status: "ready" });
+      clearBoardCache(); // old board layouts belong to the previous network
+      set({ switchboard, layout, workspace, status: "ready", switching: false });
 
       const resolved = await Promise.all(
         [...switchboard.people.values()]
@@ -173,9 +226,41 @@ export const useApp = create<AppState>()((set, get) => ({
           }),
       );
       set({ photos: new Map(resolved.filter((e): e is readonly [string, string] => e !== null)) });
+
+      // Remember it (most-recent first, deduped) and persist.
+      const recents = [path, ...get().recents.filter((p) => p !== path)];
+      set({ recents });
+      void saveRecents(recents);
     } catch (e) {
-      set({ status: "error", error: String(e) });
+      clearBoardCache();
+      get().forgetVault(path);
+      set({ switching: false, status: "no-vault", error: `Couldn't open ${vaultName(path)} — ${String(e)}` });
     }
+  },
+
+  async createNetwork(path, selfName) {
+    await get().switchVault(path);
+    const s = get();
+    if (s.status !== "ready") return; // open failed
+    if (!s.switchboard.self && selfName.trim()) {
+      const id = mintPersonId(s.switchboard.people, selfName);
+      const person: Person = {
+        kind: "person",
+        id,
+        name: selfName.trim(),
+        isSelf: true,
+        tags: [],
+        handles: {},
+        body: "",
+      };
+      await get().commit([{ op: "createPerson", person }]);
+    }
+  },
+
+  forgetVault(path) {
+    const recents = get().recents.filter((p) => p !== path);
+    set({ recents });
+    void saveRecents(recents);
   },
 
   async commit(diff) {
@@ -245,6 +330,10 @@ export const useApp = create<AppState>()((set, get) => ({
 
   setCommandOpen(open) {
     set({ commandOpen: open });
+  },
+
+  setNewNetworkOpen(open) {
+    set({ newNetworkOpen: open });
   },
 
   openView(view, target = "tab") {

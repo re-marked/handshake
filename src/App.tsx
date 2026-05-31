@@ -1,24 +1,31 @@
 import { useEffect } from "react";
 import { useApp } from "@/app/store";
 import { Shell } from "@/app/Shell";
+import { FrontDoor } from "@/app/FrontDoor";
+import { NewNetworkDialog } from "@/app/NewNetworkDialog";
 import { WorkspaceBoundary } from "@/app/WorkspaceBoundary";
 
-// Dev: point at a vault folder via VITE_VAULT_PATH. A real folder-picker / settings
-// flow replaces this later.
-const VAULT = import.meta.env.VITE_VAULT_PATH as string | undefined;
+// Dev convenience: VITE_VAULT_PATH seeds the very first open when there are no recents yet.
+// Normal launches reopen the last network; the front door handles everything else.
+const DEV_VAULT = import.meta.env.VITE_VAULT_PATH as string | undefined;
 
 export default function App() {
+  const status = useApp((s) => s.status);
+
   useEffect(() => {
-    if (!VAULT) {
-      useApp.setState({ status: "error", error: "No vault configured — set VITE_VAULT_PATH for dev." });
-      return;
-    }
-    void useApp.getState().init(VAULT);
+    void useApp.getState().init(DEV_VAULT);
   }, []);
 
   return (
-    <WorkspaceBoundary>
-      <Shell />
-    </WorkspaceBoundary>
+    <>
+      {status === "no-vault" ? (
+        <FrontDoor />
+      ) : (
+        <WorkspaceBoundary>
+          <Shell />
+        </WorkspaceBoundary>
+      )}
+      <NewNetworkDialog />
+    </>
   );
 }
