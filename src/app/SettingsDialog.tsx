@@ -92,6 +92,40 @@ function AppearanceSection() {
           />
         </Row>
       )}
+      <Row label="App scale" description="Zoom the whole interface up or down.">
+        <Seg
+          value={s.appScale}
+          onChange={(appScale) => set({ appScale })}
+          options={[
+            { value: "small", label: "90%" },
+            { value: "default", label: "100%" },
+            { value: "large", label: "110%" },
+            { value: "larger", label: "125%" },
+          ]}
+        />
+      </Row>
+      <Row label="Font" description="The interface typeface.">
+        <Seg
+          value={s.font}
+          onChange={(font) => set({ font })}
+          options={[
+            { value: "system", label: "System" },
+            { value: "serif", label: "Serif" },
+            { value: "mono", label: "Mono" },
+          ]}
+        />
+      </Row>
+      <Row label="Text weight" description="How heavy body text reads.">
+        <Seg
+          value={s.textWeight}
+          onChange={(textWeight) => set({ textWeight })}
+          options={[
+            { value: "light", label: "Light" },
+            { value: "normal", label: "Normal" },
+            { value: "medium", label: "Medium" },
+          ]}
+        />
+      </Row>
       <Row label="Density" description="Row spacing in list views like People.">
         <Seg
           value={s.density}

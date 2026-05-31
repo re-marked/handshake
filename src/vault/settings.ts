@@ -9,12 +9,21 @@ import type { NoteMode } from "@/workspace/model";
 export type Theme = "dark" | "light" | "paper" | "system";
 export type PaperVariant = "soft" | "vintage";
 export type Density = "compact" | "comfortable" | "spacious";
+export type AppScale = "small" | "default" | "large" | "larger";
+export type AppFont = "system" | "serif" | "mono";
+export type TextWeight = "light" | "normal" | "medium";
 
 export interface Settings {
   /** App appearance. `system` follows the OS color scheme. */
   theme: Theme;
   /** Which paper look, when `theme` is `paper`. `soft` = gentle ivory; `vintage` = aged sepia + grain. */
   paperVariant: PaperVariant;
+  /** Overall UI scale (drives the root font size; rem-based layout scales with it). */
+  appScale: AppScale;
+  /** UI font family. */
+  font: AppFont;
+  /** Base text weight. */
+  textWeight: TextWeight;
   /** Row density for list views (People). */
   density: Density;
   /** Tone down motion (springs/transitions) — respects framer's MotionConfig. */
@@ -30,6 +39,9 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
   paperVariant: "soft",
+  appScale: "default",
+  font: "system",
+  textWeight: "normal",
   density: "comfortable",
   reduceMotion: false,
   noteDefault: "panel",
@@ -58,6 +70,9 @@ export function parseSettings(json: string): Settings {
   return {
     theme: oneOf(o.theme, ["dark", "light", "paper", "system"] as const, DEFAULT_SETTINGS.theme),
     paperVariant: oneOf(o.paperVariant, ["soft", "vintage"] as const, DEFAULT_SETTINGS.paperVariant),
+    appScale: oneOf(o.appScale, ["small", "default", "large", "larger"] as const, DEFAULT_SETTINGS.appScale),
+    font: oneOf(o.font, ["system", "serif", "mono"] as const, DEFAULT_SETTINGS.font),
+    textWeight: oneOf(o.textWeight, ["light", "normal", "medium"] as const, DEFAULT_SETTINGS.textWeight),
     density: oneOf(o.density, ["compact", "comfortable", "spacious"] as const, DEFAULT_SETTINGS.density),
     reduceMotion: typeof o.reduceMotion === "boolean" ? o.reduceMotion : DEFAULT_SETTINGS.reduceMotion,
     noteDefault: oneOf(o.noteDefault, ["panel", "float", "tab"] as const, DEFAULT_SETTINGS.noteDefault),

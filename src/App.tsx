@@ -38,10 +38,37 @@ function useTheme() {
   }, [theme, paperVariant]);
 }
 
+const SCALE_PCT: Record<string, string> = {
+  small: "90%",
+  default: "100%",
+  large: "110%",
+  larger: "125%",
+};
+const FONT_STACK: Record<string, string> = {
+  system: "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+  serif: "ui-serif, Georgia, Cambria, 'Times New Roman', serif",
+  mono: "ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, monospace",
+};
+const WEIGHT: Record<string, string> = { light: "300", normal: "400", medium: "500" };
+
+/** Apply the flavor knobs (scale / font / weight) to the document. */
+function useAppearance() {
+  const appScale = useApp((s) => s.settings.appScale);
+  const font = useApp((s) => s.settings.font);
+  const textWeight = useApp((s) => s.settings.textWeight);
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.fontSize = SCALE_PCT[appScale] ?? "100%"; // rem-based layout scales with this
+    root.style.setProperty("--app-font", FONT_STACK[font] ?? FONT_STACK.system);
+    root.style.setProperty("--app-weight", WEIGHT[textWeight] ?? "400");
+  }, [appScale, font, textWeight]);
+}
+
 export default function App() {
   const status = useApp((s) => s.status);
   const reduceMotion = useApp((s) => s.settings.reduceMotion);
   useTheme();
+  useAppearance();
 
   useEffect(() => {
     void useApp.getState().init(DEV_VAULT);
