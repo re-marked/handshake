@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { normalizeHlColor, rewriteHighlight, remarkHighlight } from "./remarkHighlight";
+import {
+  findHighlightAt,
+  normalizeHlColor,
+  recolorSpan,
+  remarkHighlight,
+  rewriteHighlight,
+} from "./remarkHighlight";
 
 /** Run the plugin over a single-paragraph mdast text node and return the produced children. */
 function transform(text: string) {
@@ -89,5 +95,37 @@ describe("rewriteHighlight", () => {
     const s = d.indexOf("==");
     const e = s + "==plain==".length;
     expect(rewriteHighlight(d, s, e, "purple")).toBe("a ==plain=={purple} b");
+  });
+});
+
+describe("recolorSpan", () => {
+  it("rewrites a single token without touching surrounding text", () => {
+    expect(recolorSpan("==hi=={blue}", "green")).toBe("==hi=={green}");
+    expect(recolorSpan("==hi=={blue}", "yellow")).toBe("==hi==");
+    expect(recolorSpan("==hi==", "pink")).toBe("==hi=={pink}");
+    expect(recolorSpan("==hi=={blue}", "remove")).toBe("hi");
+  });
+});
+
+describe("findHighlightAt", () => {
+  const src = "x ==hey=={blue} and ==yo== z";
+  const a = src.indexOf("==hey");
+  const aEnd = a + "==hey=={blue}".length;
+  const b = src.indexOf("==yo");
+  const bEnd = b + "==yo==".length;
+
+  it("returns the token + color at a position inside it", () => {
+    expect(findHighlightAt(src, a + 3)).toEqual({ from: a, to: aEnd, color: "blue" });
+    expect(findHighlightAt(src, b + 2)).toEqual({ from: b, to: bEnd, color: "yellow" });
+  });
+
+  it("returns null outside any highlight", () => {
+    expect(findHighlightAt(src, 0)).toBeNull(); // the leading "x "
+    expect(findHighlightAt(src, src.length - 1)).toBeNull(); // the trailing " z"
+  });
+
+  it("is robust to being called repeatedly (fresh regex, no lastIndex carryover)", () => {
+    expect(findHighlightAt(src, a + 1)).not.toBeNull();
+    expect(findHighlightAt(src, a + 1)).not.toBeNull();
   });
 });

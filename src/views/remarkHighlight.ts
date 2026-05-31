@@ -8,16 +8,25 @@ const PALETTE = new Set<string>(HL_COLORS);
 
 // ==text== (default) or ==text=={green} (colored). Non-greedy, single-line; the optional {color}
 // must sit flush against the closing ==. Unknown color names fall back to the default style.
-const HIGHLIGHT = /==(?!=)([^\n]+?)==(?:\{([a-z]+)\})?/g;
+// A factory (not a shared const) so each scanner gets its own lastIndex — no cross-call races.
+export const highlightRegex = (): RegExp => /==(?!=)([^\n]+?)==(?:\{([a-z]+)\})?/g;
 
 /** Resolve a raw `{color}` capture to a palette color (yellow — the default — when absent/unknown). */
 export function normalizeHlColor(raw: string | undefined): HlColor {
   return raw && PALETTE.has(raw) ? (raw as HlColor) : "yellow";
 }
 
+/** Rewrite a single highlight token (e.g. `==hi=={blue}`) to a new color, or unwrap it ("remove"). */
+export function recolorSpan(span: string, color: HlColor | "remove"): string {
+  const m = span.match(/^==([\s\S]*?)==(?:\{[a-z]+\})?$/);
+  const inner = m ? m[1] : span.replace(/^==/, "").replace(/==(?:\{[a-z]+\})?$/, "");
+  // Yellow is the default form (no suffix); other colors get an explicit {color}; remove unwraps.
+  return color === "remove" ? inner : color === "yellow" ? `==${inner}==` : `==${inner}=={${color}}`;
+}
+
 /**
  * Rewrite one highlight span `[start,end)` of `source` to a new color (or unwrap it with "remove").
- * `default` drops the `{color}` suffix; a named color adds/replaces it. The inner text is preserved.
+ * The inner text is preserved. Used by the rendered preview (offsets come from mdast positions).
  */
 export function rewriteHighlight(
   source: string,
@@ -25,12 +34,22 @@ export function rewriteHighlight(
   end: number,
   color: HlColor | "remove",
 ): string {
-  const span = source.slice(start, end);
-  const m = span.match(/^==([\s\S]*?)==(?:\{[a-z]+\})?$/);
-  const inner = m ? m[1] : span.replace(/^==/, "").replace(/==(?:\{[a-z]+\})?$/, "");
-  // Yellow is the default form (no suffix); other colors get an explicit {color}; remove unwraps.
-  const next = color === "remove" ? inner : color === "yellow" ? `==${inner}==` : `==${inner}=={${color}}`;
-  return source.slice(0, start) + next + source.slice(end);
+  return source.slice(0, start) + recolorSpan(source.slice(start, end), color) + source.slice(end);
+}
+
+/**
+ * Find the highlight token containing position `pos` in `text`, if any. Used by the editor's
+ * right-click recolor (CodeMirror gives a document position; we map it back to a token range).
+ */
+export function findHighlightAt(text: string, pos: number): { from: number; to: number; color: HlColor } | null {
+  const re = highlightRegex();
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    const from = m.index;
+    const to = m.index + m[0].length;
+    if (pos >= from && pos <= to) return { from, to, color: normalizeHlColor(m[2]) };
+  }
+  return null;
 }
 
 /**
@@ -51,8 +70,8 @@ export function remarkHighlight() {
       const out: any[] = [];
       let last = 0;
       let m: RegExpExecArray | null;
-      HIGHLIGHT.lastIndex = 0;
-      while ((m = HIGHLIGHT.exec(value))) {
+      const re = highlightRegex();
+      while ((m = re.exec(value))) {
         if (m.index > last) out.push({ type: "text", value: value.slice(last, m.index) });
         const color = normalizeHlColor(m[2]);
         const start = base + m.index;

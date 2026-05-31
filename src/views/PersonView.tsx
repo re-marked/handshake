@@ -4,12 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConnectionMenuItems } from "@/app/ConnectionMenu";
 import { PhotoUpload } from "@/app/PhotoUpload";
 import { MarkdownView } from "@/views/MarkdownView";
+import { SafeNoteEditor } from "@/views/NoteEditor";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import type { Handshake, Person, PersonPatch } from "@/switchboard";
@@ -276,16 +276,7 @@ export function PersonView({ id }: { id: string }) {
         </ToggleGroup>
       </div>
       {mode === "edit" ? (
-        <Textarea
-          autoFocus
-          value={draft.body}
-          onChange={(e) => update({ body: e.target.value })}
-          placeholder="Notes… (markdown supported — try **bold**, - lists, ==highlights==)"
-          className={cn(
-            "w-full min-w-0 [overflow-wrap:anywhere] min-h-24 resize-none border-0 bg-transparent px-0 text-[15px] leading-relaxed text-foreground/90 shadow-none",
-            "focus-visible:ring-0 dark:bg-transparent",
-          )}
-        />
+        <SafeNoteEditor value={draft.body} onChange={(body) => update({ body })} />
       ) : draft.body.trim() ? (
         // Rendered markdown; click bare text to edit, click a highlight to recolor it.
         <div className="-mx-0.5 cursor-text rounded-sm px-0.5 py-0.5" onClick={() => setMode("edit")}>
