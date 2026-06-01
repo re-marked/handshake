@@ -7,6 +7,7 @@ import { loadRecents, saveRecents, vaultName } from "@/vault/appState";
 import { importPhoto } from "@/vault/photos";
 import { clearBoardCache } from "@/board/boardCache";
 import * as undo from "@/app/undo";
+import * as scheduler from "@/app/snapshotScheduler";
 import {
   emptySwitchboard,
   mintPersonId,
@@ -193,6 +194,8 @@ export const useApp = create<AppState>()((set, get) => ({
   async switchVault(path) {
     // Tear down the current vault and load `path`. Reset transient UI + clear the board cache so
     // the new network's cards don't inherit the old network's positions.
+    const prev = get();
+    void scheduler.flushOnLeave(prev.session, prev.settings.timeMachine); // snapshot the outgoing net
     undo.clear(); // undo history is per-network
     set({
       switching: true,
@@ -221,6 +224,7 @@ export const useApp = create<AppState>()((set, get) => ({
 
       // Time Machine: ensure this network is a git repo (idempotent; no system git needed).
       if (settings.timeMachine.enabled) void session.tmInit().catch(() => {});
+      scheduler.seedFromSettings(); // seed the auto-snapshot rate-limiter from this network
 
       const resolved = await Promise.all(
         [...switchboard.people.values()]
@@ -283,6 +287,7 @@ export const useApp = create<AppState>()((set, get) => ({
       set({ switchboard: result.next });
       // Record for undo unless this commit IS an undo/redo replay.
       if (opts?.record !== false) undo.recordData(result.inverse, diff);
+      scheduler.noteDataMutation(); // any data change → maybe an auto-snapshot
     }
     return result;
   },

@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { MotionConfig } from "motion/react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useApp } from "@/app/store";
 import * as undo from "@/app/undo";
+import * as scheduler from "@/app/snapshotScheduler";
 import { Shell } from "@/app/Shell";
 import { FrontDoor } from "@/app/FrontDoor";
 import { NewNetworkDialog } from "@/app/NewNetworkDialog";
@@ -83,12 +85,35 @@ function useGlobalUndo() {
   }, []);
 }
 
+/** Take a best-effort Time Machine snapshot when the window is closing — bounded so close never hangs. */
+function useSnapshotOnClose() {
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    let closing = false;
+    const win = getCurrentWindow();
+    void win
+      .onCloseRequested(async (event) => {
+        if (closing) return;
+        closing = true;
+        event.preventDefault();
+        const cap = new Promise((resolve) => setTimeout(resolve, 2500));
+        await Promise.race([scheduler.snapshotOnClose().catch(() => {}), cap]);
+        await win.destroy();
+      })
+      .then((u) => {
+        unlisten = u;
+      });
+    return () => unlisten?.();
+  }, []);
+}
+
 export default function App() {
   const status = useApp((s) => s.status);
   const reduceMotion = useApp((s) => s.settings.reduceMotion);
   useTheme();
   useAppearance();
   useGlobalUndo();
+  useSnapshotOnClose();
 
   useEffect(() => {
     void useApp.getState().init(DEV_VAULT);
