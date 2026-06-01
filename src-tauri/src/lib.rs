@@ -11,6 +11,8 @@ use notify_debouncer_mini::{new_debouncer, DebounceEventResult, Debouncer};
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 
+mod git;
+
 /// The folders the engine reads and writes. Everything else in the vault
 /// (attachments/, .handshake/) is ignored.
 const ENTITY_DIRS: [&str; 4] = ["people", "handshakes", "goals", "interactions"];
@@ -356,7 +358,13 @@ pub fn run() {
             read_settings,
             write_settings,
             read_app_state,
-            write_app_state
+            write_app_state,
+            git::tm_init,
+            git::tm_snapshot,
+            git::tm_log,
+            git::tm_restore,
+            git::tm_status,
+            git::tm_size
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
