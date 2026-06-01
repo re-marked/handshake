@@ -5,7 +5,14 @@ import remarkBreaks from "remark-breaks";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { HL_COLORS, type HlColor, remarkHighlight, rewriteHighlight } from "@/views/remarkHighlight";
+import {
+  HL_COLORS,
+  type HlColor,
+  type KeywordRule,
+  remarkHighlight,
+  remarkKeywords,
+  rewriteHighlight,
+} from "@/views/remarkHighlight";
 import { HighlightPalette } from "@/views/HighlightPalette";
 
 /** Links open in the system browser, never navigating the webview away from the app. */
@@ -81,10 +88,12 @@ export function MarkdownView({
   source,
   className,
   onChange,
+  keywords,
 }: {
   source: string;
   className?: string;
   onChange?: (next: string) => void;
+  keywords?: KeywordRule[];
 }) {
   const [recolor, setRecolor] = useState<Recolor | null>(null);
   const editable = !!onChange;
@@ -132,7 +141,10 @@ export function MarkdownView({
 
   return (
     <div className={cn(PROSE, className)}>
-      <Markdown remarkPlugins={[remarkGfm, remarkBreaks, remarkHighlight]} components={{ a: Link, mark: Mark, img: Img }}>
+      <Markdown
+        remarkPlugins={[remarkGfm, remarkBreaks, remarkHighlight, remarkKeywords(keywords ?? [])]}
+        components={{ a: Link, mark: Mark, img: Img }}
+      >
         {source}
       </Markdown>
 

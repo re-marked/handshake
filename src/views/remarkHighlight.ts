@@ -52,6 +52,56 @@ export function findHighlightAt(text: string, pos: number): { from: number; to: 
   return null;
 }
 
+export interface KeywordRule {
+  text: string;
+  color: HlColor;
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * remark plugin (render-only): auto-highlights occurrences of configured keyword phrases in their
+ * chosen color. Produces `<mark>` nodes WITHOUT a source position, so they render styled but are
+ * NOT right-click-recolorable (they're settings-driven, not literal `==` spans). Longer phrases win.
+ */
+export function remarkKeywords(rules: KeywordRule[]) {
+  const active = rules.filter((r) => r.text.trim());
+  const colorOf = new Map(active.map((r) => [r.text.trim().toLowerCase(), r.color]));
+  const phrases = active
+    .map((r) => r.text.trim())
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegex);
+  const pattern = phrases.length ? new RegExp(`(${phrases.join("|")})`, "gi") : null;
+
+  return (tree: unknown) => {
+    if (!pattern) return;
+    visit(tree as never, "text", (node: any, index: number | undefined, parent: any) => {
+      if (!parent || index == null || parent.type === "highlight" || typeof node.value !== "string") return;
+      const value: string = node.value;
+      const out: any[] = [];
+      let last = 0;
+      let m: RegExpExecArray | null;
+      pattern.lastIndex = 0;
+      while ((m = pattern.exec(value))) {
+        if (m.index > last) out.push({ type: "text", value: value.slice(last, m.index) });
+        const color = colorOf.get(m[0].toLowerCase()) ?? "yellow";
+        out.push({
+          type: "kwmark",
+          children: [{ type: "text", value: m[0] }],
+          data: { hName: "mark", hProperties: { className: ["hl", `hl-${color}`] } },
+        });
+        last = m.index + m[0].length;
+      }
+      if (!out.length) return;
+      if (last < value.length) out.push({ type: "text", value: value.slice(last) });
+      parent.children.splice(index, 1, ...out);
+      return index + out.length;
+    });
+  };
+}
+
 /**
  * remark plugin: turns `==text==` / `==text=={color}` into a `<mark class="hl hl-<color>">` element.
  * Every highlight node is given a source `position` (start/end offsets into the original markdown)

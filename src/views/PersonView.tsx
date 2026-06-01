@@ -86,6 +86,7 @@ function usePersonEditor(id: string) {
 export function PersonView({ id }: { id: string }) {
   const { draft, setDraft } = usePersonEditor(id);
   const photo = useApp((s) => s.photos.get(id));
+  const keywords = useApp((s) => s.settings.highlightKeywords);
   // Notes open rendered (read) when they have content, in the editor when blank.
   const [mode, setMode] = useState<"edit" | "preview">(() => (draft?.body.trim() ? "preview" : "edit"));
   const [tagInput, setTagInput] = useState("");
@@ -280,7 +281,7 @@ export function PersonView({ id }: { id: string }) {
       ) : draft.body.trim() ? (
         // Rendered markdown; click bare text to edit, click a highlight to recolor it.
         <div className="-mx-0.5 cursor-text rounded-sm px-0.5 py-0.5" onClick={() => setMode("edit")}>
-          <MarkdownView source={draft.body} onChange={(body) => update({ body })} />
+          <MarkdownView source={draft.body} onChange={(body) => update({ body })} keywords={keywords} />
         </div>
       ) : (
         <button

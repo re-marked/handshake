@@ -13,7 +13,7 @@ const COLOR_LABEL: Record<HlColor, string> = {
 
 // Solid, clearly-visible versions of each pastel for the picker chips (the in-text washes are
 // translucent and would be near-invisible as little swatches).
-const SWATCH: Record<HlColor, string> = {
+export const SWATCH: Record<HlColor, string> = {
   yellow: "oklch(0.86 0.14 95)",
   green: "oklch(0.82 0.15 150)",
   blue: "oklch(0.78 0.13 235)",
