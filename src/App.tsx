@@ -8,6 +8,7 @@ import { Shell } from "@/app/Shell";
 import { FrontDoor } from "@/app/FrontDoor";
 import { NewNetworkDialog } from "@/app/NewNetworkDialog";
 import { SettingsDialog } from "@/app/SettingsDialog";
+import { Toaster } from "@/app/Toaster";
 import { WorkspaceBoundary } from "@/app/WorkspaceBoundary";
 
 // Dev convenience: VITE_VAULT_PATH seeds the very first open when there are no recents yet.
@@ -130,6 +131,7 @@ export default function App() {
       )}
       <NewNetworkDialog />
       <SettingsDialog />
+      <Toaster />
     </MotionConfig>
   );
 }

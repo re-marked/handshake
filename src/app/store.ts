@@ -8,6 +8,7 @@ import { importPhoto } from "@/vault/photos";
 import { clearBoardCache } from "@/board/boardCache";
 import * as undo from "@/app/undo";
 import * as scheduler from "@/app/snapshotScheduler";
+import { toastForDiff } from "@/app/toastMessages";
 import {
   emptySwitchboard,
   mintPersonId,
@@ -285,8 +286,11 @@ export const useApp = create<AppState>()((set, get) => ({
     const result = await session.commit(diff);
     if (result.ok) {
       set({ switchboard: result.next });
-      // Record for undo unless this commit IS an undo/redo replay.
-      if (opts?.record !== false) undo.recordData(result.inverse, diff);
+      // Record for undo + show a pill — unless this commit IS an undo/redo replay.
+      if (opts?.record !== false) {
+        undo.recordData(result.inverse, diff);
+        toastForDiff(diff, result.inverse);
+      }
       scheduler.noteDataMutation(); // any data change → maybe an auto-snapshot
     }
     return result;
