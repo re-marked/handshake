@@ -10,6 +10,11 @@ export function vaultName(path: string): string {
   return path.split(/[\\/]/).filter(Boolean).pop() ?? path;
 }
 
+/** Does the vault folder still exist? (A recent path may have been deleted/moved.) */
+export function vaultExists(path: string): Promise<boolean> {
+  return invoke<boolean>("vault_exists", { vault: path });
+}
+
 /** A filesystem-safe folder name from a network name (strips path-illegal chars; keeps spaces). */
 export function sanitizeFolderName(name: string): string {
   return name
