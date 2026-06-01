@@ -32,7 +32,12 @@ function EmptyLeaf() {
 export function Leaf({ leaf }: { leaf: LeafNode }) {
   const active = useApp((s) => s.workspace.activeLeafId === leaf.id);
   const tiled = useApp((s) => leaves(s.workspace.root).length > 1);
-  const over = useApp((s) => (s.tabDragOver?.leafId === leaf.id ? s.tabDragOver.side : null));
+  const over = useApp((s) => {
+    const o = s.tabDragOver;
+    if (o?.leafId !== leaf.id) return null;
+    if (o.side === "center" && o.index != null) return null; // strip reorder → the strip caret shows it
+    return o.side;
+  });
   const empty = leaf.tabs.length === 0;
 
   return (

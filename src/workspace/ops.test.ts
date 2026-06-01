@@ -7,6 +7,7 @@ import {
   dropTab,
   findView,
   insertTab,
+  insertTabAt,
   leafOf,
   mapLeaf,
   normalizeSizes,
@@ -196,10 +197,62 @@ describe("workspace ops", () => {
     }
   });
 
-  it("dropTab is a no-op for center-onto-self and for edge-splitting a lone tab", () => {
+  it("dropTab is a no-op for body-center-onto-self and for edge-splitting a lone tab", () => {
     const ws = emptyWorkspace();
     const leafId = (ws.root as Leaf).id;
-    expect(dropTab(ws, leafId, "board:main", leafId, "center")).toBe(ws);
+    expect(dropTab(ws, leafId, "board:main", leafId, "center")).toBe(ws); // no index → body center
     expect(dropTab(ws, leafId, "board:main", leafId, "right")).toBe(ws); // only one tab
+  });
+
+  it("insertTabAt inserts a new view at an index and activates it", () => {
+    const l = leaf([{ type: "board", id: "main" }, { type: "people" }], 0);
+    const out = insertTabAt(l, { type: "goals" }, 1);
+    expect(out.tabs.map(viewKey)).toEqual(["board:main", "goals", "people"]);
+    expect(out.activeIndex).toBe(1);
+  });
+
+  it("insertTabAt reorders an existing view (adjusting for its own removal)", () => {
+    const l = leaf([{ type: "board", id: "main" }, { type: "people" }, { type: "goals" }], 0);
+    // move board (index 0) to the end
+    const out = insertTabAt(l, { type: "board", id: "main" }, 3);
+    expect(out.tabs.map(viewKey)).toEqual(["people", "goals", "board:main"]);
+    expect(out.activeIndex).toBe(2);
+  });
+
+  it("insertTabAt clamps an out-of-range index", () => {
+    const l = leaf([{ type: "board", id: "main" }]);
+    expect(insertTabAt(l, { type: "people" }, 99).tabs.map(viewKey)).toEqual(["board:main", "people"]);
+  });
+
+  it("dropTab center with an index reorders within the same strip", () => {
+    // one leaf [board, people, goals]; drag goals (idx 2) to the front (idx 0)
+    const ws = emptyWorkspace();
+    const root = mapLeaf(ws.root, (ws.root as Leaf).id, (l) =>
+      insertTab(insertTab(l, { type: "people" }), { type: "goals" }),
+    );
+    const leafId = (ws.root as Leaf).id;
+    const out = dropTab({ ...ws, root }, leafId, "goals", leafId, "center", 0);
+    expect(out.root.kind).toBe("leaf");
+    if (out.root.kind === "leaf") {
+      expect(out.root.tabs.map(viewKey)).toEqual(["goals", "board:main", "people"]);
+      expect(out.root.activeIndex).toBe(0);
+    }
+  });
+
+  it("dropTab center with an index lands a cross-pane tab at that position", () => {
+    // A=[board, goals] | B=[people]; drag people into A between board and goals (index 1)
+    const ws = emptyWorkspace();
+    let root = mapLeaf(ws.root, (ws.root as Leaf).id, (l) => insertTab(l, { type: "goals" }));
+    root = splitNode(root, (ws.root as Leaf).id, "row", {
+      kind: "leaf",
+      id: "B",
+      tabs: [{ type: "people" }],
+      activeIndex: 0,
+    });
+    const aId = (ws.root as Leaf).id;
+    const out = dropTab({ ...ws, root, activeLeafId: "B" }, "B", "people", aId, "center", 1);
+    expect(out.root.kind).toBe("leaf"); // B emptied → collapsed to A
+    expect(out.activeLeafId).toBe(aId);
+    if (out.root.kind === "leaf") expect(out.root.tabs.map(viewKey)).toEqual(["board:main", "people", "goals"]);
   });
 });

@@ -73,8 +73,9 @@ interface AppState {
   locate: { id: string; nonce: number } | null;
   /** The tab currently being dragged (source leaf + view key), or null. Transient; not saved. */
   tabDrag: { srcLeafId: string; key: string } | null;
-  /** The leaf + side currently hovered during a tab drag (drives the drop overlay), or null. */
-  tabDragOver: { leafId: string; side: DropSide } | null;
+  /** The leaf + side currently hovered during a tab drag (drives the drop overlay), or null.
+   *  When hovering a strip, `index` is the insertion slot (for reorder / precise cross-pane drops). */
+  tabDragOver: { leafId: string; side: DropSide; index?: number } | null;
   /** The currently-open vault's absolute path (the active "network"), or null. */
   vaultPath: string | null;
   /** Recently-opened vault paths, most-recent first (persisted in the OS app-config dir). */
@@ -125,11 +126,11 @@ interface AppState {
   /** Begin dragging a tab (pointer drag between panes). */
   beginTabDrag: (srcLeafId: string, key: string) => void;
   /** Update the hovered drop target during a drag (null when over nothing droppable). */
-  setTabDragOver: (over: { leafId: string; side: DropSide } | null) => void;
+  setTabDragOver: (over: { leafId: string; side: DropSide; index?: number } | null) => void;
   /** End a tab drag (cancelled / dropped on nothing). */
   endTabDrag: () => void;
-  /** Drop the dragged tab onto a leaf — `center` moves it in; an edge splits there. */
-  dropTab: (destLeafId: string, side: DropSide) => void;
+  /** Drop the dragged tab onto a leaf — `center` moves it in (at `index` on a strip); edge splits. */
+  dropTab: (destLeafId: string, side: DropSide, index?: number) => void;
   /** Focus (or open) the home board in the active leaf. */
   focusBoard: () => void;
   /** Update a split's pane sizes (fractions). */
@@ -423,7 +424,8 @@ export const useApp = create<AppState>()((set, get) => ({
     set((s) => {
       const cur = s.tabDragOver;
       if (cur === over) return {};
-      if (cur && over && cur.leafId === over.leafId && cur.side === over.side) return {}; // unchanged
+      if (cur && over && cur.leafId === over.leafId && cur.side === over.side && cur.index === over.index)
+        return {}; // unchanged
       return { tabDragOver: over };
     });
   },
@@ -432,14 +434,14 @@ export const useApp = create<AppState>()((set, get) => ({
     if (get().tabDrag || get().tabDragOver) set({ tabDrag: null, tabDragOver: null });
   },
 
-  dropTab(destLeafId, side) {
+  dropTab(destLeafId, side, index) {
     const d = get().tabDrag;
     if (!d) {
       set({ tabDragOver: null });
       return;
     }
     set((s) => ({
-      workspace: applyDropTab(s.workspace, d.srcLeafId, d.key, destLeafId, side),
+      workspace: applyDropTab(s.workspace, d.srcLeafId, d.key, destLeafId, side, index),
       tabDrag: null,
       tabDragOver: null,
     }));

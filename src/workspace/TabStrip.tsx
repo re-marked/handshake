@@ -1,19 +1,19 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Search, Settings, Share2, Target, User, Users, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { tabLabel, viewKey, type Leaf, type View } from "@/workspace/model";
 import { leaves, type DropSide } from "@/workspace/ops";
-import { zoneAt } from "@/workspace/dropZone";
+import { STRIP_H, zoneAt } from "@/workspace/dropZone";
 import { dragX, dragY } from "@/workspace/tabDragMotion";
 import { TabLauncher } from "@/workspace/TabLauncher";
 import { NetworkSwitcher } from "@/app/NetworkSwitcher";
 
 const TAB_SPRING = { type: "spring", stiffness: 520, damping: 40 } as const;
 const DRAG_THRESHOLD = 5; // px before a press becomes a drag (vs a click)
+const ICON_ONLY_BELOW = 112; // when each tab would get less room than this, collapse to icon-only
 
 export function TabIcon({ view, photo }: { view: View; photo?: string }) {
   if (view.type === "person") {
@@ -39,22 +39,58 @@ export function TabIcon({ view, photo }: { view: View; photo?: string }) {
   return <Icon className="size-4 shrink-0" strokeWidth={1.75} />;
 }
 
-/** elementFromPoint → the leaf under the cursor + which drop zone, for pointer-drag hit-testing. */
-function hitTest(x: number, y: number): { leafId: string; side: DropSide } | null {
+/** elementFromPoint → the leaf under the cursor + drop zone. Over a strip, also the insertion slot
+ *  (which gap between tabs the cursor sits in) so a drop can reorder / land precisely. */
+function hitTest(x: number, y: number): { leafId: string; side: DropSide; index?: number } | null {
   const el = document.elementFromPoint(x, y) as HTMLElement | null;
   const leafEl = el?.closest<HTMLElement>("[data-leaf-id]");
   if (!leafEl?.dataset.leafId) return null;
-  return { leafId: leafEl.dataset.leafId, side: zoneAt(leafEl.getBoundingClientRect(), x, y) };
+  const rect = leafEl.getBoundingClientRect();
+  const side = zoneAt(rect, x, y);
+  if (side === "center" && y - rect.top < STRIP_H) {
+    const tabEls = [...leafEl.querySelectorAll<HTMLElement>("[data-tab-key]")];
+    let index = tabEls.length;
+    for (let i = 0; i < tabEls.length; i++) {
+      const r = tabEls[i].getBoundingClientRect();
+      if (x < r.left + r.width / 2) {
+        index = i;
+        break;
+      }
+    }
+    return { leafId: leafEl.dataset.leafId, side, index };
+  }
+  return { leafId: leafEl.dataset.leafId, side };
 }
 
-/** A browser-style tab bar for one leaf: roomy pills, per-tab icons, and a rose-muted highlight
- *  that glides between tabs. Tabs are pointer-draggable between panes (and to an edge to split). */
+/** Track an element's width (the tab region) so we can decide when to collapse tabs to icon-only. */
+function useWidth<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => setWidth(entries[0].contentRect.width));
+    ro.observe(el);
+    setWidth(el.getBoundingClientRect().width);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, width] as const;
+}
+
+/** A thin rose insertion bar shown between tabs while dragging, marking where the tab will land. */
+function Caret() {
+  return <div className="h-6 w-0.5 shrink-0 self-center rounded-full bg-primary" />;
+}
+
+/** A browser-style tab bar for one leaf: tabs shrink as they multiply and collapse to icon-only when
+ *  cramped; drag to reorder within the strip, between panes, or to an edge to split. */
 export function TabStrip({ leaf }: { leaf: Leaf }) {
   const people = useApp((s) => s.switchboard.people);
   const photos = useApp((s) => s.photos);
   const setActiveTab = useApp((s) => s.setActiveTab);
   const closeTab = useApp((s) => s.closeTab);
   const tabDrag = useApp((s) => s.tabDrag);
+  const tabDragOver = useApp((s) => s.tabDragOver);
   // The network switcher rides the far right of the browser tab nav (after the +) — only on the
   // last (rightmost) pane's strip, so it shows exactly once even when the workspace is split.
   const isLastLeaf = useApp((s) => {
@@ -62,6 +98,13 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
     return ls[ls.length - 1]?.id === leaf.id;
   });
   const nameOf = (id: string) => people.get(id)?.name;
+
+  const [tabsRef, tabsW] = useWidth<HTMLDivElement>();
+  const iconOnly = tabsW > 0 && tabsW / leaf.tabs.length < ICON_ONLY_BELOW;
+  const caretIndex =
+    tabDragOver?.leafId === leaf.id && tabDragOver.side === "center" && tabDragOver.index != null
+      ? tabDragOver.index
+      : null;
 
   // One drag at a time; track the press so we can tell a click from a drag.
   const drag = useRef<{ x: number; y: number; key: string; started: boolean } | null>(null);
@@ -104,7 +147,7 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
       return;
     }
     const over = useApp.getState().tabDragOver;
-    if (over) useApp.getState().dropTab(over.leafId, over.side);
+    if (over) useApp.getState().dropTab(over.leafId, over.side, over.index);
     else useApp.getState().endTabDrag();
   }
 
@@ -115,58 +158,99 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
     if (d?.started) useApp.getState().endTabDrag();
   }
 
+  function renderTab(view: View, i: number) {
+    const key = viewKey(view);
+    const active = i === leaf.activeIndex;
+    const dragging = tabDrag?.srcLeafId === leaf.id && tabDrag?.key === key;
+    const label = tabLabel(view, nameOf);
+    const photo = view.type === "person" ? photos.get(view.id) : undefined;
+    return (
+      <div
+        key={key}
+        data-tab-key={key}
+        role="button"
+        tabIndex={0}
+        title={iconOnly ? label : undefined}
+        onPointerDown={(e) => onPointerDown(e, key)}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") setActiveTab(leaf.id, key);
+        }}
+        className={cn(
+          "group/tab relative flex h-8 cursor-pointer touch-none select-none items-center rounded-lg text-sm outline-none transition-colors",
+          iconOnly ? "w-9 shrink-0 justify-center" : "min-w-0 max-w-[200px] flex-[0_1_auto] gap-2 pl-2.5 pr-1.5",
+          active ? "text-foreground" : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
+          dragging && "opacity-50",
+        )}
+      >
+        {active && (
+          <motion.span
+            layoutId={`tab-hl-${leaf.id}`}
+            transition={TAB_SPRING}
+            className="absolute inset-0 rounded-lg bg-muted shadow-sm ring-1 ring-primary/15"
+          />
+        )}
+        {iconOnly ? (
+          <>
+            <span className="relative z-10">
+              <TabIcon view={view} photo={photo} />
+            </span>
+            {/* Small corner X on hover: clicking it closes; clicking the rest of the tab activates. */}
+            <button
+              type="button"
+              data-no-tab-drag
+              aria-label="Close tab"
+              onClick={(e) => {
+                e.stopPropagation();
+                closeTab(leaf.id, key);
+              }}
+              className="absolute right-0.5 top-0.5 z-20 grid size-4 place-items-center rounded-full bg-card text-muted-foreground/70 opacity-0 shadow-sm ring-1 ring-border transition hover:text-foreground group-hover/tab:opacity-100"
+            >
+              <X className="size-2.5" />
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="relative z-10 flex min-w-0 items-center gap-2">
+              <TabIcon view={view} photo={photo} />
+              <span className="truncate">{label}</span>
+            </span>
+            <button
+              type="button"
+              data-no-tab-drag
+              aria-label="Close tab"
+              onClick={(e) => {
+                e.stopPropagation();
+                closeTab(leaf.id, key);
+              }}
+              className="relative z-10 -mr-0.5 grid size-5 shrink-0 place-items-center rounded-md text-muted-foreground/60 transition hover:bg-background hover:text-foreground"
+            >
+              <X className="size-3.5" />
+            </button>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // Interleave the drop caret at the hovered insertion slot.
+  const items: React.ReactNode[] = [];
+  leaf.tabs.forEach((view, i) => {
+    if (caretIndex === i) items.push(<Caret key="drop-caret" />);
+    items.push(renderTab(view, i));
+  });
+  if (caretIndex === leaf.tabs.length) items.push(<Caret key="drop-caret-end" />);
+
   return (
     <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border bg-card px-2">
-      <ScrollArea orientation="horizontal" className="min-w-0 flex-1" viewportClassName="[&>div]:!flex [&>div]:items-center [&>div]:gap-1">
-        {leaf.tabs.map((view, i) => {
-          const key = viewKey(view);
-          const active = i === leaf.activeIndex;
-          const dragging = tabDrag?.srcLeafId === leaf.id && tabDrag?.key === key;
-          return (
-            <div
-              key={key}
-              role="button"
-              tabIndex={0}
-              onPointerDown={(e) => onPointerDown(e, key)}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-              onPointerCancel={onPointerCancel}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") setActiveTab(leaf.id, key);
-              }}
-              className={cn(
-                "group/tab relative flex h-8 shrink-0 cursor-pointer touch-none select-none items-center gap-2 rounded-lg pl-2.5 pr-2 text-sm outline-none transition-colors",
-                active ? "text-foreground" : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
-                dragging && "opacity-50",
-              )}
-            >
-              {active && (
-                <motion.span
-                  layoutId={`tab-hl-${leaf.id}`}
-                  transition={TAB_SPRING}
-                  className="absolute inset-0 rounded-lg bg-muted shadow-sm ring-1 ring-primary/15"
-                />
-              )}
-              <span className="relative z-10 flex items-center gap-2">
-                <TabIcon view={view} photo={view.type === "person" ? photos.get(view.id) : undefined} />
-                <span className="max-w-44 truncate">{tabLabel(view, nameOf)}</span>
-              </span>
-              <button
-                type="button"
-                data-no-tab-drag
-                aria-label="Close tab"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  closeTab(leaf.id, key);
-                }}
-                className="relative z-10 -mr-0.5 grid size-5 shrink-0 place-items-center rounded-md text-muted-foreground/70 opacity-0 transition hover:bg-background hover:text-foreground group-hover/tab:opacity-100"
-              >
-                <X className="size-3.5" />
-              </button>
-            </div>
-          );
-        })}
-      </ScrollArea>
+      <div
+        ref={tabsRef}
+        className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {items}
+      </div>
       <TabLauncher leafId={leaf.id} mode="split" />
       <TabLauncher leafId={leaf.id} />
       {isLastLeaf && (

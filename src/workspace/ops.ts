@@ -41,6 +41,19 @@ export function insertTab(leaf: Leaf, view: View): Leaf {
   return { ...leaf, tabs: [...leaf.tabs, view], activeIndex: leaf.tabs.length };
 }
 
+/**
+ * Insert `view` at position `index`, and make it active. If the view is already in this leaf this
+ * is a reorder (it's pulled out first, and the index is adjusted for that removal). The index is
+ * clamped to the valid range. Powers drag-to-reorder within a strip and precise cross-pane drops.
+ */
+export function insertTabAt(leaf: Leaf, view: View, index: number): Leaf {
+  const key = viewKey(view);
+  const existing = leaf.tabs.findIndex((v) => viewKey(v) === key);
+  const base = existing >= 0 ? leaf.tabs.filter((_, i) => i !== existing) : leaf.tabs;
+  const at = Math.max(0, Math.min(existing >= 0 && index > existing ? index - 1 : index, base.length));
+  return { ...leaf, tabs: [...base.slice(0, at), view, ...base.slice(at)], activeIndex: at };
+}
+
 /** Remove the tab with the given key, keeping a sane activeIndex. */
 export function removeTab(leaf: Leaf, key: string): Leaf {
   const index = leaf.tabs.findIndex((v) => viewKey(v) === key);
@@ -141,10 +154,10 @@ export function detachView(ws: Workspace, key: string): Workspace {
 export type DropSide = "left" | "right" | "top" | "bottom" | "center";
 
 /**
- * Drag a tab (`key`, from `srcLeafId`) onto `destLeafId`. `center` moves it into that leaf;
- * an edge splits the leaf with the tab in a new pane on that side. Removing it from the source
- * collapses an emptied leaf. No-ops that would do nothing useful (center onto its own leaf, or
- * edge-splitting a leaf that holds only this one tab against itself) return the workspace as-is.
+ * Drag a tab (`key`, from `srcLeafId`) onto `destLeafId`. `center` moves it into that leaf — at a
+ * specific `index` when dropped on a tab strip (so it reorders / lands where you point), else
+ * appended; an edge splits the leaf with the tab in a new pane on that side. Removing it from the
+ * source collapses an emptied leaf. No-ops that would do nothing useful return the workspace as-is.
  */
 export function dropTab(
   ws: Workspace,
@@ -152,24 +165,32 @@ export function dropTab(
   key: string,
   destLeafId: string,
   side: DropSide,
+  index?: number,
 ): Workspace {
   const srcLeaf = findLeaf(ws.root, srcLeafId);
   const view = srcLeaf?.tabs.find((v) => viewKey(v) === key);
   if (!view) return ws;
-  if (srcLeafId === destLeafId) {
-    if (side === "center") return ws; // dropped back where it started
-    if (srcLeaf!.tabs.length <= 1) return ws; // nothing to split this lone tab against
-  }
-
-  let root = mapLeaf(ws.root, srcLeafId, (l) => removeTab(l, key)); // pull it out of the source
+  // Edge-splitting a lone tab against its own leaf would do nothing.
+  if (srcLeafId === destLeafId && side !== "center" && srcLeaf!.tabs.length <= 1) return ws;
 
   if (side === "center") {
-    root = collapseEmpty(mapLeaf(root, destLeafId, (l) => insertTab(l, view)));
+    if (srcLeafId === destLeafId) {
+      if (index == null) return ws; // body-center on its own leaf → nothing to do
+      const root = mapLeaf(ws.root, destLeafId, (l) => insertTabAt(l, view, index)); // reorder
+      return { ...ws, root, activeLeafId: destLeafId };
+    }
+    // Cross-leaf: pull from the source, insert into the dest (at `index` on a strip, else append).
+    let root = mapLeaf(ws.root, srcLeafId, (l) => removeTab(l, key));
+    root = collapseEmpty(
+      mapLeaf(root, destLeafId, (l) => (index == null ? insertTab(l, view) : insertTabAt(l, view, index))),
+    );
     const ids = new Set(leaves(root).map((l) => l.id));
     const activeLeafId = ids.has(destLeafId) ? destLeafId : leaves(root)[0].id;
     return { ...ws, root, activeLeafId };
   }
 
+  // Edge → split the dest leaf, the dragged tab taking the new pane on that side.
+  let root = mapLeaf(ws.root, srcLeafId, (l) => removeTab(l, key));
   const dir: "row" | "col" = side === "left" || side === "right" ? "row" : "col";
   const before = side === "left" || side === "top";
   const newLeaf: Leaf = { kind: "leaf", id: newId(), tabs: [view], activeIndex: 0 };
