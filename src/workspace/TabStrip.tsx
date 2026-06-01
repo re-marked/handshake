@@ -170,7 +170,7 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
         data-tab-key={key}
         role="button"
         tabIndex={0}
-        title={iconOnly ? label : undefined}
+        title={label}
         onPointerDown={(e) => onPointerDown(e, key)}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
