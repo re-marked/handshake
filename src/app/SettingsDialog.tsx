@@ -1,6 +1,19 @@
-import { useState, type ReactNode } from "react";
-import { FolderOpen, Info, Palette, Plus, Share2, SquareArrowOutUpRight, StickyNote } from "lucide-react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import {
+  Camera,
+  FolderOpen,
+  History,
+  Info,
+  Palette,
+  Plus,
+  RotateCcw,
+  Share2,
+  SquareArrowOutUpRight,
+  StickyNote,
+} from "lucide-react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
+import type { Snapshot, TmSize } from "@/vault/io";
+import { formatBytes, relativeTime } from "@/lib/format";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -14,6 +27,7 @@ const SECTIONS = [
   { id: "appearance", label: "Appearance", icon: Palette },
   { id: "notes", label: "Notes & workspace", icon: StickyNote },
   { id: "board", label: "Board", icon: Share2 },
+  { id: "timeMachine", label: "Time Machine", icon: History },
   { id: "networks", label: "Networks", icon: FolderOpen },
   { id: "about", label: "About", icon: Info },
 ] as const;
@@ -216,6 +230,197 @@ function NetworksSection() {
   );
 }
 
+function TimeMachineSection() {
+  const tm = useApp((x) => x.settings.timeMachine);
+  const session = useApp((x) => x.session);
+  const vaultPath = useApp((x) => x.vaultPath);
+  const set = useApp.getState().updateSettings;
+
+  const [history, setHistory] = useState<Snapshot[]>([]);
+  const [size, setSize] = useState<TmSize | null>(null);
+  const [headId, setHeadId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<Snapshot | null>(null);
+
+  const refresh = useCallback(async () => {
+    if (!session) return;
+    try {
+      const [log, sz, st] = await Promise.all([session.tmLog(100), session.tmSize(), session.tmStatus()]);
+      setHistory(log);
+      setSize(sz);
+      setHeadId(st.headId);
+    } catch {
+      // not a repo yet / disabled — leave the panel empty
+    }
+  }, [session]);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  async function snapshotNow() {
+    if (!session) return;
+    setBusy(true);
+    setNote(null);
+    try {
+      const id = await session.tmSnapshot("Manual snapshot");
+      setNote(id ? "Snapshot taken." : "No changes since the last snapshot.");
+      await refresh();
+    } catch {
+      setNote("Couldn't snapshot.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function restore(snap: Snapshot) {
+    if (!session || !vaultPath) return;
+    setBusy(true);
+    setConfirming(null);
+    try {
+      const short = snap.id.slice(0, 7);
+      await session.tmSnapshot(`Before restore to ${short}`); // never lose the present
+      await session.tmRestore(snap.id);
+      await session.tmSnapshot(`Restored to ${short}`); // append-only — the restore is itself undoable
+      await useApp.getState().switchVault(vaultPath); // full reload: rebuild switchboard + board
+      await refresh();
+      setNote(`Restored to ${relativeTime(snap.time)} snapshot.`);
+    } catch {
+      setNote("Restore failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const avg = size && history.length ? size.gitBytes / history.length : 0;
+
+  return (
+    <>
+      <Row
+        label="Time Machine"
+        description="Version this network with git — snapshot its history and roll back anytime."
+      >
+        <Switch
+          checked={tm.enabled}
+          onCheckedChange={(enabled) => {
+            set({ timeMachine: { ...tm, enabled } });
+            if (enabled) void session?.tmInit().then(refresh);
+          }}
+        />
+      </Row>
+
+      {tm.enabled && (
+        <>
+          <Row label="Backups" description="Snapshot only on demand, or automatically as you work.">
+            <Seg
+              value={tm.mode}
+              onChange={(mode) => set({ timeMachine: { ...tm, mode } })}
+              options={[
+                { value: "manual", label: "Manual" },
+                { value: "auto", label: "Automatic" },
+              ]}
+            />
+          </Row>
+          {tm.mode === "auto" && (
+            <Row label="At most every" description="How often an automatic snapshot is taken while you work.">
+              <Seg
+                value={tm.cadence}
+                onChange={(cadence) => set({ timeMachine: { ...tm, cadence } })}
+                options={[
+                  { value: "15m", label: "15 min" },
+                  { value: "1h", label: "Hourly" },
+                  { value: "1d", label: "Daily" },
+                ]}
+              />
+            </Row>
+          )}
+          <Row label="Snapshot now" description={note ?? "Capture the current state as a restore point."}>
+            <Button variant="outline" size="sm" disabled={busy || !session} onClick={snapshotNow}>
+              <Camera /> Snapshot
+            </Button>
+          </Row>
+          {size && (
+            <Row
+              label="On disk"
+              description={`Network data ${formatBytes(size.dataBytes)} · history ${formatBytes(size.gitBytes)}${
+                avg ? ` · ≈${formatBytes(avg)} per snapshot` : ""
+              }`}
+            >
+              <span className="text-xs text-muted-foreground">{history.length} snapshots</span>
+            </Row>
+          )}
+
+          {/* History — newest first; restore rolls back (snapshotting the present first). */}
+          <div className="border-b border-border/60 py-3.5">
+            <div className="text-sm font-medium">History</div>
+            {confirming && (
+              <div className="mt-2 flex items-center justify-between gap-3 rounded-md bg-muted/60 px-3 py-2 text-sm">
+                <span>
+                  Restore to <span className="font-medium">{relativeTime(confirming.time)}</span>? Your current
+                  state is snapshotted first, so this is reversible.
+                </span>
+                <div className="flex shrink-0 gap-2">
+                  <Button variant="ghost" size="sm" disabled={busy} onClick={() => setConfirming(null)}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" disabled={busy} onClick={() => void restore(confirming)}>
+                    <RotateCcw /> Restore
+                  </Button>
+                </div>
+              </div>
+            )}
+            <div className="mt-2 max-h-72 space-y-0.5 overflow-y-auto">
+              {history.length === 0 ? (
+                <p className="py-2 text-sm text-muted-foreground">No snapshots yet.</p>
+              ) : (
+                history.map((snap) => {
+                  const current = snap.id === headId;
+                  return (
+                    <div
+                      key={snap.id}
+                      className="group flex items-center justify-between gap-3 rounded-md px-2 py-1.5 hover:bg-muted/40"
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate text-sm">{snap.message || "Snapshot"}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {relativeTime(snap.time)}
+                          {current && " · current"}
+                          {(snap.insertions > 0 || snap.deletions > 0) && (
+                            <>
+                              {" · "}
+                              <span className="text-emerald-600 dark:text-emerald-400">+{snap.insertions}</span>{" "}
+                              <span className="text-rose-600 dark:text-rose-400">−{snap.deletions}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="shrink-0 opacity-0 transition group-hover:opacity-100"
+                        disabled={current || busy}
+                        onClick={() => setConfirming(snap)}
+                      >
+                        Restore
+                      </Button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Reserved for the next release: a visual timeline + growth stats. */}
+          <div className="mt-3.5 rounded-md border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground/70">
+            Timeline &amp; growth insights — coming soon.
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
 function AboutSection() {
   const b = __BUILD_INFO__;
   const built = (() => {
@@ -273,6 +478,7 @@ export function SettingsDialog() {
               {active === "appearance" && <AppearanceSection />}
               {active === "notes" && <NotesSection />}
               {active === "board" && <BoardSection />}
+              {active === "timeMachine" && <TimeMachineSection />}
               {active === "networks" && <NetworksSection />}
               {active === "about" && <AboutSection />}
             </div>

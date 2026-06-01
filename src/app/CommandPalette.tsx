@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FolderOpen, Plus, Settings, Share2, User } from "lucide-react";
+import { Camera, FolderOpen, Plus, Redo2, Settings, Share2, Undo2, User } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -9,6 +9,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useApp } from "@/app/store";
+import * as undo from "@/app/undo";
+import { useUndoStore } from "@/app/undo";
 import { pickFolder, vaultName } from "@/vault/appState";
 import {
   canonicalHandshakeId,
@@ -30,6 +32,8 @@ export function CommandPalette() {
   const self = useApp((s) => s.switchboard.self);
   const vaultPath = useApp((s) => s.vaultPath);
   const recents = useApp((s) => s.recents);
+  const tmEnabled = useApp((s) => s.settings.timeMachine.enabled);
+  const { canUndo, canRedo } = useUndoStore();
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -133,6 +137,43 @@ export function CommandPalette() {
                 Create “{query.trim()}”{self ? " — connected to you" : ""}
               </span>
             </CommandItem>
+          </CommandGroup>
+        )}
+        {(tmEnabled || canUndo || canRedo) && (
+          <CommandGroup heading="Time Machine">
+            {tmEnabled && (
+              <CommandItem
+                value="snapshot now time machine backup"
+                onSelect={() => {
+                  setOpen(false);
+                  void useApp.getState().session?.tmSnapshot("Manual snapshot");
+                }}
+              >
+                <Camera /> Snapshot now
+              </CommandItem>
+            )}
+            {canUndo && (
+              <CommandItem
+                value="undo"
+                onSelect={() => {
+                  setOpen(false);
+                  void undo.undo();
+                }}
+              >
+                <Undo2 /> Undo
+              </CommandItem>
+            )}
+            {canRedo && (
+              <CommandItem
+                value="redo"
+                onSelect={() => {
+                  setOpen(false);
+                  void undo.redo();
+                }}
+              >
+                <Redo2 /> Redo
+              </CommandItem>
+            )}
           </CommandGroup>
         )}
         <CommandGroup heading="Networks">
