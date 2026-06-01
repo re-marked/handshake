@@ -22,6 +22,23 @@ export type TextWeight = "light" | "normal" | "medium";
 export type TimeMachineMode = "manual" | "auto";
 /** How hard stale cards dim when the fade is on. */
 export type FadeStrength = "subtle" | "medium" | "strong";
+/** Room the board gives cards when it auto-arranges + spawns new ones. */
+export type CardSpacing = "compact" | "comfortable" | "spacious";
+/** How far the board lets you zoom out/in. */
+export type ZoomRange = "standard" | "wide";
+/** How long a located card stays highlighted after you jump to it. */
+export type FlashDuration = "brief" | "normal" | "long";
+/** Note autosave debounce — how long after you stop typing before the edit commits. */
+export type SaveDelay = "instant" | "normal" | "relaxed";
+/** Default pixel size a popped-out (floating) note opens at. */
+export interface FloatSize {
+  w: number;
+  h: number;
+}
+export const FLOAT_W_MIN = 240;
+export const FLOAT_W_MAX = 1600;
+export const FLOAT_H_MIN = 180;
+export const FLOAT_H_MAX = 1200;
 export const CADENCE_MIN = 1;
 export const CADENCE_MAX = 1440; // 1 day
 
@@ -64,6 +81,10 @@ export interface Settings {
   reduceMotion: boolean;
   /** Which mode a person's note opens in by default (panel / float / tab). */
   noteDefault: NoteMode;
+  /** How long after you stop typing before a note edit is saved. */
+  autosaveDelay: SaveDelay;
+  /** Default pixel size a floating (popped-out) note opens at. */
+  floatSize: FloatSize;
   /** Show aspirational goal cards on the board. */
   showGoalsOnBoard: boolean;
   /** Strength a freshly-created connection starts at. */
@@ -74,6 +95,12 @@ export interface Settings {
   fadeStaleCards: boolean;
   /** How hard the staleness fade dims (when `fadeStaleCards` is on). */
   fadeStrength: FadeStrength;
+  /** Room the board gives cards when it auto-arranges + spawns new ones. */
+  cardSpacing: CardSpacing;
+  /** How far the board lets you zoom. */
+  zoomRange: ZoomRange;
+  /** How long a located card stays highlighted after you jump to it. */
+  locateFlash: FlashDuration;
   /** Time Machine (git versioning) preferences. */
   timeMachine: TimeMachineSettings;
   /** Developer / debug preferences. */
@@ -91,11 +118,16 @@ export const DEFAULT_SETTINGS: Settings = {
   density: "comfortable",
   reduceMotion: false,
   noteDefault: "panel",
+  autosaveDelay: "normal",
+  floatSize: { w: 340, h: 460 },
   showGoalsOnBoard: true,
   defaultTieStrength: "cold",
   showIntroducedBy: true,
   fadeStaleCards: true,
   fadeStrength: "medium",
+  cardSpacing: "comfortable",
+  zoomRange: "wide",
+  locateFlash: "normal",
   // Frequent by default — snapshots are tiny, and dense history makes the best visuals over time.
   timeMachine: { enabled: true, mode: "auto", cadenceMin: 5, lastSnapshotAt: 0 },
   dev: { showStatusLine: false, autoReportOnError: false, redact: false },
@@ -129,6 +161,8 @@ export function parseSettings(json: string): Settings {
     density: oneOf(o.density, ["compact", "comfortable", "spacious"] as const, DEFAULT_SETTINGS.density),
     reduceMotion: typeof o.reduceMotion === "boolean" ? o.reduceMotion : DEFAULT_SETTINGS.reduceMotion,
     noteDefault: oneOf(o.noteDefault, ["panel", "float", "tab"] as const, DEFAULT_SETTINGS.noteDefault),
+    autosaveDelay: oneOf(o.autosaveDelay, ["instant", "normal", "relaxed"] as const, DEFAULT_SETTINGS.autosaveDelay),
+    floatSize: parseFloatSize(o.floatSize),
     showGoalsOnBoard:
       typeof o.showGoalsOnBoard === "boolean" ? o.showGoalsOnBoard : DEFAULT_SETTINGS.showGoalsOnBoard,
     defaultTieStrength: oneOf(
@@ -140,9 +174,24 @@ export function parseSettings(json: string): Settings {
       typeof o.showIntroducedBy === "boolean" ? o.showIntroducedBy : DEFAULT_SETTINGS.showIntroducedBy,
     fadeStaleCards: typeof o.fadeStaleCards === "boolean" ? o.fadeStaleCards : DEFAULT_SETTINGS.fadeStaleCards,
     fadeStrength: oneOf(o.fadeStrength, ["subtle", "medium", "strong"] as const, DEFAULT_SETTINGS.fadeStrength),
+    cardSpacing: oneOf(o.cardSpacing, ["compact", "comfortable", "spacious"] as const, DEFAULT_SETTINGS.cardSpacing),
+    zoomRange: oneOf(o.zoomRange, ["standard", "wide"] as const, DEFAULT_SETTINGS.zoomRange),
+    locateFlash: oneOf(o.locateFlash, ["brief", "normal", "long"] as const, DEFAULT_SETTINGS.locateFlash),
     timeMachine: parseTimeMachine(o.timeMachine),
     dev: parseDev(o.dev),
     highlightKeywords: parseKeywords(o.highlightKeywords),
+  };
+}
+
+function parseFloatSize(v: unknown): FloatSize {
+  const d = DEFAULT_SETTINGS.floatSize;
+  if (!v || typeof v !== "object") return { ...d };
+  const o = v as Record<string, unknown>;
+  const clamp = (n: unknown, lo: number, hi: number, fb: number) =>
+    typeof n === "number" && isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n))) : fb;
+  return {
+    w: clamp(o.w, FLOAT_W_MIN, FLOAT_W_MAX, d.w),
+    h: clamp(o.h, FLOAT_H_MIN, FLOAT_H_MAX, d.h),
   };
 }
 
