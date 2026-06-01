@@ -91,6 +91,11 @@ export async function redo() {
   notify("Redone", { body: "Reapplied the change.", icon: Redo2, key: "redo" });
 }
 
+/** Current undo / redo stack depths (for the debug report). */
+export function stackDepths(): { undo: number; redo: number } {
+  return { undo: past.length, redo: future.length };
+}
+
 /** Drop all history (called on vault switch — undo is per-network). */
 export function clear() {
   past = [];
