@@ -41,6 +41,8 @@ export function BoardView({ boardId }: { boardId: string }) {
   const deletingId = useApp((s) => s.deletingId);
   const locate = useApp((s) => s.locate);
   const showGoals = useApp((s) => s.settings.showGoalsOnBoard);
+  const showIntroducedBy = useApp((s) => s.settings.showIntroducedBy);
+  const fadeStaleCards = useApp((s) => s.settings.fadeStaleCards);
   const containerRef = useRef<HTMLDivElement>(null);
   const model = useMemo(
     () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
@@ -416,7 +418,7 @@ export function BoardView({ boardId }: { boardId: string }) {
     try {
       const sb = useApp.getState().switchboard;
       const id = mintPersonId(sb.people, name);
-      const person: Person = { kind: "person", id, name, isSelf: false, tags: [], handles: {}, body: "", photo: c.photo?.rel };
+      const person: Person = { kind: "person", id, name, isSelf: false, tags: [], affiliations: [], handles: {}, body: "", photo: c.photo?.rel };
       const [pa, pb] = canonicalPair(c.sourceId, id);
       const handshake: Handshake = {
         kind: "handshake",
@@ -468,9 +470,11 @@ export function BoardView({ boardId }: { boardId: string }) {
             paint outside its box. (A giant fixed-size SVG rasterizes a huge GPU layer; two boards
             at once blew past the layer limit and one board's links silently vanished — issue #3.) */}
         <svg className="pointer-events-none absolute left-0 top-0 overflow-visible" width={1} height={1}>
-          {model.links.map((link) => (
+          {model.links
+            .filter((link) => showIntroducedBy || !link.introducedBy)
+            .map((link) => (
             <LinkLine
-              key={`${link.a}|${link.b}`}
+              key={`${link.introducedBy ? "via:" : ""}${link.a}|${link.b}`}
               link={link}
               a={at(link.a)}
               b={at(link.b)}
@@ -518,6 +522,9 @@ export function BoardView({ boardId }: { boardId: string }) {
           .filter((card) => showGoals || !card.isGoal)
           .map((card) => {
           const p = at(card.id);
+          // Staleness fade (#15): dim cards by how long since you last interacted. You (self) and
+          // goals never fade. freshnessOf() already returns a tasteful 0.35–1 range.
+          const fade = fadeStaleCards && !card.isSelf && !card.isGoal ? card.freshness : 1;
           return (
             <div
               key={card.id}
@@ -529,7 +536,7 @@ export function BoardView({ boardId }: { boardId: string }) {
                 initial={card.id === justCreated ? { scale: 0.5, opacity: 0 } : false}
                 animate={{
                   scale: card.id === deletingId ? 0.4 : 1,
-                  opacity: card.id === deletingId ? 0 : 1,
+                  opacity: card.id === deletingId ? 0 : fade,
                 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               >
@@ -652,6 +659,24 @@ function LinkLine({
   b: Pos;
   onOpen: (e: { clientX: number; clientY: number }) => void;
 }) {
+  // Introduced-by edges have no handshake behind them — a faint dotted line, not clickable.
+  if (link.introducedBy) {
+    return (
+      <line
+        x1={a.x}
+        y1={a.y}
+        x2={b.x}
+        y2={b.y}
+        style={{
+          stroke: "var(--muted-foreground)",
+          strokeWidth: 1,
+          strokeOpacity: 0.35,
+          strokeDasharray: "2 6",
+          pointerEvents: "none",
+        }}
+      />
+    );
+  }
   const width = link.strength === "close" ? 2 : link.strength === "warm" ? 1.5 : 1;
   return (
     <g className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={onOpen}>

@@ -1,5 +1,6 @@
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { affiliationLabel } from "@/switchboard";
 import type { BoardCard } from "@/board/tree";
 
 /**
@@ -15,7 +16,10 @@ export function PersonCard({
   photoSrc?: string;
   highlighted?: boolean;
 }) {
-  const subtitle = [card.role, card.company].filter(Boolean).join(" · ");
+  // The card is small, so show only the headline affiliation here; "+N" hints at the rest.
+  const extra = Math.max(0, card.affiliations.length - 1);
+  const primary = affiliationLabel(card.affiliations[0]);
+  const subtitle = primary && extra > 0 ? `${primary} +${extra}` : primary;
   return (
     <div
       className={cn(

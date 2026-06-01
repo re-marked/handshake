@@ -34,8 +34,21 @@ function personFrontmatter(p: Person): Record<string, unknown> {
   const fm: Record<string, unknown> = { id: p.id, name: p.name, isSelf: p.isSelf };
   if (p.photo) fm.photo = p.photo;
   if (p.tags.length) fm.tags = p.tags;
-  if (p.role) fm.role = p.role;
-  if (p.company) fm.company = p.company;
+  // One affiliation keeps the original flat `role`/`company` shape (so pre-0.8.2 files written
+  // back stay byte-identical); two or more switch to an `affiliations:` list.
+  const affs = p.affiliations ?? [];
+  if (affs.length <= 1) {
+    const a = affs[0];
+    if (a?.role) fm.role = a.role;
+    if (a?.company) fm.company = a.company;
+  } else {
+    fm.affiliations = affs.map((a) => {
+      const o: Record<string, string> = {};
+      if (a.role) o.role = a.role;
+      if (a.company) o.company = a.company;
+      return o;
+    });
+  }
   if (Object.keys(p.handles).length) fm.handles = p.handles;
   if (p.primaryChannel) fm.primaryChannel = p.primaryChannel;
   if (p.howWeMet) fm.howWeMet = p.howWeMet;

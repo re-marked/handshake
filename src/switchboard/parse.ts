@@ -1,5 +1,6 @@
 import { load as yamlLoad, JSON_SCHEMA } from "js-yaml";
 import type {
+  Affiliation,
   Channel,
   Entity,
   EntityKind,
@@ -86,8 +87,7 @@ export function parseEntity(relpath: string, text: string): ParseOutcome {
         isSelf: data.isSelf === true,
         photo: str(data.photo),
         tags: strArray(data.tags),
-        role: str(data.role),
-        company: str(data.company),
+        affiliations: parseAffiliations(data),
         handles: parseHandles(data.handles),
         primaryChannel: str(data.primaryChannel),
         howWeMet: str(data.howWeMet),
@@ -172,6 +172,28 @@ function dateish(v: unknown): string | undefined {
 function strArray(v: unknown): string[] {
   if (Array.isArray(v)) return v.filter((x): x is string => typeof x === "string");
   if (typeof v === "string") return [v];
+  return [];
+}
+
+/**
+ * A person's affiliations. Prefers the new `affiliations: [{role, company}]` list; falls back to
+ * the legacy single `role`/`company` fields (so files written before 0.8.2 still read correctly).
+ */
+function parseAffiliations(data: Record<string, unknown>): Affiliation[] {
+  if (Array.isArray(data.affiliations)) {
+    const out: Affiliation[] = [];
+    for (const item of data.affiliations) {
+      if (!item || typeof item !== "object") continue;
+      const o = item as Record<string, unknown>;
+      const role = str(o.role);
+      const company = str(o.company);
+      if (role || company) out.push({ ...(role ? { role } : {}), ...(company ? { company } : {}) });
+    }
+    if (out.length) return out;
+  }
+  const role = str(data.role);
+  const company = str(data.company);
+  if (role || company) return [{ ...(role ? { role } : {}), ...(company ? { company } : {}) }];
   return [];
 }
 

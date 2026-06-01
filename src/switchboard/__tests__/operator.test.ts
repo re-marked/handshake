@@ -32,7 +32,7 @@ function captureAnya(sb: Switchboard): { diff: Diff; personId: string; interacti
   const personId = mintPersonId(sb.people, "Anya Gupta");
   const person: Person = {
     kind: "person", id: personId, name: "Anya Gupta", isSelf: false,
-    tags: ["journalist"], handles: { twitter: "@anyagupta" }, createdAt: "2026-05-29", body: "",
+    tags: ["journalist"], affiliations: [], handles: { twitter: "@anyagupta" }, createdAt: "2026-05-29", body: "",
   };
   const handshake: Handshake = {
     kind: "handshake", id: canonicalHandshakeId("self", personId),
@@ -103,9 +103,9 @@ describe("applyDiff — undo (inverse)", () => {
     const sb = base();
     const before = sb.people.get("sarah-chen");
     const applied = applyDiff(sb, [
-      { op: "updatePerson", id: "sarah-chen", patch: { role: "VP Growth", company: "Linear Inc" } },
+      { op: "updatePerson", id: "sarah-chen", patch: { affiliations: [{ role: "VP Growth", company: "Linear Inc" }] } },
     ]);
-    expect(applied.next.people.get("sarah-chen")?.role).toBe("VP Growth");
+    expect(applied.next.people.get("sarah-chen")?.affiliations[0]?.role).toBe("VP Growth");
     const undone = applyDiff(applied.next, applied.inverse);
     expect(undone.next.people.get("sarah-chen")).toEqual(before);
   });
@@ -146,7 +146,7 @@ describe("applyDiff — validation & atomicity", () => {
   it("is atomic: a later invalid mutation discards earlier valid ones", () => {
     const sb = base();
     const id = mintPersonId(sb.people, "New Person");
-    const person: Person = { kind: "person", id, name: "New Person", isSelf: false, tags: [], handles: {}, body: "" };
+    const person: Person = { kind: "person", id, name: "New Person", isSelf: false, tags: [], affiliations: [], handles: {}, body: "" };
     const bad: Handshake = {
       kind: "handshake", id: canonicalHandshakeId(id, "ghost"),
       people: canonicalPair(id, "ghost"), strength: "cold", body: "",
@@ -159,7 +159,7 @@ describe("applyDiff — validation & atomicity", () => {
   it("rejects updating or deleting a missing entity", () => {
     const sb = base();
     expect(applyDiff(sb, [{ op: "deleteGoal", id: "nope" }]).ok).toBe(false);
-    expect(applyDiff(sb, [{ op: "updatePerson", id: "nope", patch: { role: "x" } }]).ok).toBe(false);
+    expect(applyDiff(sb, [{ op: "updatePerson", id: "nope", patch: { affiliations: [{ role: "x" }] } }]).ok).toBe(false);
   });
 });
 

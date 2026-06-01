@@ -22,6 +22,7 @@ export function promoteGoalDiff(sb: Switchboard, goal: Goal): { diff: Diff; pers
     name: goal.title.trim() || "Untitled",
     isSelf: false,
     tags: [],
+    affiliations: [],
     handles: {},
     body: "",
   };

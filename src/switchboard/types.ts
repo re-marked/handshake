@@ -24,6 +24,12 @@ export type PartialDate = string;
 
 export type EntityKind = "person" | "handshake" | "goal" | "interaction";
 
+/** One position a person holds — a role at a company. Either field may stand alone. */
+export interface Affiliation {
+  role?: string;
+  company?: string;
+}
+
 export interface Person {
   kind: "person";
   /** = filename slug. Immutable; renaming `name` never moves the file. */
@@ -33,8 +39,8 @@ export interface Person {
   /** relpath into attachments/, e.g. "attachments/sarah-chen.jpg" */
   photo?: string;
   tags: string[];
-  role?: string;
-  company?: string;
+  /** Roles/companies held, in order; the first is the headline shown on cards. [] = unknown. */
+  affiliations: Affiliation[];
   handles: Partial<Record<Channel, string>>;
   primaryChannel?: Channel;
   howWeMet?: string;

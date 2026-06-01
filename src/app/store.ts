@@ -287,6 +287,7 @@ export const useApp = create<AppState>()((set, get) => ({
         name: selfName.trim(),
         isSelf: true,
         tags: [],
+        affiliations: [],
         handles: {},
         body: "",
       };

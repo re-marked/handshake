@@ -12,11 +12,14 @@ import {
   SquareArrowOutUpRight,
   StickyNote,
   Wrench,
+  X,
 } from "lucide-react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import type { Snapshot, TmStats } from "@/vault/io";
 import { Input } from "@/components/ui/input";
-import { CADENCE_MAX, CADENCE_MIN, DEFAULT_SETTINGS } from "@/vault/settings";
+import { CADENCE_MAX, CADENCE_MIN, DEFAULT_SETTINGS, type HighlightKeyword } from "@/vault/settings";
+import { HL_COLORS } from "@/views/remarkHighlight";
+import { SWATCH } from "@/views/HighlightPalette";
 import { formatBytes, formatCadence, relativeTime } from "@/lib/format";
 import { estimateGrowth } from "@/lib/timeMachineStats";
 import { notify } from "@/app/toast";
@@ -170,17 +173,84 @@ function NotesSection() {
   const noteDefault = useApp((x) => x.settings.noteDefault);
   const set = useApp.getState().updateSettings;
   return (
-    <Row label="Default note mode" description="How a person's note opens when you tap a card.">
-      <Seg
-        value={noteDefault}
-        onChange={(noteDefault) => set({ noteDefault })}
-        options={[
-          { value: "panel", label: "Panel" },
-          { value: "float", label: "Float" },
-          { value: "tab", label: "Tab" },
-        ]}
-      />
-    </Row>
+    <>
+      <Row label="Default note mode" description="How a person's note opens when you tap a card.">
+        <Seg
+          value={noteDefault}
+          onChange={(noteDefault) => set({ noteDefault })}
+          options={[
+            { value: "panel", label: "Panel" },
+            { value: "float", label: "Float" },
+            { value: "tab", label: "Tab" },
+          ]}
+        />
+      </Row>
+      <KeywordManager />
+    </>
+  );
+}
+
+/** Manage the auto-highlight keyword list (#17): a phrase + a colour, added/removed inline. */
+function KeywordManager() {
+  const keywords = useApp((x) => x.settings.highlightKeywords);
+  const update = (next: HighlightKeyword[]) => useApp.getState().updateSettings({ highlightKeywords: next });
+  return (
+    <div className="border-b border-border/60 py-3.5 last:border-0">
+      <div className="flex items-center justify-between gap-6">
+        <div className="min-w-0">
+          <div className="text-sm font-medium">Highlight keywords</div>
+          <div className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+            Phrases auto-highlighted in your notes, in the colour you pick (e.g. “Why I met them”).
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="shrink-0"
+          onClick={() => update([...keywords, { text: "", color: "yellow" }])}
+        >
+          <Plus /> Keyword
+        </Button>
+      </div>
+      {keywords.length > 0 && (
+        <div className="mt-3 space-y-1.5">
+          {keywords.map((k, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <Input
+                value={k.text}
+                placeholder="phrase…"
+                onChange={(e) => update(keywords.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
+                className="h-8 min-w-0 flex-1"
+              />
+              <div className="flex shrink-0 gap-1">
+                {HL_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    title={c}
+                    onClick={() => update(keywords.map((x, j) => (j === i ? { ...x, color: c } : x)))}
+                    className={cn(
+                      "size-6 overflow-hidden rounded-md ring-1 ring-inset transition-all hover:scale-110",
+                      k.color === c ? "ring-2 ring-primary" : "ring-border/70",
+                    )}
+                  >
+                    <span className="block size-full" style={{ backgroundColor: SWATCH[c] }} />
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                aria-label="Remove keyword"
+                onClick={() => update(keywords.filter((_, j) => j !== i))}
+                className="grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground/60 transition hover:bg-muted hover:text-foreground"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -191,6 +261,12 @@ function BoardSection() {
     <>
       <Row label="Show goal cards" description="Display aspirational goals as faint cards on the board.">
         <Switch checked={s.showGoalsOnBoard} onCheckedChange={(showGoalsOnBoard) => set({ showGoalsOnBoard })} />
+      </Row>
+      <Row label="Show “introduced by” links" description="Faint dotted lines from a person to whoever introduced them.">
+        <Switch checked={s.showIntroducedBy} onCheckedChange={(showIntroducedBy) => set({ showIntroducedBy })} />
+      </Row>
+      <Row label="Fade inactive cards" description="Dim cards you haven’t touched in a while (staleness).">
+        <Switch checked={s.fadeStaleCards} onCheckedChange={(fadeStaleCards) => set({ fadeStaleCards })} />
       </Row>
       <Row label="Default connection strength" description="Warmth a new tie starts at.">
         <Seg

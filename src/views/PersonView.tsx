@@ -12,10 +12,11 @@ import { MarkdownView } from "@/views/MarkdownView";
 import { SafeNoteEditor } from "@/views/NoteEditor";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
-import type { Handshake, Person, PersonPatch } from "@/switchboard";
+import { pruneAffiliations } from "@/switchboard";
+import type { Affiliation, Handshake, Person, PersonPatch } from "@/switchboard";
 
 // The fields the note edits; the commit patch is diffed over exactly these.
-const EDITABLE = ["name", "role", "company", "tags", "handles", "body"] as const;
+const EDITABLE = ["name", "affiliations", "tags", "handles", "body"] as const;
 
 // Inline editable text — looks like prose until you focus it.
 const inline =
@@ -58,8 +59,14 @@ function usePersonEditor(id: string) {
     if (!d || !cur) return;
     const patch: PersonPatch = {};
     for (const k of EDITABLE) {
-      // Never blank out the identity-ish name; keep the last real one.
-      const next = k === "name" && !String(d.name).trim() ? cur.name : d[k];
+      // Never blank out the identity-ish name; keep the last real one. Affiliations are pruned of
+      // empty rows so a half-typed entry never persists.
+      const next =
+        k === "name" && !String(d.name).trim()
+          ? cur.name
+          : k === "affiliations"
+            ? pruneAffiliations(d.affiliations)
+            : d[k];
       if (!jsonEq(cur[k], next)) (patch as Record<string, unknown>)[k] = next;
     }
     if (Object.keys(patch).length > 0) {
@@ -86,6 +93,7 @@ function usePersonEditor(id: string) {
 export function PersonView({ id }: { id: string }) {
   const { draft, setDraft } = usePersonEditor(id);
   const photo = useApp((s) => s.photos.get(id));
+  const keywords = useApp((s) => s.settings.highlightKeywords);
   // Notes open rendered (read) when they have content, in the editor when blank.
   const [mode, setMode] = useState<"edit" | "preview">(() => (draft?.body.trim() ? "preview" : "edit"));
   const [tagInput, setTagInput] = useState("");
@@ -120,6 +128,16 @@ export function PersonView({ id }: { id: string }) {
   };
   const removeTag = (t: string) => update({ tags: draft.tags.filter((x) => x !== t) });
 
+  // Affiliations (role/company pairs). Always render at least one row so there's somewhere to type;
+  // a fully-empty row is pruned on commit and never written to disk.
+  const affRows: Affiliation[] = draft.affiliations.length ? draft.affiliations : [{}];
+  const setAff = (i: number, key: keyof Affiliation, value: string) =>
+    update({
+      affiliations: affRows.map((a, idx) => (idx === i ? { ...a, [key]: value.trim() ? value : undefined } : a)),
+    });
+  const addAff = () => update({ affiliations: [...affRows, {}] });
+  const removeAff = (i: number) => update({ affiliations: affRows.filter((_, idx) => idx !== i) });
+
   const syncHandles = (next: Array<{ channel: string; value: string }>) => {
     setRows(next);
     const obj: Record<string, string> = {};
@@ -148,18 +166,40 @@ export function PersonView({ id }: { id: string }) {
             placeholder="Name"
             className={cn(inline, "-ml-1.5 text-lg font-semibold text-foreground")}
           />
-          <Input
-            value={draft.role ?? ""}
-            onChange={(e) => update({ role: e.target.value.trim() ? e.target.value : undefined })}
-            placeholder="Role"
-            className={cn(inline, "-ml-1.5 text-sm text-muted-foreground")}
-          />
-          <Input
-            value={draft.company ?? ""}
-            onChange={(e) => update({ company: e.target.value.trim() ? e.target.value : undefined })}
-            placeholder="Company"
-            className={cn(inline, "-ml-1.5 text-sm text-muted-foreground")}
-          />
+          {affRows.map((a, i) => (
+            <div key={i} className="group/aff flex items-center gap-1">
+              <Input
+                value={a.role ?? ""}
+                onChange={(e) => setAff(i, "role", e.target.value)}
+                placeholder="Role"
+                className={cn(inline, "-ml-1.5 min-w-0 flex-1 text-sm text-muted-foreground")}
+              />
+              <span className="shrink-0 text-sm text-muted-foreground/40">·</span>
+              <Input
+                value={a.company ?? ""}
+                onChange={(e) => setAff(i, "company", e.target.value)}
+                placeholder="Company"
+                className={cn(inline, "min-w-0 flex-1 text-sm text-muted-foreground")}
+              />
+              {affRows.length > 1 && (
+                <button
+                  type="button"
+                  aria-label="Remove role"
+                  onClick={() => removeAff(i)}
+                  className="grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground/0 transition group-hover/aff:text-muted-foreground/60 hover:bg-muted hover:!text-foreground"
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addAff}
+            className="-ml-1.5 mt-0.5 inline-flex w-fit items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-muted-foreground/60 transition-colors hover:bg-accent/40 hover:text-foreground"
+          >
+            <Plus className="size-3" /> role
+          </button>
         </div>
         {/* Per-note actions — an icon toolbar; future note tools / local settings slot in here. */}
         <div className="flex shrink-0 items-center gap-0.5 text-muted-foreground">
@@ -280,7 +320,7 @@ export function PersonView({ id }: { id: string }) {
       ) : draft.body.trim() ? (
         // Rendered markdown; click bare text to edit, click a highlight to recolor it.
         <div className="-mx-0.5 cursor-text rounded-sm px-0.5 py-0.5" onClick={() => setMode("edit")}>
-          <MarkdownView source={draft.body} onChange={(body) => update({ body })} />
+          <MarkdownView source={draft.body} onChange={(body) => update({ body })} keywords={keywords} />
         </div>
       ) : (
         <button
