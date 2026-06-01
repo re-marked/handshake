@@ -5,6 +5,13 @@
 
 import type { Strength } from "@/switchboard";
 import type { NoteMode } from "@/workspace/model";
+import { HL_COLORS, type HlColor } from "@/views/remarkHighlight";
+
+/** A note keyword that's auto-highlighted in its chosen color wherever it appears (#17). */
+export interface HighlightKeyword {
+  text: string;
+  color: HlColor;
+}
 
 export type Theme = "dark" | "light" | "paper" | "system";
 export type PaperVariant = "soft" | "vintage";
@@ -59,10 +66,16 @@ export interface Settings {
   showGoalsOnBoard: boolean;
   /** Strength a freshly-created connection starts at. */
   defaultTieStrength: Strength;
+  /** Draw the faint dotted "introduced by" lines on the board. */
+  showIntroducedBy: boolean;
+  /** Fade cards by how long since you last interacted (staleness). Off = all cards full strength. */
+  fadeStaleCards: boolean;
   /** Time Machine (git versioning) preferences. */
   timeMachine: TimeMachineSettings;
   /** Developer / debug preferences. */
   dev: DevSettings;
+  /** Note keywords auto-highlighted in the preview, in their chosen color. */
+  highlightKeywords: HighlightKeyword[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -76,9 +89,12 @@ export const DEFAULT_SETTINGS: Settings = {
   noteDefault: "panel",
   showGoalsOnBoard: true,
   defaultTieStrength: "cold",
+  showIntroducedBy: true,
+  fadeStaleCards: true,
   // Frequent by default — snapshots are tiny, and dense history makes the best visuals over time.
   timeMachine: { enabled: true, mode: "auto", cadenceMin: 5, lastSnapshotAt: 0 },
   dev: { showStatusLine: false, autoReportOnError: false, redact: false },
+  highlightKeywords: [],
 };
 
 export function serializeSettings(s: Settings): string {
@@ -115,9 +131,22 @@ export function parseSettings(json: string): Settings {
       ["close", "warm", "cold", "dormant"] as const,
       DEFAULT_SETTINGS.defaultTieStrength,
     ),
+    showIntroducedBy:
+      typeof o.showIntroducedBy === "boolean" ? o.showIntroducedBy : DEFAULT_SETTINGS.showIntroducedBy,
+    fadeStaleCards: typeof o.fadeStaleCards === "boolean" ? o.fadeStaleCards : DEFAULT_SETTINGS.fadeStaleCards,
     timeMachine: parseTimeMachine(o.timeMachine),
     dev: parseDev(o.dev),
+    highlightKeywords: parseKeywords(o.highlightKeywords),
   };
+}
+
+function parseKeywords(v: unknown): HighlightKeyword[] {
+  if (!Array.isArray(v)) return [];
+  return v
+    .filter((x): x is Record<string, unknown> => !!x && typeof x === "object")
+    .map((x) => ({ text: typeof x.text === "string" ? x.text : "", color: oneOf(x.color, HL_COLORS, "yellow") }))
+    .filter((k) => k.text.trim())
+    .slice(0, 50);
 }
 
 function parseDev(v: unknown): DevSettings {
