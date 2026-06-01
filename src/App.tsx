@@ -4,6 +4,9 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useApp } from "@/app/store";
 import * as undo from "@/app/undo";
 import * as scheduler from "@/app/snapshotScheduler";
+import { initDebug, writeReport } from "@/app/debug";
+import { notify } from "@/app/toast";
+import { Bug } from "lucide-react";
 import { Shell } from "@/app/Shell";
 import { FrontDoor } from "@/app/FrontDoor";
 import { NewNetworkDialog } from "@/app/NewNetworkDialog";
@@ -108,6 +111,27 @@ function useSnapshotOnClose() {
   }, []);
 }
 
+/** Ctrl/Cmd-Shift-D writes a debug report to .handshake/debug/ (a file Claude can read). */
+function useDebugHotkey() {
+  useEffect(() => {
+    initDebug();
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        void writeReport("hotkey").then((path) =>
+          notify(path ? "Debug report written" : "Couldn't write report", {
+            body: path ?? undefined,
+            icon: Bug,
+            tone: path ? "default" : "muted",
+          }),
+        );
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+}
+
 export default function App() {
   const status = useApp((s) => s.status);
   const reduceMotion = useApp((s) => s.settings.reduceMotion);
@@ -115,6 +139,7 @@ export default function App() {
   useAppearance();
   useGlobalUndo();
   useSnapshotOnClose();
+  useDebugHotkey();
 
   useEffect(() => {
     void useApp.getState().init(DEV_VAULT);

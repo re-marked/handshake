@@ -2,7 +2,7 @@ import { Search, Settings, Share2, Target, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { activeView } from "@/workspace/ops";
-import { AboutPopover } from "@/app/AboutPopover";
+import { AboutDialog } from "@/app/AboutDialog";
 
 function RailButton({
   icon: Icon,
@@ -41,7 +41,7 @@ export function NavRail() {
       <RailButton icon={Target} label="Goals" active={activeType === "goals"} onClick={() => openView({ type: "goals" }, "tab")} />
       <RailButton icon={Search} label="Search (Ctrl-P)" onClick={() => setCommandOpen(true)} />
       <div className="mt-auto flex flex-col items-center gap-1">
-        <AboutPopover />
+        <AboutDialog />
         <RailButton icon={Settings} label="Settings" onClick={() => useApp.getState().setSettingsOpen(true)} />
       </div>
     </nav>

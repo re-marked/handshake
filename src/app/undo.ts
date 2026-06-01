@@ -10,6 +10,7 @@ import { Redo2, Undo2 } from "lucide-react";
 import type { Diff } from "@/switchboard";
 import { useApp } from "@/app/store";
 import { notify } from "@/app/toast";
+import { logEvent } from "@/app/debug";
 
 export type Pos = { x: number; y: number };
 export type BoardPatch = Record<string, Pos>;
@@ -75,6 +76,7 @@ export async function undo() {
   else boardAppliers.get(entry.boardId)?.(entry.before);
   future.push(entry);
   sync();
+  logEvent("undo", entry.kind);
   notify("Undone", { body: "Reverted your last change.", icon: Undo2, key: "undo" });
 }
 
@@ -88,7 +90,13 @@ export async function redo() {
   else boardAppliers.get(entry.boardId)?.(entry.after);
   past.push(entry);
   sync();
+  logEvent("redo", entry.kind);
   notify("Redone", { body: "Reapplied the change.", icon: Redo2, key: "redo" });
+}
+
+/** Current undo / redo stack depths (for the debug report). */
+export function stackDepths(): { undo: number; redo: number } {
+  return { undo: past.length, redo: future.length };
 }
 
 /** Drop all history (called on vault switch — undo is per-network). */

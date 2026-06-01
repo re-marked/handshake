@@ -27,5 +27,5 @@ export function LastSnapshot({ className }: { className?: string }) {
     body = "Time Machine on · no snapshots yet";
   }
 
-  return <span className={cn("select-text text-[11px] leading-none text-muted-foreground/55", className)}>{body}</span>;
+  return <span className={cn("select-text leading-none text-muted-foreground/55", className)}>{body}</span>;
 }

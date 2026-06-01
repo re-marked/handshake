@@ -74,6 +74,9 @@ export interface VaultIO {
   /** React to external edits (not our own writes). Resolves to an unsubscribe fn. */
   watch(onChange: (change: VaultChange) => void): Promise<() => void>;
 
+  /** Write a debug report into `.handshake/debug/<name>`; resolves to its absolute path. */
+  writeDebug(name: string, content: string): Promise<string>;
+
   // ── Time Machine ──
   /** Ensure the vault is a git repo (idempotent): .gitignore + identity + initial snapshot. */
   tmInit(): Promise<void>;

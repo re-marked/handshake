@@ -33,5 +33,6 @@ export function createTauriIO(vault: string): VaultIO {
     tmStatus: () => invoke<TmStatus>("tm_status", { vault }),
     tmSize: () => invoke<TmSize>("tm_size", { vault }),
     tmStats: () => invoke<TmStats>("tm_stats", { vault }),
+    writeDebug: (name, content) => invoke<string>("write_debug", { vault, name, content }),
   };
 }

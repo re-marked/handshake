@@ -4,6 +4,7 @@
 // (no stale closures), so the store/UI never depend on it being a React component.
 
 import { useApp } from "@/app/store";
+import { logEvent } from "@/app/debug";
 import type { VaultSession } from "@/vault/session";
 import type { TimeMachineSettings } from "@/vault/settings";
 
@@ -89,6 +90,7 @@ function markSnapshotted(): void {
   const tm = useApp.getState().settings.timeMachine;
   useApp.getState().updateSettings({ timeMachine: { ...tm, lastSnapshotAt } });
   useApp.getState().refreshLastSnapshot(); // keep the ambient "last snapshot" line current
+  logEvent("snapshot", "auto");
 }
 
 async function snapshotIfDirty(session: VaultSession, message: string): Promise<void> {
