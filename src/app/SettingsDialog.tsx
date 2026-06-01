@@ -16,7 +16,7 @@ import {
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import type { Snapshot, TmStats } from "@/vault/io";
 import { Input } from "@/components/ui/input";
-import { CADENCE_MAX, CADENCE_MIN } from "@/vault/settings";
+import { CADENCE_MAX, CADENCE_MIN, DEFAULT_SETTINGS } from "@/vault/settings";
 import { formatBytes, formatCadence, relativeTime } from "@/lib/format";
 import { estimateGrowth } from "@/lib/timeMachineStats";
 import { notify } from "@/app/toast";
@@ -472,7 +472,7 @@ function TimeMachineSection() {
 }
 
 function DeveloperSection() {
-  const dev = useApp((x) => x.settings.dev);
+  const dev = useApp((x) => x.settings.dev) ?? DEFAULT_SETTINGS.dev;
   const set = useApp.getState().updateSettings;
   const [reportPath, setReportPath] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);

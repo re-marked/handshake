@@ -13,7 +13,7 @@ export function Shell() {
   const status = useApp((s) => s.status);
   const error = useApp((s) => s.error);
   const root = useApp((s) => s.workspace.root);
-  const showStatusLine = useApp((s) => s.settings.dev.showStatusLine);
+  const showStatusLine = useApp((s) => s.settings.dev?.showStatusLine ?? false);
 
   if (status === "error") {
     return (

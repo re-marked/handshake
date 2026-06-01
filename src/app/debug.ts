@@ -37,7 +37,7 @@ function recordError(source: string, message: string, stack?: string): void {
   errors.push({ t: Date.now(), source, message, stack });
   if (errors.length > ERR_CAP) errors.shift();
   const s = useApp.getState();
-  if (s.settings.dev.autoReportOnError && s.session) void writeReport("auto-on-error");
+  if (s.settings.dev?.autoReportOnError && s.session) void writeReport("auto-on-error");
 }
 
 let installed = false;
@@ -90,7 +90,7 @@ interface ReportData {
 function gatherState(reason: string): ReportData {
   const s = useApp.getState();
   const sb = s.switchboard;
-  const redact = s.settings.dev.redact;
+  const redact = s.settings.dev?.redact ?? false;
   const ls = leaves(s.workspace.root).map((l) => ({
     id: l.id,
     active: l.id === s.workspace.activeLeafId,
