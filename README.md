@@ -11,7 +11,7 @@ plain markdown underneath, a calm rose-on-monochrome canvas on top.
 
 <sub>A local-first desktop app · 100% on your machine · 0% in the cloud</sub>
 
-[![Latest release](https://img.shields.io/badge/release-v0.8.2-b24a6d?style=flat-square&labelColor=2b2b2b)](https://github.com/re-marked/handshake/releases/latest)
+[![Latest release](https://img.shields.io/badge/release-v0.8.3-b24a6d?style=flat-square&labelColor=2b2b2b)](https://github.com/re-marked/handshake/releases/latest)
 
 </div>
 
