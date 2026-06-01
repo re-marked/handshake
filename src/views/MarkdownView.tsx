@@ -3,6 +3,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HL_COLORS, type HlColor, remarkHighlight, rewriteHighlight } from "@/views/remarkHighlight";
 import { HighlightPalette } from "@/views/HighlightPalette";
@@ -20,6 +21,27 @@ function Link({ href, children }: { href?: string; children?: React.ReactNode })
       {children}
     </a>
   );
+}
+
+/** Remote images are NOT auto-loaded — a remote `<img>` would fetch on preview and leak that the
+ *  local-first note was opened (tracking pixels). Render a click-to-open link; local/data render. */
+function Img({ src, alt }: { src?: string; alt?: string }) {
+  if (src && /^https?:\/\//i.test(src)) {
+    return (
+      <a
+        href={src}
+        onClick={(e) => {
+          e.preventDefault();
+          void openUrl(src);
+        }}
+        className="inline-flex cursor-pointer items-center gap-1 text-primary underline underline-offset-2"
+        title={src}
+      >
+        <ImageIcon className="size-3.5 shrink-0" /> {alt?.trim() || "image"} (opens externally)
+      </a>
+    );
+  }
+  return <img src={src} alt={alt ?? ""} />;
 }
 
 type Recolor = { start: number; end: number; current: HlColor; x: number; y: number };
@@ -110,7 +132,7 @@ export function MarkdownView({
 
   return (
     <div className={cn(PROSE, className)}>
-      <Markdown remarkPlugins={[remarkGfm, remarkBreaks, remarkHighlight]} components={{ a: Link, mark: Mark }}>
+      <Markdown remarkPlugins={[remarkGfm, remarkBreaks, remarkHighlight]} components={{ a: Link, mark: Mark, img: Img }}>
         {source}
       </Markdown>
 
