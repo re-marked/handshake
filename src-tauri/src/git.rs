@@ -241,15 +241,30 @@ fn commit_all(repo: &git2::Repository, message: &str) -> Result<Option<String>, 
     Ok(Some(oid.to_string()))
 }
 
+/// Ensure our required ignore patterns are present WITHOUT clobbering the user's `.gitignore`:
+/// only the missing patterns are appended (existing entries + ordering are preserved).
+/// `.handshake/` is volatile UI state (board layout, workspace, settings) — never versioned.
 fn write_gitignore(root: &Path) -> Result<(), String> {
-    // `.handshake/` is volatile UI state (board layout, workspace, settings) — never versioned.
-    let body = ".handshake/\n*.tmp\n.*.tmp\n.DS_Store\nThumbs.db\ndesktop.ini\n";
+    const REQUIRED: [&str; 6] = [".handshake/", "*.tmp", ".*.tmp", ".DS_Store", "Thumbs.db", "desktop.ini"];
     let path = root.join(".gitignore");
-    let stale = std::fs::read_to_string(&path).map(|c| c != body).unwrap_or(true);
-    if stale {
-        std::fs::write(&path, body).map_err(|e| e.to_string())?;
+    let existing = std::fs::read_to_string(&path).unwrap_or_default();
+    let present: std::collections::HashSet<&str> = existing.lines().map(str::trim).collect();
+    let missing: Vec<&str> = REQUIRED.iter().copied().filter(|p| !present.contains(p)).collect();
+    if missing.is_empty() {
+        return Ok(()); // already covered — leave the user's file exactly as it is
     }
-    Ok(())
+    let mut body = existing.clone();
+    if !body.is_empty() && !body.ends_with('\n') {
+        body.push('\n');
+    }
+    if !existing.trim().is_empty() {
+        body.push_str("\n# Handshake (Time Machine) — keep volatile + OS files out of snapshots\n");
+    }
+    for pattern in missing {
+        body.push_str(pattern);
+        body.push('\n');
+    }
+    std::fs::write(&path, body).map_err(|e| e.to_string())
 }
 
 fn dir_size(path: &Path) -> u64 {
@@ -295,6 +310,20 @@ mod tests {
         assert!(root.join(".gitignore").is_file());
         let st = tm_status(s(&root)).unwrap();
         assert!(st.is_repo && st.head_id.is_some());
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn init_preserves_an_existing_gitignore_and_appends_only_whats_missing() {
+        let root = temp("ignore");
+        fs::write(root.join(".gitignore"), "secrets.txt\n*.log\n.handshake/\n").unwrap();
+        tm_init(s(&root)).unwrap();
+        let gi = fs::read_to_string(root.join(".gitignore")).unwrap();
+        assert!(gi.contains("secrets.txt"), "user entry must survive");
+        assert!(gi.contains("*.log"), "user entry must survive");
+        assert!(gi.contains(".DS_Store"), "missing required pattern appended");
+        // .handshake/ was already present → not duplicated
+        assert_eq!(gi.matches(".handshake/").count(), 1);
         let _ = fs::remove_dir_all(&root);
     }
 

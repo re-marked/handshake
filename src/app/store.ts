@@ -3,7 +3,7 @@ import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
 import { DEFAULT_SETTINGS, type Density, type Settings } from "@/vault/settings";
-import { loadRecents, saveRecents, vaultName } from "@/vault/appState";
+import { loadRecents, saveRecents, vaultExists, vaultName } from "@/vault/appState";
 import { importPhoto } from "@/vault/photos";
 import { clearBoardCache } from "@/board/boardCache";
 import * as undo from "@/app/undo";
@@ -227,12 +227,16 @@ export const useApp = create<AppState>()((set, get) => ({
     const session = new VaultSession(createTauriIO(path));
     set({ session });
     try {
+      // A stale recent (folder deleted/moved) would otherwise "load" as a blank ready network,
+      // since read_vault treats missing folders as empty — verify the root exists first.
+      if (!(await vaultExists(path))) throw new Error(`${vaultName(path)} no longer exists`);
       const [switchboard, layout, workspace, settings] = await Promise.all([
         session.load(),
         session.loadLayout(),
         session.loadWorkspace(),
         session.loadSettings(),
       ]);
+      if (get().vaultPath !== path) return; // a newer switch superseded this one — don't clobber it
       clearBoardCache(); // old board layouts belong to the previous network
       set({ switchboard, layout, workspace, settings, status: "ready", switching: false });
 
@@ -257,6 +261,7 @@ export const useApp = create<AppState>()((set, get) => ({
             }
           }),
       );
+      if (get().vaultPath !== path) return; // switched again while photos loaded — keep the new vault's
       set({ photos: new Map(resolved.filter((e): e is readonly [string, string] => e !== null)) });
 
       // Remember it (most-recent first, deduped) and persist.
@@ -620,11 +625,14 @@ export const useApp = create<AppState>()((set, get) => ({
 let workspaceSaveTimer: ReturnType<typeof setTimeout> | null = null;
 useApp.subscribe((state, prev) => {
   if (state.workspace === prev.workspace) return;
-  const { session, status } = state;
-  if (!session || status !== "ready") return;
+  if (prev.status !== "ready" || state.status !== "ready") return; // skip the load transition
+  const { session } = state;
+  if (!session) return;
+  const sess = session; // capture session + workspace so a switch can't redirect the write
+  const workspaceToSave = state.workspace;
   if (workspaceSaveTimer) clearTimeout(workspaceSaveTimer);
   workspaceSaveTimer = setTimeout(() => {
-    void session.saveWorkspace(useApp.getState().workspace).catch(() => {});
+    void sess.saveWorkspace(workspaceToSave).catch(() => {});
   }, 500);
 });
 
@@ -639,13 +647,18 @@ function isPrefChange(a: Settings, b: Settings): boolean {
 let settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
 useApp.subscribe((state, prev) => {
   if (state.settings === prev.settings) return;
-  const { session, status } = state;
-  if (!session || status !== "ready") return;
+  // Only steady-state edits (not the settings that arrive with a network load) → save + notify.
+  // This also leaves any in-flight save from the network you're LEAVING untouched so it still fires.
+  if (prev.status !== "ready" || state.status !== "ready") return;
+  const { session } = state;
+  if (!session) return;
+  const sess = session; // capture session + the exact settings, so a later switch can't redirect
+  const settingsToSave = state.settings; //  the write to a different network (#26)
   const userChanged = isPrefChange(state.settings, prev.settings);
   if (settingsSaveTimer) clearTimeout(settingsSaveTimer);
   settingsSaveTimer = setTimeout(() => {
-    void session
-      .saveSettings(useApp.getState().settings)
+    void sess
+      .saveSettings(settingsToSave)
       .then(() => {
         if (userChanged) {
           notify("Settings saved", {

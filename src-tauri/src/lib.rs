@@ -198,6 +198,13 @@ fn write_settings(vault: String, content: String) -> Result<(), String> {
     write_atomic(&dir.join("settings.json"), &content).map_err(|e| e.to_string())
 }
 
+/// Does this vault path exist as a directory? Lets the frontend tell a real (possibly empty)
+/// vault from a stale recent whose folder was deleted/moved, instead of opening a blank network.
+#[tauri::command]
+fn vault_exists(vault: String) -> bool {
+    PathBuf::from(&vault).is_dir()
+}
+
 /// Write a debug report into the vault's `.handshake/debug/` folder (gitignored). Returns the
 /// absolute path so the UI can show it (and so it's easy to point a reader at the exact file).
 #[tauri::command]
@@ -371,6 +378,7 @@ pub fn run() {
             read_settings,
             write_settings,
             write_debug,
+            vault_exists,
             read_app_state,
             write_app_state,
             git::tm_init,

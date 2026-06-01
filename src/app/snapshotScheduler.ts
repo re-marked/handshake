@@ -93,12 +93,15 @@ function markSnapshotted(): void {
   logEvent("snapshot", "auto");
 }
 
+// Used by flushOnLeave / snapshotOnClose — these operate on the OUTGOING/closing session, so they
+// must NOT call markSnapshotted() (which reads useApp.getState() and would write the old vault's
+// timestamp into the just-swapped new network — see #30). Just snapshot the captured session.
 async function snapshotIfDirty(session: VaultSession, message: string): Promise<void> {
   try {
     const status = await session.tmStatus();
     if (status.isRepo && status.dirty) {
       const id = await session.tmSnapshot(message);
-      if (id) markSnapshotted();
+      if (id) logEvent("snapshot", message);
     }
   } catch {
     // best-effort
