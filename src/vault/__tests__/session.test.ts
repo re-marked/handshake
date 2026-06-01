@@ -110,7 +110,7 @@ describe("VaultSession", () => {
 
     const id = mintPersonId(session.switchboard.people, "Anya Gupta");
     const person: Person = {
-      kind: "person", id, name: "Anya Gupta", isSelf: false, tags: [], handles: {}, createdAt: "2026-05-29", body: "",
+      kind: "person", id, name: "Anya Gupta", isSelf: false, tags: [], affiliations: [], handles: {}, createdAt: "2026-05-29", body: "",
     };
     const handshake: Handshake = {
       kind: "handshake", id: canonicalHandshakeId("self", id), people: canonicalPair("self", id), strength: "cold", body: "",
@@ -131,7 +131,7 @@ describe("VaultSession", () => {
 
     const id = mintPersonId(session.switchboard.people, "Anya Gupta");
     const person: Person = {
-      kind: "person", id, name: "Anya Gupta", isSelf: false, tags: ["journalist"],
+      kind: "person", id, name: "Anya Gupta", isSelf: false, tags: ["journalist"], affiliations: [{ role: "Reporter", company: "The Verge" }],
       handles: { twitter: "@anyagupta" }, createdAt: "2026-05-29", body: "replied to her thread",
     };
     await session.commit([{ op: "createPerson", person }]);
@@ -170,7 +170,8 @@ describe("VaultSession", () => {
     );
 
     const sarah = session.switchboard.people.get("sarah-chen");
-    expect(sarah?.role).toBe("Partner");
+    // Legacy flat `role:` still parses into the first affiliation (back-compat).
+    expect(sarah?.affiliations[0]?.role).toBe("Partner");
     expect(sarah?.body).toBe("edited in Obsidian");
     expect(notified).toBe(1);
   });

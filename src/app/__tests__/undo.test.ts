@@ -10,7 +10,7 @@ import type { BoardPatch } from "../undo";
 
 const del = (id: string): Diff => [{ op: "deletePerson", id }];
 const create = (id: string): Diff => [
-  { op: "createPerson", person: { kind: "person", id, name: id, isSelf: false, tags: [], handles: {}, body: "" } },
+  { op: "createPerson", person: { kind: "person", id, name: id, isSelf: false, tags: [], affiliations: [], handles: {}, body: "" } },
 ];
 
 beforeEach(() => {
