@@ -18,9 +18,11 @@ import type { Affiliation, Handshake, Person, PersonPatch } from "@/switchboard"
 // The fields the note edits; the commit patch is diffed over exactly these.
 const EDITABLE = ["name", "affiliations", "tags", "handles", "body"] as const;
 
-// Inline editable text — looks like prose until you focus it.
+// Inline editable text — looks like prose until you focus it. `text-ellipsis` makes an overflowing
+// value trail off ("co-found…") while blurred instead of hard-clipping mid-word; it scrolls
+// normally once focused for editing.
 const inline =
-  "h-auto rounded-md border-0 bg-transparent px-1.5 py-0.5 shadow-none transition-colors " +
+  "h-auto rounded-md border-0 bg-transparent px-1.5 py-0.5 shadow-none transition-colors text-ellipsis " +
   "hover:bg-accent/40 focus-visible:bg-accent/50 focus-visible:ring-0 dark:bg-transparent dark:hover:bg-accent/40";
 
 function jsonEq(a: unknown, b: unknown): boolean {
@@ -167,7 +169,7 @@ export function PersonView({ id }: { id: string }) {
             className={cn(inline, "-ml-1.5 text-lg font-semibold text-foreground")}
           />
           {affRows.map((a, i) => (
-            <div key={i} className="group/aff flex items-center gap-1">
+            <div key={i} className="flex items-center gap-1">
               <Input
                 value={a.role ?? ""}
                 onChange={(e) => setAff(i, "role", e.target.value)}
@@ -182,24 +184,26 @@ export function PersonView({ id }: { id: string }) {
                 className={cn(inline, "min-w-0 flex-1 text-sm text-muted-foreground")}
               />
               {affRows.length > 1 && (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
                   aria-label="Remove role"
+                  className="shrink-0 text-muted-foreground"
                   onClick={() => removeAff(i)}
-                  className="grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground/0 transition group-hover/aff:text-muted-foreground/60 hover:bg-muted hover:!text-foreground"
                 >
-                  <X className="size-3.5" />
-                </button>
+                  <X />
+                </Button>
               )}
             </div>
           ))}
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="xs"
+            className="-ml-1.5 self-start text-muted-foreground"
             onClick={addAff}
-            className="-ml-1.5 mt-0.5 inline-flex w-fit items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-muted-foreground/60 transition-colors hover:bg-accent/40 hover:text-foreground"
           >
-            <Plus className="size-3" /> role
-          </button>
+            <Plus /> role
+          </Button>
         </div>
         {/* Per-note actions — an icon toolbar; future note tools / local settings slot in here. */}
         <div className="flex shrink-0 items-center gap-0.5 text-muted-foreground">

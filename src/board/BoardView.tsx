@@ -15,9 +15,13 @@ import { promoteGoalDiff } from "@/app/goals";
 import { useApp } from "@/app/store";
 import { recordBoardMove, registerBoard, unregisterBoard, type BoardPatch } from "@/app/undo";
 import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
+import type { FadeStrength } from "@/vault/settings";
 import type { Layout } from "@/vault/layout";
 
 const PERSIST_DELAY = 500;
+
+// How much of a card's staleness becomes dimming, per strength setting (1 = the raw freshness curve).
+const FADE_SCALE: Record<FadeStrength, number> = { subtle: 0.5, medium: 1, strong: 1.6 };
 
 function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
   const out = new Map(model.positions); // tidy radial seed
@@ -43,6 +47,7 @@ export function BoardView({ boardId }: { boardId: string }) {
   const showGoals = useApp((s) => s.settings.showGoalsOnBoard);
   const showIntroducedBy = useApp((s) => s.settings.showIntroducedBy);
   const fadeStaleCards = useApp((s) => s.settings.fadeStaleCards);
+  const fadeStrength = useApp((s) => s.settings.fadeStrength);
   const containerRef = useRef<HTMLDivElement>(null);
   const model = useMemo(
     () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
@@ -523,8 +528,10 @@ export function BoardView({ boardId }: { boardId: string }) {
           .map((card) => {
           const p = at(card.id);
           // Staleness fade (#15): dim cards by how long since you last interacted. You (self) and
-          // goals never fade. freshnessOf() already returns a tasteful 0.35–1 range.
-          const fade = fadeStaleCards && !card.isSelf && !card.isGoal ? card.freshness : 1;
+          // goals never fade. freshnessOf() gives a 0.35–1 recency value; the strength setting
+          // scales how much of that "staleness" translates to dimming (floored so cards stay legible).
+          const dim = (1 - card.freshness) * FADE_SCALE[fadeStrength];
+          const fade = fadeStaleCards && !card.isSelf && !card.isGoal ? Math.max(0.22, 1 - dim) : 1;
           return (
             <div
               key={card.id}

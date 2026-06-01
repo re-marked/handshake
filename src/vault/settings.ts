@@ -20,6 +20,8 @@ export type AppScale = "small" | "default" | "large" | "larger";
 export type AppFont = "system" | "serif" | "mono";
 export type TextWeight = "light" | "normal" | "medium";
 export type TimeMachineMode = "manual" | "auto";
+/** How hard stale cards dim when the fade is on. */
+export type FadeStrength = "subtle" | "medium" | "strong";
 export const CADENCE_MIN = 1;
 export const CADENCE_MAX = 1440; // 1 day
 
@@ -70,6 +72,8 @@ export interface Settings {
   showIntroducedBy: boolean;
   /** Fade cards by how long since you last interacted (staleness). Off = all cards full strength. */
   fadeStaleCards: boolean;
+  /** How hard the staleness fade dims (when `fadeStaleCards` is on). */
+  fadeStrength: FadeStrength;
   /** Time Machine (git versioning) preferences. */
   timeMachine: TimeMachineSettings;
   /** Developer / debug preferences. */
@@ -91,6 +95,7 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultTieStrength: "cold",
   showIntroducedBy: true,
   fadeStaleCards: true,
+  fadeStrength: "medium",
   // Frequent by default — snapshots are tiny, and dense history makes the best visuals over time.
   timeMachine: { enabled: true, mode: "auto", cadenceMin: 5, lastSnapshotAt: 0 },
   dev: { showStatusLine: false, autoReportOnError: false, redact: false },
@@ -134,6 +139,7 @@ export function parseSettings(json: string): Settings {
     showIntroducedBy:
       typeof o.showIntroducedBy === "boolean" ? o.showIntroducedBy : DEFAULT_SETTINGS.showIntroducedBy,
     fadeStaleCards: typeof o.fadeStaleCards === "boolean" ? o.fadeStaleCards : DEFAULT_SETTINGS.fadeStaleCards,
+    fadeStrength: oneOf(o.fadeStrength, ["subtle", "medium", "strong"] as const, DEFAULT_SETTINGS.fadeStrength),
     timeMachine: parseTimeMachine(o.timeMachine),
     dev: parseDev(o.dev),
     highlightKeywords: parseKeywords(o.highlightKeywords),

@@ -36,7 +36,7 @@ export function ConnectionMenuItems({ handshakeId }: { handshakeId: string }) {
 
   return (
     <>
-      <DropdownMenuLabel className="truncate">{label}</DropdownMenuLabel>
+      <DropdownMenuLabel className="truncate" title={label}>{label}</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuRadioGroup
         value={handshake.strength}
