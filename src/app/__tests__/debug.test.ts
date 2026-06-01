@@ -18,7 +18,6 @@ const data = {
   tmError: null,
   undo: { undo: 2, redo: 0 },
   workspace: {
-    layoutMode: "tabs",
     activeLeafId: "L1",
     floats: 0,
     leaves: [{ id: "L1", active: true, tabs: ["board:main", "person:mark"] }],

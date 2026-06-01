@@ -79,7 +79,7 @@ interface ReportData {
   lastSnapshot: { id: string; time: number } | null;
   tmError: string | null;
   undo: { undo: number; redo: number };
-  workspace: { layoutMode: string; activeLeafId: string; floats: number; leaves: { id: string; active: boolean; tabs: string[] }[] };
+  workspace: { activeLeafId: string; floats: number; leaves: { id: string; active: boolean; tabs: string[] }[] };
   settings: Settings;
   problems: { severity: string; relpath: string; message: string }[];
   events: DebugEvent[];
@@ -117,7 +117,6 @@ function gatherState(reason: string): ReportData {
     tmError: s.tmError,
     undo: stackDepths(),
     workspace: {
-      layoutMode: s.workspace.layoutMode,
       activeLeafId: s.workspace.activeLeafId,
       floats: s.workspace.floats.length,
       leaves: ls,
@@ -152,7 +151,7 @@ export function renderReport(d: ReportData): string {
   );
   if (d.tmError) out.push(`- ⚠️ **Time Machine error:** ${d.tmError}`);
   out.push("");
-  out.push(`## Workspace (${d.workspace.layoutMode}, active \`${d.workspace.activeLeafId}\`, ${d.workspace.floats} floats)`);
+  out.push(`## Workspace (active \`${d.workspace.activeLeafId}\`, ${d.workspace.floats} floats)`);
   for (const l of d.workspace.leaves) out.push(`- ${l.active ? "▶ " : "· "}\`${l.id}\`: ${l.tabs.join(", ") || "—"}`);
   out.push("");
   if (d.problems.length) {
