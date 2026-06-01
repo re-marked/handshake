@@ -81,6 +81,10 @@ interface AppState {
   /** The leaf + side currently hovered during a tab drag (drives the drop overlay), or null.
    *  When hovering a strip, `index` is the insertion slot (for reorder / precise cross-pane drops). */
   tabDragOver: { leafId: string; side: DropSide; index?: number } | null;
+  /** The latest Time Machine snapshot (HEAD): full commit id + unix-seconds time, or null. */
+  lastSnapshot: { id: string; time: number } | null;
+  /** The last Time Machine error (init/read failure), shown in the ambient status line, or null. */
+  tmError: string | null;
   /** The currently-open vault's absolute path (the active "network"), or null. */
   vaultPath: string | null;
   /** Recently-opened vault paths, most-recent first (persisted in the OS app-config dir). */
@@ -100,6 +104,8 @@ interface AppState {
    *  updates in place — no reload — because applyDiff hands back the derived next state. */
   commit: (diff: Diff, opts?: { record?: boolean }) => Promise<ApplyResult>;
   saveLayout: (layout: Layout) => void;
+  /** Refresh `lastSnapshot` from the repo HEAD (after snapshots / restore / vault load). */
+  refreshLastSnapshot: () => void;
   /** Reveal a person in the remembered note mode — or focus them if already shown
    *  somewhere. `toggle` lets the board's tap-again close the slide-in panel. */
   revealPerson: (id: string, opts?: { toggle?: boolean }) => void;
@@ -181,6 +187,8 @@ export const useApp = create<AppState>()((set, get) => ({
   locate: null,
   tabDrag: null,
   tabDragOver: null,
+  lastSnapshot: null,
+  tmError: null,
   vaultPath: null,
   recents: [],
   switching: false,
@@ -212,6 +220,8 @@ export const useApp = create<AppState>()((set, get) => ({
       locate: null,
       tabDrag: null,
       tabDragOver: null,
+      lastSnapshot: null,
+      tmError: null,
     });
     const session = new VaultSession(createTauriIO(path));
     set({ session });
@@ -226,7 +236,12 @@ export const useApp = create<AppState>()((set, get) => ({
       set({ switchboard, layout, workspace, settings, status: "ready", switching: false });
 
       // Time Machine: ensure this network is a git repo (idempotent; no system git needed).
-      if (settings.timeMachine.enabled) void session.tmInit().catch(() => {});
+      if (settings.timeMachine.enabled) {
+        void session
+          .tmInit()
+          .then(() => get().refreshLastSnapshot())
+          .catch((e) => set({ tmError: `couldn't open the repo — ${e}` }));
+      }
       scheduler.seedFromSettings(); // seed the auto-snapshot rate-limiter from this network
 
       const resolved = await Promise.all(
@@ -272,7 +287,10 @@ export const useApp = create<AppState>()((set, get) => ({
       notify("Network created", { body: `${selfName.trim()}'s network is ready.`, icon: Share2, tone: "success" });
       // Capture the founding state as the first real snapshot.
       if (get().settings.timeMachine.enabled) {
-        void get().session?.tmSnapshot("Network created").catch(() => {});
+        void get()
+          .session?.tmSnapshot("Network created")
+          .then(() => get().refreshLastSnapshot())
+          .catch(() => {});
       }
     }
   },
@@ -302,6 +320,15 @@ export const useApp = create<AppState>()((set, get) => ({
   // Persist only — don't store the live layout back into state (would re-seed mid-drag).
   saveLayout(layout) {
     void get().session?.saveLayout(layout).catch(() => {});
+  },
+
+  refreshLastSnapshot() {
+    const session = get().session;
+    if (!session) return;
+    void session
+      .tmLog(1)
+      .then((log) => set({ lastSnapshot: log[0] ? { id: log[0].id, time: log[0].time } : null, tmError: null }))
+      .catch((e) => set({ tmError: String(e) }));
   },
 
   revealPerson(id, opts) {

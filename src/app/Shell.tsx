@@ -6,6 +6,7 @@ import { WorkspaceBoundary } from "@/app/WorkspaceBoundary";
 import { WorkspaceRenderer } from "@/workspace/WorkspaceRenderer";
 import { FloatingLayer } from "@/workspace/FloatingLayer";
 import { TabDragGhost } from "@/workspace/TabDragGhost";
+import { LastSnapshot } from "@/app/LastSnapshot";
 
 /** The app frame: nav rail + the workspace tree (per-pane tabs) + the slide-in note + palette. */
 export function Shell() {
@@ -36,6 +37,10 @@ export function Shell() {
             <WorkspaceRenderer node={root} />
           </WorkspaceBoundary>
           <FloatingLayer />
+          {/* Ambient status: last Time Machine snapshot, tucked in the board's bottom-left corner. */}
+          <div className="pointer-events-none absolute bottom-1.5 left-2.5 z-10 max-w-[min(60%,32rem)] truncate">
+            <LastSnapshot />
+          </div>
         </div>
         <PersonPanel />
       </main>

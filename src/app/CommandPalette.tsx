@@ -150,13 +150,14 @@ export function CommandPalette() {
                   void useApp
                     .getState()
                     .session?.tmSnapshot("Manual snapshot")
-                    .then((id) =>
+                    .then((id) => {
                       notify(id ? "Snapshot taken" : "No changes to snapshot", {
                         body: id ? "A restore point was created." : "Nothing has changed since the last one.",
                         icon: Camera,
                         tone: id ? "success" : "muted",
-                      }),
-                    );
+                      });
+                      if (id) useApp.getState().refreshLastSnapshot();
+                    });
                 }}
               >
                 <Camera /> Snapshot now

@@ -18,6 +18,7 @@ import { CADENCE_MAX, CADENCE_MIN } from "@/vault/settings";
 import { formatBytes, formatCadence, relativeTime } from "@/lib/format";
 import { estimateGrowth } from "@/lib/timeMachineStats";
 import { notify } from "@/app/toast";
+import { LastSnapshot } from "@/app/LastSnapshot";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -284,6 +285,7 @@ function TimeMachineSection() {
         icon: Camera,
         tone: id ? "success" : "muted",
       });
+      if (id) useApp.getState().refreshLastSnapshot();
       await refresh();
     } catch {
       setNote("Couldn't snapshot.");
@@ -329,6 +331,10 @@ function TimeMachineSection() {
           }}
         />
       </Row>
+
+      <div className="-mt-1 pb-1">
+        <LastSnapshot />
+      </div>
 
       {tm.enabled && (
         <>
@@ -476,6 +482,9 @@ function AboutSection() {
       <p>Obsidian for your network — a local-first map of the people you know.</p>
       <p>Your data is a folder of Markdown files on your machine.</p>
       <p className="pt-1 font-mono text-xs text-muted-foreground/80">{meta}</p>
+      <div className="pt-1">
+        <LastSnapshot />
+      </div>
     </div>
   );
 }

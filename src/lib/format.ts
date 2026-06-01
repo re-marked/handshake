@@ -7,6 +7,15 @@ export function formatBytes(bytes: number): string {
   return `${i === 0 ? Math.round(n) : n.toFixed(1)} ${units[i]}`;
 }
 
+/** A date+time stamp like "Jun 1, 2026, 2:45 PM". */
+export function formatDateTime(ms: number): string {
+  try {
+    return new Date(ms).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+  } catch {
+    return "";
+  }
+}
+
 /** A snapshot interval in minutes as a friendly phrase, e.g. 5 → "5 min", 120 → "2 hours". */
 export function formatCadence(min: number): string {
   if (min < 60) return `${min} min`;
