@@ -10,6 +10,7 @@ import * as undo from "@/app/undo";
 import * as scheduler from "@/app/snapshotScheduler";
 import { toastForDiff } from "@/app/toastMessages";
 import { notify } from "@/app/toast";
+import { logEvent } from "@/app/debug";
 import { Share2, SlidersHorizontal } from "lucide-react";
 import {
   emptySwitchboard,
@@ -243,6 +244,7 @@ export const useApp = create<AppState>()((set, get) => ({
           .catch((e) => set({ tmError: `couldn't open the repo — ${e}` }));
       }
       scheduler.seedFromSettings(); // seed the auto-snapshot rate-limiter from this network
+      logEvent("vault", `loaded ${vaultName(path)} (${switchboard.people.size} people)`);
 
       const resolved = await Promise.all(
         [...switchboard.people.values()]
@@ -311,6 +313,7 @@ export const useApp = create<AppState>()((set, get) => ({
       if (opts?.record !== false) {
         undo.recordData(result.inverse, diff);
         toastForDiff(diff, result.inverse);
+        logEvent("commit", diff.map((m) => m.op).join(" + "));
       }
       scheduler.noteDataMutation(); // any data change → maybe an auto-snapshot
     }
