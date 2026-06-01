@@ -61,6 +61,9 @@ export function BoardView({ boardId }: { boardId: string }) {
   const [composeName, setComposeName] = useState("");
   const [justCreated, setJustCreated] = useState<string | null>(null);
   const composeBusy = useRef(false);
+  // True while the photo picker is open, so the name input's blur doesn't materialize/cancel the
+  // ghost (clicking the photo + opening the OS dialog both blur the input — see #28).
+  const pickingPhoto = useRef(false);
   // A connection's settings menu, opened by clicking its line (anchored at the click point).
   const [lineMenu, setLineMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   // Drag-to-link: while dragging a card over a linkable one, preview the new tie.
@@ -386,8 +389,13 @@ export function BoardView({ boardId }: { boardId: string }) {
   async function pickComposePhoto() {
     const session = useApp.getState().session;
     if (!session) return;
-    const picked = await importPhoto(session, newId());
-    if (picked) setComposing((c) => (c ? { ...c, photo: picked } : c));
+    pickingPhoto.current = true;
+    try {
+      const picked = await importPhoto(session, newId());
+      if (picked) setComposing((c) => (c ? { ...c, photo: picked } : c));
+    } finally {
+      pickingPhoto.current = false;
+    }
   }
 
   // Materialize the ghost: mint the id from the typed name, write the person + the edge
@@ -572,13 +580,16 @@ export function BoardView({ boardId }: { boardId: string }) {
             style={{ left: composing.pos.x, top: composing.pos.y, transform: "translate(-50%, -50%)" }}
           >
             <div className="w-36 overflow-hidden rounded-md border border-dashed border-primary/60 bg-card shadow-sm">
-              <PhotoUpload
-                src={composing.photo?.dataUrl}
-                onClick={pickComposePhoto}
-                round="md"
-                className="aspect-square w-full rounded-none"
-                label="Add a photo"
-              />
+              {/* Capture mousedown before the input blurs, so picking a photo never cancels/creates. */}
+              <div onMouseDownCapture={() => (pickingPhoto.current = true)}>
+                <PhotoUpload
+                  src={composing.photo?.dataUrl}
+                  onClick={pickComposePhoto}
+                  round="md"
+                  className="aspect-square w-full rounded-none"
+                  label="Add a photo"
+                />
+              </div>
               <div className="px-2 py-2">
                 <input
                   autoFocus
@@ -594,6 +605,7 @@ export function BoardView({ boardId }: { boardId: string }) {
                     }
                   }}
                   onBlur={() => {
+                    if (pickingPhoto.current) return; // photo picker stole focus — keep the ghost
                     if (composeName.trim()) void materialize();
                     else cancelCompose();
                   }}
