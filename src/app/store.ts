@@ -527,13 +527,14 @@ export const useApp = create<AppState>()((set, get) => ({
     const maxZ = ws.floats.reduce((m, f) => Math.max(m, f.z), 0);
     const n = ws.floats.length % 6; // cascade so stacked floats don't hide each other
     const person = view.type === "person";
+    const fs = get().settings.floatSize; // user's default float size applies to notes
     const float: FloatingWindow = {
       id: newId(),
       view,
       x: 96 + n * 28,
       y: 64 + n * 28,
-      w: person ? 340 : 600,
-      h: 460,
+      w: person ? fs.w : 600,
+      h: person ? fs.h : 460,
       z: maxZ + 1,
     };
     set({ workspace: { ...ws, floats: [...ws.floats, float] } });
