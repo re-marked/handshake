@@ -42,7 +42,7 @@ export function Shell() {
               everyday use; toggled on via Developer Settings. */}
           {showStatusLine && (
             <div className="pointer-events-none absolute bottom-1.5 left-2.5 z-10 max-w-[min(60%,32rem)] truncate">
-              <LastSnapshot />
+              <LastSnapshot className="text-[11px]" />
             </div>
           )}
         </div>
