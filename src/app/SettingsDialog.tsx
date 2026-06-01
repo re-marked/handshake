@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import { CADENCE_MAX, CADENCE_MIN } from "@/vault/settings";
 import { formatBytes, formatCadence, relativeTime } from "@/lib/format";
 import { estimateGrowth } from "@/lib/timeMachineStats";
+import { notify } from "@/app/toast";
+import { LastSnapshot } from "@/app/LastSnapshot";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -278,6 +280,12 @@ function TimeMachineSection() {
     try {
       const id = await session.tmSnapshot("Manual snapshot");
       setNote(id ? "Snapshot taken." : "No changes since the last snapshot.");
+      notify(id ? "Snapshot taken" : "No changes to snapshot", {
+        body: id ? "A restore point was created." : "Nothing has changed since the last one.",
+        icon: Camera,
+        tone: id ? "success" : "muted",
+      });
+      if (id) useApp.getState().refreshLastSnapshot();
       await refresh();
     } catch {
       setNote("Couldn't snapshot.");
@@ -298,6 +306,7 @@ function TimeMachineSection() {
       await useApp.getState().switchVault(vaultPath); // full reload: rebuild switchboard + board
       await refresh();
       setNote(`Restored to ${relativeTime(snap.time)} snapshot.`);
+      notify("Restored", { body: `Rolled back to the ${relativeTime(snap.time)} snapshot.`, icon: RotateCcw, tone: "success" });
     } catch {
       setNote("Restore failed.");
     } finally {
@@ -322,6 +331,10 @@ function TimeMachineSection() {
           }}
         />
       </Row>
+
+      <div className="-mt-1 pb-1">
+        <LastSnapshot />
+      </div>
 
       {tm.enabled && (
         <>
@@ -469,6 +482,9 @@ function AboutSection() {
       <p>Obsidian for your network — a local-first map of the people you know.</p>
       <p>Your data is a folder of Markdown files on your machine.</p>
       <p className="pt-1 font-mono text-xs text-muted-foreground/80">{meta}</p>
+      <div className="pt-1">
+        <LastSnapshot />
+      </div>
     </div>
   );
 }

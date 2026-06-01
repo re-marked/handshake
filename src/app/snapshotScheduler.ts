@@ -88,6 +88,7 @@ function markSnapshotted(): void {
   lastSnapshotAt = Date.now();
   const tm = useApp.getState().settings.timeMachine;
   useApp.getState().updateSettings({ timeMachine: { ...tm, lastSnapshotAt } });
+  useApp.getState().refreshLastSnapshot(); // keep the ambient "last snapshot" line current
 }
 
 async function snapshotIfDirty(session: VaultSession, message: string): Promise<void> {

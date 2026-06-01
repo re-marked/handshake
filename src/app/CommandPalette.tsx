@@ -11,6 +11,7 @@ import {
 import { useApp } from "@/app/store";
 import * as undo from "@/app/undo";
 import { useUndoStore } from "@/app/undo";
+import { notify } from "@/app/toast";
 import { pickFolder, vaultName } from "@/vault/appState";
 import {
   canonicalHandshakeId,
@@ -146,7 +147,17 @@ export function CommandPalette() {
                 value="snapshot now time machine backup"
                 onSelect={() => {
                   setOpen(false);
-                  void useApp.getState().session?.tmSnapshot("Manual snapshot");
+                  void useApp
+                    .getState()
+                    .session?.tmSnapshot("Manual snapshot")
+                    .then((id) => {
+                      notify(id ? "Snapshot taken" : "No changes to snapshot", {
+                        body: id ? "A restore point was created." : "Nothing has changed since the last one.",
+                        icon: Camera,
+                        tone: id ? "success" : "muted",
+                      });
+                      if (id) useApp.getState().refreshLastSnapshot();
+                    });
                 }}
               >
                 <Camera /> Snapshot now
