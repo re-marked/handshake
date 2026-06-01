@@ -9,7 +9,7 @@ import { create } from "zustand";
 import { Redo2, Undo2 } from "lucide-react";
 import type { Diff } from "@/switchboard";
 import { useApp } from "@/app/store";
-import { toast } from "@/app/toast";
+import { notify } from "@/app/toast";
 
 export type Pos = { x: number; y: number };
 export type BoardPatch = Record<string, Pos>;
@@ -68,27 +68,27 @@ export function recordBoardMove(boardId: string, before: BoardPatch, after: Boar
 export async function undo() {
   const entry = past.pop();
   if (!entry) {
-    toast("Nothing to undo", { tone: "muted", key: "undo" });
+    notify("Nothing to undo", { tone: "muted", key: "undo" });
     return;
   }
   if (entry.kind === "data") await useApp.getState().commit(entry.undo, { record: false });
   else boardAppliers.get(entry.boardId)?.(entry.before);
   future.push(entry);
   sync();
-  toast("Undone", { icon: Undo2, key: "undo" });
+  notify("Undone", { body: "Reverted your last change.", icon: Undo2, key: "undo" });
 }
 
 export async function redo() {
   const entry = future.pop();
   if (!entry) {
-    toast("Nothing to redo", { tone: "muted", key: "redo" });
+    notify("Nothing to redo", { tone: "muted", key: "redo" });
     return;
   }
   if (entry.kind === "data") await useApp.getState().commit(entry.redo, { record: false });
   else boardAppliers.get(entry.boardId)?.(entry.after);
   past.push(entry);
   sync();
-  toast("Redone", { icon: Redo2, key: "redo" });
+  notify("Redone", { body: "Reapplied the change.", icon: Redo2, key: "redo" });
 }
 
 /** Drop all history (called on vault switch — undo is per-network). */

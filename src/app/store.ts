@@ -9,6 +9,8 @@ import { clearBoardCache } from "@/board/boardCache";
 import * as undo from "@/app/undo";
 import * as scheduler from "@/app/snapshotScheduler";
 import { toastForDiff } from "@/app/toastMessages";
+import { notify } from "@/app/toast";
+import { Share2, SlidersHorizontal } from "lucide-react";
 import {
   emptySwitchboard,
   mintPersonId,
@@ -267,6 +269,7 @@ export const useApp = create<AppState>()((set, get) => ({
         body: "",
       };
       await get().commit([{ op: "createPerson", person }]);
+      notify("Network created", { body: `${selfName.trim()}'s network is ready.`, icon: Share2, tone: "success" });
       // Capture the founding state as the first real snapshot.
       if (get().settings.timeMachine.enabled) {
         void get().session?.tmSnapshot("Network created").catch(() => {});
@@ -596,13 +599,33 @@ useApp.subscribe((state, prev) => {
 });
 
 // Persist the network's settings the same way.
+/** Settings equal except for the Time Machine bookkeeping field (so an auto-snapshot's
+ *  lastSnapshotAt bump persists silently, without a "Settings saved" notification). */
+function isPrefChange(a: Settings, b: Settings): boolean {
+  const norm = (s: Settings) => ({ ...s, timeMachine: { ...s.timeMachine, lastSnapshotAt: 0 } });
+  return JSON.stringify(norm(a)) !== JSON.stringify(norm(b));
+}
+
 let settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
 useApp.subscribe((state, prev) => {
   if (state.settings === prev.settings) return;
   const { session, status } = state;
   if (!session || status !== "ready") return;
+  const userChanged = isPrefChange(state.settings, prev.settings);
   if (settingsSaveTimer) clearTimeout(settingsSaveTimer);
   settingsSaveTimer = setTimeout(() => {
-    void session.saveSettings(useApp.getState().settings).catch(() => {});
+    void session
+      .saveSettings(useApp.getState().settings)
+      .then(() => {
+        if (userChanged) {
+          notify("Settings saved", {
+            body: "Your preferences were updated.",
+            icon: SlidersHorizontal,
+            tone: "muted",
+            key: "settings",
+          });
+        }
+      })
+      .catch(() => {});
   }, 500);
 });

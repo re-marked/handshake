@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { CADENCE_MAX, CADENCE_MIN } from "@/vault/settings";
 import { formatBytes, formatCadence, relativeTime } from "@/lib/format";
 import { estimateGrowth } from "@/lib/timeMachineStats";
-import { toast } from "@/app/toast";
+import { notify } from "@/app/toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -279,7 +279,11 @@ function TimeMachineSection() {
     try {
       const id = await session.tmSnapshot("Manual snapshot");
       setNote(id ? "Snapshot taken." : "No changes since the last snapshot.");
-      toast(id ? "Snapshot taken" : "No changes to snapshot", { icon: Camera, tone: id ? "success" : "muted" });
+      notify(id ? "Snapshot taken" : "No changes to snapshot", {
+        body: id ? "A restore point was created." : "Nothing has changed since the last one.",
+        icon: Camera,
+        tone: id ? "success" : "muted",
+      });
       await refresh();
     } catch {
       setNote("Couldn't snapshot.");
@@ -300,7 +304,7 @@ function TimeMachineSection() {
       await useApp.getState().switchVault(vaultPath); // full reload: rebuild switchboard + board
       await refresh();
       setNote(`Restored to ${relativeTime(snap.time)} snapshot.`);
-      toast(`Restored to ${relativeTime(snap.time)}`, { icon: RotateCcw, tone: "success" });
+      notify("Restored", { body: `Rolled back to the ${relativeTime(snap.time)} snapshot.`, icon: RotateCcw, tone: "success" });
     } catch {
       setNote("Restore failed.");
     } finally {

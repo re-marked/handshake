@@ -1,6 +1,6 @@
-// Tiny ephemeral "pill" notifications for special actions (undo/redo, snapshots, new cards,
-// auto-save…). Not a logging system — just brief, useful confirmations. A leaf module: depends
-// only on zustand, so anything (store, undo, scheduler, components) can `toast(...)` freely.
+// Ephemeral system-style notifications for special actions (undo/redo, snapshots, saves, new
+// cards…). Cards with a title, optional body, a timestamp, and a close button. Not a logging
+// system — brief, useful confirmations. A leaf module (zustand only), so anything can notify().
 
 import { create } from "zustand";
 import type { ComponentType } from "react";
@@ -10,23 +10,24 @@ type Icon = ComponentType<{ className?: string }>;
 
 export interface Toast {
   id: number;
-  message: string;
-  detail?: string;
+  title: string;
+  body?: string;
   icon?: Icon;
   tone: ToastTone;
+  at: number; // ms timestamp, for the displayed time
 }
 
 interface ToastOptions {
-  detail?: string;
+  body?: string;
   icon?: Icon;
   tone?: ToastTone;
-  /** Coalesce: a later toast with the same key replaces the live one and resets its timer
-   *  (so rapid "Saved" pills collapse into one that lingers, instead of stacking). */
+  /** Coalesce: a later notify with the same key replaces the live card and resets its timer
+   *  (so rapid "Saved" notifications collapse into one that lingers, instead of stacking). */
   key?: string;
   durationMs?: number;
 }
 
-const DEFAULT_MS = 2200;
+const DEFAULT_MS = 4500;
 const MAX_VISIBLE = 4;
 
 export const useToasts = create<{ toasts: Toast[] }>(() => ({ toasts: [] }));
@@ -41,16 +42,17 @@ function arm(id: number, ms: number) {
   timers.set(id, setTimeout(() => dismiss(id), ms));
 }
 
-/** Show a pill. Returns its id. Pass `key` to coalesce repeats (e.g. auto-save). */
-export function toast(message: string, opts: ToastOptions = {}): number {
+/** Show a notification. Returns its id. Pass `key` to coalesce repeats (e.g. auto-save). */
+export function notify(title: string, opts: ToastOptions = {}): number {
   const tone = opts.tone ?? "default";
   const ms = opts.durationMs ?? DEFAULT_MS;
+  const at = Date.now();
 
   if (opts.key && byKey.has(opts.key)) {
     const id = byKey.get(opts.key)!;
     useToasts.setState((s) => ({
       toasts: s.toasts.map((t) =>
-        t.id === id ? { ...t, message, detail: opts.detail, icon: opts.icon, tone } : t,
+        t.id === id ? { ...t, title, body: opts.body, icon: opts.icon, tone, at } : t,
       ),
     }));
     arm(id, ms);
@@ -58,7 +60,7 @@ export function toast(message: string, opts: ToastOptions = {}): number {
   }
 
   const id = ++seq;
-  const t: Toast = { id, message, detail: opts.detail, icon: opts.icon, tone };
+  const t: Toast = { id, title, body: opts.body, icon: opts.icon, tone, at };
   useToasts.setState((s) => ({ toasts: [...s.toasts, t].slice(-MAX_VISIBLE) }));
   if (opts.key) byKey.set(opts.key, id);
   arm(id, ms);
