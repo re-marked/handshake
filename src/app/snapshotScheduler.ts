@@ -5,13 +5,8 @@
 
 import { useApp } from "@/app/store";
 import type { VaultSession } from "@/vault/session";
-import type { TimeMachineCadence, TimeMachineSettings } from "@/vault/settings";
+import type { TimeMachineSettings } from "@/vault/settings";
 
-const CADENCE_MS: Record<TimeMachineCadence, number> = {
-  "15m": 15 * 60_000,
-  "1h": 60 * 60_000,
-  "1d": 24 * 60 * 60_000,
-};
 const QUIET_MS = 8_000; // snapshot this long after the last edit
 
 let quietTimer: ReturnType<typeof setTimeout> | null = null;
@@ -50,7 +45,7 @@ async function maybeSnapshot(message: string): Promise<void> {
   const session = s.session;
   if (!session || !tm.enabled || tm.mode !== "auto") return;
 
-  const remaining = CADENCE_MS[tm.cadence] - (Date.now() - lastSnapshotAt);
+  const remaining = tm.cadenceMin * 60_000 - (Date.now() - lastSnapshotAt);
   if (remaining > 0) {
     clearTimer(); // too soon — try again once the cadence elapses
     quietTimer = setTimeout(() => {

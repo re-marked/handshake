@@ -364,7 +364,8 @@ pub fn run() {
             git::tm_log,
             git::tm_restore,
             git::tm_status,
-            git::tm_size
+            git::tm_size,
+            git::tm_stats
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

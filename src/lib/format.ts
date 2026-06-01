@@ -7,6 +7,17 @@ export function formatBytes(bytes: number): string {
   return `${i === 0 ? Math.round(n) : n.toFixed(1)} ${units[i]}`;
 }
 
+/** A snapshot interval in minutes as a friendly phrase, e.g. 5 → "5 min", 120 → "2 hours". */
+export function formatCadence(min: number): string {
+  if (min < 60) return `${min} min`;
+  if (min < 1440) {
+    const h = min / 60;
+    return h === 1 ? "1 hour" : `${Number.isInteger(h) ? h : h.toFixed(1)} hours`;
+  }
+  const d = min / 1440;
+  return d === 1 ? "1 day" : `${d} days`;
+}
+
 /** Coarse "time ago" for snapshot timestamps (unix seconds). `nowMs` is injectable for tests. */
 export function relativeTime(unixSeconds: number, nowMs = Date.now()): string {
   const diff = Math.max(0, nowMs - unixSeconds * 1000);

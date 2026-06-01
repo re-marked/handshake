@@ -7,7 +7,7 @@ import {
   type Switchboard,
   type VaultFile,
 } from "../switchboard";
-import type { Snapshot, TmSize, TmStatus, VaultChange, VaultIO } from "./io";
+import type { Snapshot, TmSize, TmStats, TmStatus, VaultChange, VaultIO } from "./io";
 import { emptyLayout, parseLayout, serializeLayout, type Layout } from "./layout";
 import { parseWorkspace, serializeWorkspace } from "./workspace";
 import { parseSettings, serializeSettings, type Settings } from "./settings";
@@ -133,6 +133,10 @@ export class VaultSession {
   /** Disk sizes (data vs .git). */
   tmSize(): Promise<TmSize> {
     return this.io.tmSize();
+  }
+  /** Aggregated history stats for growth estimates. */
+  tmStats(): Promise<TmStats> {
+    return this.io.tmStats();
   }
 
   /** Begin reacting to external edits (Obsidian, git, etc.). Returns an unsubscribe fn. */

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { VaultSession } from "../session";
-import type { Snapshot, TmSize, TmStatus, VaultChange, VaultIO } from "../io";
+import type { Snapshot, TmSize, TmStats, TmStatus, VaultChange, VaultIO } from "../io";
 import {
   canonicalHandshakeId,
   canonicalPair,
@@ -76,6 +76,9 @@ class FakeIO implements VaultIO {
   }
   async tmSize(): Promise<TmSize> {
     return { dataBytes: 0, gitBytes: 0 };
+  }
+  async tmStats(): Promise<TmStats> {
+    return { snapshots: 0, firstTime: 0, lastTime: 0, activeDays: 0, addedBytes: 0, dataBytes: 0, gitBytes: 0 };
   }
   /** Test helper: simulate an external editor writing a file. */
   externalWrite(relpath: string, text: string): void {

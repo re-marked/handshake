@@ -12,8 +12,11 @@ import {
   StickyNote,
 } from "lucide-react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import type { Snapshot, TmSize } from "@/vault/io";
-import { formatBytes, relativeTime } from "@/lib/format";
+import type { Snapshot, TmStats } from "@/vault/io";
+import { Input } from "@/components/ui/input";
+import { CADENCE_MAX, CADENCE_MIN } from "@/vault/settings";
+import { formatBytes, formatCadence, relativeTime } from "@/lib/format";
+import { estimateGrowth } from "@/lib/timeMachineStats";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -237,23 +240,32 @@ function TimeMachineSection() {
   const set = useApp.getState().updateSettings;
 
   const [history, setHistory] = useState<Snapshot[]>([]);
-  const [size, setSize] = useState<TmSize | null>(null);
+  const [stats, setStats] = useState<TmStats | null>(null);
   const [headId, setHeadId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<Snapshot | null>(null);
+  const [unit, setUnit] = useState<"min" | "hr">(() =>
+    tm.cadenceMin % 60 === 0 && tm.cadenceMin >= 60 ? "hr" : "min",
+  );
 
   const refresh = useCallback(async () => {
     if (!session) return;
     try {
-      const [log, sz, st] = await Promise.all([session.tmLog(100), session.tmSize(), session.tmStatus()]);
+      const [log, st2, st] = await Promise.all([session.tmLog(100), session.tmStats(), session.tmStatus()]);
       setHistory(log);
-      setSize(sz);
+      setStats(st2);
       setHeadId(st.headId);
     } catch {
       // not a repo yet / disabled — leave the panel empty
     }
   }, [session]);
+
+  function setCadence(value: number, u: "min" | "hr") {
+    if (!Number.isFinite(value)) return;
+    const mins = Math.max(CADENCE_MIN, Math.min(CADENCE_MAX, Math.round(u === "hr" ? value * 60 : value)));
+    set({ timeMachine: { ...tm, cadenceMin: mins } });
+  }
 
   useEffect(() => {
     void refresh();
@@ -293,7 +305,8 @@ function TimeMachineSection() {
     }
   }
 
-  const avg = size && history.length ? size.gitBytes / history.length : 0;
+  const est = stats ? estimateGrowth(stats, tm.cadenceMin) : null;
+  const display = unit === "hr" ? Math.max(1, Math.round(tm.cadenceMin / 60)) : tm.cadenceMin;
 
   return (
     <>
@@ -323,16 +336,31 @@ function TimeMachineSection() {
             />
           </Row>
           {tm.mode === "auto" && (
-            <Row label="At most every" description="How often an automatic snapshot is taken while you work.">
-              <Seg
-                value={tm.cadence}
-                onChange={(cadence) => set({ timeMachine: { ...tm, cadence } })}
-                options={[
-                  { value: "15m", label: "15 min" },
-                  { value: "1h", label: "Hourly" },
-                  { value: "1d", label: "Daily" },
-                ]}
-              />
+            <Row
+              label="Snapshot every"
+              description="Shortest gap between automatic snapshots while you work (1 min – 1 day). Frequent is good — snapshots are tiny, and dense history makes richer visuals."
+            >
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={1}
+                  max={unit === "hr" ? 24 : CADENCE_MAX}
+                  value={display}
+                  onChange={(e) => setCadence(e.target.valueAsNumber, unit)}
+                  className="h-8 w-20"
+                />
+                <Seg
+                  value={unit}
+                  onChange={(u) => {
+                    setUnit(u);
+                    setCadence(display, u);
+                  }}
+                  options={[
+                    { value: "min", label: "min" },
+                    { value: "hr", label: "hr" },
+                  ]}
+                />
+              </div>
             </Row>
           )}
           <Row label="Snapshot now" description={note ?? "Capture the current state as a restore point."}>
@@ -340,14 +368,18 @@ function TimeMachineSection() {
               <Camera /> Snapshot
             </Button>
           </Row>
-          {size && (
+          {est && (
             <Row
-              label="On disk"
-              description={`Network data ${formatBytes(size.dataBytes)} · history ${formatBytes(size.gitBytes)}${
-                avg ? ` · ≈${formatBytes(avg)} per snapshot` : ""
-              }`}
+              label="Growth estimate"
+              description={
+                est.ready
+                  ? `You write ≈${formatBytes(est.writtenPerActiveDay)} of notes per active day (${est.activeDays} active day${est.activeDays === 1 ? "" : "s"} so far). At a snapshot every ${formatCadence(tm.cadenceMin)}, your history would grow ≈${formatBytes(est.perMonth)}/month.`
+                  : "Keep using it — a personalised growth estimate appears once you have a few days of history."
+              }
             >
-              <span className="text-xs text-muted-foreground">{history.length} snapshots</span>
+              <span className="whitespace-nowrap text-xs text-muted-foreground">
+                {stats ? `${formatBytes(stats.dataBytes)} data · ${formatBytes(stats.gitBytes)} history` : ""}
+              </span>
             </Row>
           )}
 

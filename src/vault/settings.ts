@@ -13,7 +13,8 @@ export type AppScale = "small" | "default" | "large" | "larger";
 export type AppFont = "system" | "serif" | "mono";
 export type TextWeight = "light" | "normal" | "medium";
 export type TimeMachineMode = "manual" | "auto";
-export type TimeMachineCadence = "15m" | "1h" | "1d";
+export const CADENCE_MIN = 1;
+export const CADENCE_MAX = 1440; // 1 day
 
 /** Time Machine (git versioning) preferences for this network. */
 export interface TimeMachineSettings {
@@ -21,8 +22,8 @@ export interface TimeMachineSettings {
   enabled: boolean;
   /** `manual` = snapshot only on demand; `auto` = also snapshot after edits + on switch/close. */
   mode: TimeMachineMode;
-  /** In `auto` mode, the most-often an automatic snapshot is taken. */
-  cadence: TimeMachineCadence;
+  /** In `auto` mode, the shortest interval between automatic snapshots, in minutes (1–1440). */
+  cadenceMin: number;
   /** Bookkeeping: when the last auto-snapshot ran (unix ms). Not user-facing. */
   lastSnapshotAt: number;
 }
@@ -63,7 +64,8 @@ export const DEFAULT_SETTINGS: Settings = {
   noteDefault: "panel",
   showGoalsOnBoard: true,
   defaultTieStrength: "cold",
-  timeMachine: { enabled: true, mode: "auto", cadence: "1h", lastSnapshotAt: 0 },
+  // Frequent by default — snapshots are tiny, and dense history makes the best visuals over time.
+  timeMachine: { enabled: true, mode: "auto", cadenceMin: 5, lastSnapshotAt: 0 },
 };
 
 export function serializeSettings(s: Settings): string {
@@ -111,7 +113,17 @@ function parseTimeMachine(v: unknown): TimeMachineSettings {
   return {
     enabled: typeof o.enabled === "boolean" ? o.enabled : d.enabled,
     mode: oneOf(o.mode, ["manual", "auto"] as const, d.mode),
-    cadence: oneOf(o.cadence, ["15m", "1h", "1d"] as const, d.cadence),
+    cadenceMin: parseCadence(o.cadenceMin ?? o.cadence, d.cadenceMin),
     lastSnapshotAt: typeof o.lastSnapshotAt === "number" && isFinite(o.lastSnapshotAt) ? o.lastSnapshotAt : 0,
   };
+}
+
+/** Cadence in minutes (1–1440). Accepts a number, or the legacy "15m"/"1h"/"1d" strings. */
+function parseCadence(v: unknown, fallback: number): number {
+  if (typeof v === "number" && isFinite(v)) return Math.max(CADENCE_MIN, Math.min(CADENCE_MAX, Math.round(v)));
+  if (typeof v === "string") {
+    const legacy: Record<string, number> = { "15m": 15, "1h": 60, "1d": 1440 };
+    if (v in legacy) return legacy[v];
+  }
+  return fallback;
 }

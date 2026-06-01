@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatBytes, relativeTime } from "../format";
+import { formatBytes, formatCadence, relativeTime } from "../format";
 
 describe("formatBytes", () => {
   it("scales through the units", () => {
@@ -9,6 +9,16 @@ describe("formatBytes", () => {
     expect(formatBytes(1536)).toBe("1.5 KB");
     expect(formatBytes(5 * 1024 * 1024)).toBe("5.0 MB");
     expect(formatBytes(3 * 1024 ** 3)).toBe("3.0 GB");
+  });
+});
+
+describe("formatCadence", () => {
+  it("reads as a friendly interval", () => {
+    expect(formatCadence(1)).toBe("1 min");
+    expect(formatCadence(5)).toBe("5 min");
+    expect(formatCadence(60)).toBe("1 hour");
+    expect(formatCadence(120)).toBe("2 hours");
+    expect(formatCadence(1440)).toBe("1 day");
   });
 });
 

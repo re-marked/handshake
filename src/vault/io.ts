@@ -32,6 +32,17 @@ export interface TmSize {
   gitBytes: number;
 }
 
+/** Aggregated history stats for growth estimates. */
+export interface TmStats {
+  snapshots: number;
+  firstTime: number; // unix seconds (0 if none)
+  lastTime: number;
+  activeDays: number; // distinct days with a snapshot
+  addedBytes: number; // total added-line bytes across all snapshots — "content written"
+  dataBytes: number;
+  gitBytes: number;
+}
+
 /**
  * The disk boundary. The Rust shell implements this for the real app; tests
  * inject an in-memory fake. Keeping it an interface is what lets the whole
@@ -76,4 +87,6 @@ export interface VaultIO {
   tmStatus(): Promise<TmStatus>;
   /** Disk sizes: network data vs. .git history. */
   tmSize(): Promise<TmSize>;
+  /** Aggregated history stats (written bytes, active days, span) for growth estimates. */
+  tmStats(): Promise<TmStats>;
 }

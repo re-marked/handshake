@@ -35,6 +35,18 @@ pub struct TmSize {
     pub git_bytes: u64,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TmStats {
+    pub snapshots: usize,
+    pub first_time: i64, // unix seconds of the oldest commit (0 if none)
+    pub last_time: i64,
+    pub active_days: usize, // distinct calendar days with a snapshot
+    pub added_bytes: u64,   // total bytes of added lines across all snapshots — "content written"
+    pub data_bytes: u64,
+    pub git_bytes: u64,
+}
+
 /// Make the vault a git repo if it isn't one: write `.gitignore` (excludes the volatile
 /// `.handshake/` sidecar), set a repo-local identity (never touches global git config), and
 /// ensure HEAD exists (an initial snapshot) so later snapshots always have a parent. Idempotent.
@@ -139,6 +151,68 @@ pub fn tm_size(vault: String) -> Result<TmSize, String> {
     let data_bytes = DATA_DIRS.iter().map(|d| dir_size(&root.join(d))).sum();
     let git_bytes = dir_size(&root.join(".git"));
     Ok(TmSize { data_bytes, git_bytes })
+}
+
+/// Aggregate the whole history for growth estimates: how much content was written (added line
+/// bytes summed across every snapshot's diff), over how many active days, plus current sizes.
+#[tauri::command]
+pub fn tm_stats(vault: String) -> Result<TmStats, String> {
+    let root = PathBuf::from(&vault);
+    let data_bytes = DATA_DIRS.iter().map(|d| dir_size(&root.join(d))).sum();
+    let git_bytes = dir_size(&root.join(".git"));
+    let empty = TmStats { snapshots: 0, first_time: 0, last_time: 0, active_days: 0, added_bytes: 0, data_bytes, git_bytes };
+
+    let repo = match git2::Repository::open(&root) {
+        Ok(repo) => repo,
+        Err(_) => return Ok(empty),
+    };
+    let mut walk = repo.revwalk().map_err(|e| e.to_string())?;
+    if walk.push_head().is_err() {
+        return Ok(empty);
+    }
+
+    let mut snapshots = 0usize;
+    let mut first_time = i64::MAX;
+    let mut last_time = 0i64;
+    let mut added_bytes = 0u64;
+    let mut days = std::collections::HashSet::new();
+    for oid in walk {
+        let commit = repo.find_commit(oid.map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+        snapshots += 1;
+        let t = commit.time().seconds();
+        first_time = first_time.min(t);
+        last_time = last_time.max(t);
+        days.insert(t.div_euclid(86_400)); // bucket by UTC day
+
+        let tree = commit.tree().map_err(|e| e.to_string())?;
+        let parent_tree = commit.parent(0).ok().and_then(|p| p.tree().ok());
+        let diff = repo
+            .diff_tree_to_tree(parent_tree.as_ref(), Some(&tree), None)
+            .map_err(|e| e.to_string())?;
+        let mut file_cb = |_d: git2::DiffDelta, _p: f32| true;
+        diff.foreach(
+            &mut file_cb,
+            None,
+            None,
+            Some(&mut |_d, _h, line: git2::DiffLine| {
+                if line.origin() == '+' {
+                    added_bytes += line.content().len() as u64;
+                }
+                true
+            }),
+        )
+        .map_err(|e| e.to_string())?;
+    }
+
+    Ok(TmStats {
+        snapshots,
+        first_time: if first_time == i64::MAX { 0 } else { first_time },
+        last_time,
+        active_days: days.len(),
+        added_bytes,
+        data_bytes,
+        git_bytes,
+    })
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -268,6 +342,21 @@ mod tests {
         assert_eq!(fs::read_to_string(root.join("people/a.md")).unwrap(), "A");
         assert!(!root.join("people/c.md").exists(), "a file added later should be removed");
         assert!(root.join(".handshake/layout.json").exists(), "ignored sidecar must survive restore");
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn stats_aggregate_written_content_and_active_days() {
+        let root = temp("stats");
+        write(&root, "people/a.md", "first line\n");
+        tm_init(s(&root)).unwrap();
+        write(&root, "people/a.md", "first line\nsecond line\n");
+        tm_snapshot(s(&root), "more".into()).unwrap();
+        let st = tm_stats(s(&root)).unwrap();
+        assert_eq!(st.snapshots, 2);
+        assert!(st.added_bytes >= "first line\nsecond line\n".len() as u64);
+        assert!(st.active_days >= 1);
+        assert!(st.git_bytes > 0);
         let _ = fs::remove_dir_all(&root);
     }
 
