@@ -14,9 +14,13 @@ import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { pruneAffiliations } from "@/switchboard";
 import type { Affiliation, Handshake, Person, PersonPatch } from "@/switchboard";
+import type { SaveDelay } from "@/vault/settings";
 
 // The fields the note edits; the commit patch is diffed over exactly these.
 const EDITABLE = ["name", "affiliations", "tags", "handles", "body"] as const;
+
+// Autosave debounce presets — how long after the last keystroke an edit commits.
+const SAVE_DELAY_MS: Record<SaveDelay, number> = { instant: 150, normal: 400, relaxed: 1000 };
 
 // Inline editable text — looks like prose until you focus it. `text-ellipsis` makes an overflowing
 // value trail off ("co-found…") while blurred instead of hard-clipping mid-word; it scrolls
@@ -36,6 +40,7 @@ function jsonEq(a: unknown, b: unknown): boolean {
  */
 function usePersonEditor(id: string) {
   const live = useApp((s) => s.switchboard.people.get(id));
+  const saveDelayMs = SAVE_DELAY_MS[useApp((s) => s.settings.autosaveDelay)];
   const [draft, setDraft] = useState<Person | undefined>(() => live);
 
   // Safety net: reseed if the same instance is ever pointed at a new id.
@@ -79,11 +84,11 @@ function usePersonEditor(id: string) {
   // Debounce commits while typing…
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(flush, 400);
+    timer.current = setTimeout(flush, saveDelayMs);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [draft, flush]);
+  }, [draft, flush, saveDelayMs]);
 
   // …and flush on unmount (note closed or switched to someone else).
   useEffect(() => () => flush(), [flush]);

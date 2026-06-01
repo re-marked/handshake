@@ -15,13 +15,18 @@ import { promoteGoalDiff } from "@/app/goals";
 import { useApp } from "@/app/store";
 import { recordBoardMove, registerBoard, unregisterBoard, type BoardPatch } from "@/app/undo";
 import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
-import type { FadeStrength } from "@/vault/settings";
+import type { CardSpacing, FadeStrength, FlashDuration, ZoomRange } from "@/vault/settings";
 import type { Layout } from "@/vault/layout";
 
 const PERSIST_DELAY = 500;
 
 // How much of a card's staleness becomes dimming, per strength setting (1 = the raw freshness curve).
 const FADE_SCALE: Record<FadeStrength, number> = { subtle: 0.5, medium: 1, strong: 1.6 };
+// Board feel knobs (0.8.3 customization): how spread out cards are, how far you can zoom, and how
+// long a located card flashes. Spacing scales both the auto-layout gap and the new-card spawn search.
+const SPACING_FACTOR: Record<CardSpacing, number> = { compact: 0.78, comfortable: 1, spacious: 1.3 };
+const ZOOM_LIMITS: Record<ZoomRange, [number, number]> = { standard: [0.2, 4], wide: [0.05, 8] };
+const FLASH_MS: Record<FlashDuration, number> = { brief: 700, normal: 1400, long: 3000 };
 
 function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
   const out = new Map(model.positions); // tidy radial seed
@@ -48,10 +53,20 @@ export function BoardView({ boardId }: { boardId: string }) {
   const showIntroducedBy = useApp((s) => s.settings.showIntroducedBy);
   const fadeStaleCards = useApp((s) => s.settings.fadeStaleCards);
   const fadeStrength = useApp((s) => s.settings.fadeStrength);
+  const cardSpacing = useApp((s) => s.settings.cardSpacing);
+  const zoomRange = useApp((s) => s.settings.zoomRange);
+  const locateFlash = useApp((s) => s.settings.locateFlash);
   const containerRef = useRef<HTMLDivElement>(null);
+  const spacing = SPACING_FACTOR[cardSpacing];
   const model = useMemo(
-    () => buildBoardModel(switchboard, new Date(), new Map(Object.entries(layout.parentOverrides ?? {}))),
-    [switchboard, layout],
+    () =>
+      buildBoardModel(
+        switchboard,
+        new Date(),
+        new Map(Object.entries(layout.parentOverrides ?? {})),
+        Math.round(200 * spacing),
+      ),
+    [switchboard, layout, spacing],
   );
 
   const cached = boardCache.get(boardId);
@@ -154,7 +169,7 @@ export function BoardView({ boardId }: { boardId: string }) {
       schedulePersist();
     }
     setFocusId(locate.id);
-    const t = setTimeout(() => setFocusId(null), 1400);
+    const t = setTimeout(() => setFocusId(null), FLASH_MS[locateFlash]);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locate?.nonce]);
@@ -326,7 +341,8 @@ export function BoardView({ boardId }: { boardId: string }) {
     const rect = el.getBoundingClientRect();
     const cx = e.clientX - rect.left;
     const cy = e.clientY - rect.top;
-    const nextZoom = Math.min(8, Math.max(0.05, zoom * Math.exp(-e.deltaY * 0.0015)));
+    const [zMin, zMax] = ZOOM_LIMITS[zoomRange];
+    const nextZoom = Math.min(zMax, Math.max(zMin, zoom * Math.exp(-e.deltaY * 0.0015)));
     const wx = (cx - pan.x) / zoom;
     const wy = (cy - pan.y) / zoom;
     setPan({ x: cx - wx * nextZoom, y: cy - wy * nextZoom });
@@ -349,7 +365,9 @@ export function BoardView({ boardId }: { boardId: string }) {
     const W = 186; // card is ~144 wide; leave a clear gutter
     const H = 236; // ~196 tall + gutter
     const free = (p: Pos) => !occupied.some((q) => Math.abs(q.x - p.x) < W && Math.abs(q.y - p.y) < H);
-    for (let r = 240; r <= 720; r += 80) {
+    // Spawn radius scales with the card-spacing setting — new cards land closer (compact) or
+    // farther (spacious) from their source.
+    for (let r = 240 * spacing; r <= 720 * spacing; r += 80 * spacing) {
       for (let k = 0; k <= 8; k++) {
         for (const s of k === 0 ? [0] : [1, -1]) {
           const a = baseAngle + s * k * 0.4;
@@ -358,7 +376,7 @@ export function BoardView({ boardId }: { boardId: string }) {
         }
       }
     }
-    return { x: src.x + 210 * Math.cos(baseAngle), y: src.y + 210 * Math.sin(baseAngle) };
+    return { x: src.x + 210 * spacing * Math.cos(baseAngle), y: src.y + 210 * spacing * Math.sin(baseAngle) };
   }
 
   function startCompose(sourceId: string) {
