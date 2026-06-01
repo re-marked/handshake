@@ -18,7 +18,16 @@ import {
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import type { Snapshot, TmStats } from "@/vault/io";
 import { Input } from "@/components/ui/input";
-import { CADENCE_MAX, CADENCE_MIN, DEFAULT_SETTINGS, type HighlightKeyword } from "@/vault/settings";
+import {
+  CADENCE_MAX,
+  CADENCE_MIN,
+  DEFAULT_SETTINGS,
+  FLOAT_H_MAX,
+  FLOAT_H_MIN,
+  FLOAT_W_MAX,
+  FLOAT_W_MIN,
+  type HighlightKeyword,
+} from "@/vault/settings";
 import { HL_COLORS } from "@/views/remarkHighlight";
 import { SWATCH } from "@/views/HighlightPalette";
 import { formatBytes, formatCadence, relativeTime } from "@/lib/format";
@@ -172,13 +181,13 @@ function AppearanceSection() {
 }
 
 function NotesSection() {
-  const noteDefault = useApp((x) => x.settings.noteDefault);
+  const s = useApp((x) => x.settings);
   const set = useApp.getState().updateSettings;
   return (
     <>
       <Row label="Default note mode" description="How a person's note opens when you tap a card.">
         <Seg
-          value={noteDefault}
+          value={s.noteDefault}
           onChange={(noteDefault) => set({ noteDefault })}
           options={[
             { value: "panel", label: "Panel" },
@@ -187,8 +196,62 @@ function NotesSection() {
           ]}
         />
       </Row>
+      <Row label="Autosave delay" description="How long after you stop typing before an edit is saved.">
+        <Seg
+          value={s.autosaveDelay}
+          onChange={(autosaveDelay) => set({ autosaveDelay })}
+          options={[
+            { value: "instant", label: "Instant" },
+            { value: "normal", label: "Normal" },
+            { value: "relaxed", label: "Relaxed" },
+          ]}
+        />
+      </Row>
+      <Row label="Floating note size" description="Default width × height a popped-out note opens at.">
+        <FloatSizeControl />
+      </Row>
       <KeywordManager />
     </>
+  );
+}
+
+/** Two clamped number inputs (W × H) for the default float size, plus a one-click 16:9 button. */
+function FloatSizeControl() {
+  const { w, h } = useApp((x) => x.settings.floatSize);
+  const set = (next: { w: number; h: number }) => useApp.getState().updateSettings({ floatSize: next });
+  const clampW = (n: number) => Math.max(FLOAT_W_MIN, Math.min(FLOAT_W_MAX, Math.round(n) || FLOAT_W_MIN));
+  const clampH = (n: number) => Math.max(FLOAT_H_MIN, Math.min(FLOAT_H_MAX, Math.round(n) || FLOAT_H_MIN));
+  return (
+    <div className="flex items-center gap-1.5">
+      <Input
+        type="number"
+        aria-label="Float width"
+        value={w}
+        min={FLOAT_W_MIN}
+        max={FLOAT_W_MAX}
+        onChange={(e) => set({ w: clampW(e.target.valueAsNumber), h })}
+        className="h-8 w-[4.5rem]"
+      />
+      <span className="text-xs text-muted-foreground">×</span>
+      <Input
+        type="number"
+        aria-label="Float height"
+        value={h}
+        min={FLOAT_H_MIN}
+        max={FLOAT_H_MAX}
+        onChange={(e) => set({ w, h: clampH(e.target.valueAsNumber) })}
+        className="h-8 w-[4.5rem]"
+      />
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-8"
+        title="Make the height 16:9 against the current width"
+        onClick={() => set({ w, h: clampH(Math.round((w * 9) / 16)) })}
+      >
+        16:9
+      </Button>
+    </div>
   );
 }
 
@@ -268,6 +331,38 @@ function BoardSection() {
       </Row>
       <Row label="Show “introduced by” links" description="Faint dotted lines from a person to whoever introduced them.">
         <Switch checked={s.showIntroducedBy} onCheckedChange={(showIntroducedBy) => set({ showIntroducedBy })} />
+      </Row>
+      <Row label="Card spacing" description="Room the board gives cards when it arranges + spawns them.">
+        <Seg
+          value={s.cardSpacing}
+          onChange={(cardSpacing) => set({ cardSpacing })}
+          options={[
+            { value: "compact", label: "Compact" },
+            { value: "comfortable", label: "Comfortable" },
+            { value: "spacious", label: "Spacious" },
+          ]}
+        />
+      </Row>
+      <Row label="Zoom range" description="How far you can zoom the board out and in.">
+        <Seg
+          value={s.zoomRange}
+          onChange={(zoomRange) => set({ zoomRange })}
+          options={[
+            { value: "standard", label: "Standard" },
+            { value: "wide", label: "Wide" },
+          ]}
+        />
+      </Row>
+      <Row label="Locate flash" description="How long a card stays highlighted after you jump to it.">
+        <Seg
+          value={s.locateFlash}
+          onChange={(locateFlash) => set({ locateFlash })}
+          options={[
+            { value: "brief", label: "Brief" },
+            { value: "normal", label: "Normal" },
+            { value: "long", label: "Long" },
+          ]}
+        />
       </Row>
       <Row label="Default connection strength" description="Warmth a new tie starts at.">
         <Seg
