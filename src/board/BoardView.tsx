@@ -35,7 +35,9 @@ export function BoardView({ boardId }: { boardId: string }) {
   const switchboard = useApp((s) => s.switchboard);
   const photos = useApp((s) => s.photos);
   const layout = useApp((s) => s.layout);
-  const saveLayout = useApp((s) => s.saveLayout);
+  // This board's own session, captured at mount — so layout writes always land in THIS vault even
+  // mid-switch (the store's current session may already point at the network being opened) (#25).
+  const sessionRef = useRef(useApp.getState().session);
   const deletingId = useApp((s) => s.deletingId);
   const locate = useApp((s) => s.locate);
   const showGoals = useApp((s) => s.settings.showGoalsOnBoard);
@@ -95,15 +97,18 @@ export function BoardView({ boardId }: { boardId: string }) {
   latest.current = { positions, pan, zoom };
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   function persistNow() {
-    if (useApp.getState().switching) return; // a vault switch is tearing down — don't write to it
     const snap = latest.current;
     boardCache.set(boardId, { positions: new Map(snap.positions), pan: snap.pan, zoom: snap.zoom });
+    // Persist to this board's own session (not the store's current one), so a network you're
+    // leaving keeps its final card positions / viewport even when you switch mid-debounce (#25).
     if (boardId === "main") {
-      saveLayout({
-        positions: Object.fromEntries(snap.positions),
-        viewport: { pan: snap.pan, zoom: snap.zoom },
-        parentOverrides: layout.parentOverrides ?? {},
-      });
+      void sessionRef.current
+        ?.saveLayout({
+          positions: Object.fromEntries(snap.positions),
+          viewport: { pan: snap.pan, zoom: snap.zoom },
+          parentOverrides: layout.parentOverrides ?? {},
+        })
+        .catch(() => {});
     }
   }
   function schedulePersist() {
