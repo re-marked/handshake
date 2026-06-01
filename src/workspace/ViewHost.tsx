@@ -29,7 +29,8 @@ export function ViewHost({ view, dense = false }: { view: View; dense?: boolean 
             </div>
           )}
           <ScrollArea className="min-h-0 flex-1">
-            <div className={dense ? "px-3.5 py-3" : "mx-auto max-w-2xl px-8 py-7"}>
+            {/* Full width in a tab/pane (#9); floats stay compact. */}
+            <div className={dense ? "px-3.5 py-3" : "px-8 py-7"}>
               <PersonView id={view.id} />
             </div>
           </ScrollArea>
