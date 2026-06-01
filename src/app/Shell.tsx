@@ -8,6 +8,10 @@ import { FloatingLayer } from "@/workspace/FloatingLayer";
 import { TabDragGhost } from "@/workspace/TabDragGhost";
 import { LastSnapshot } from "@/app/LastSnapshot";
 
+// Will become a Developer Settings toggle; hardcoded off for now (the rail's info popover shows
+// the same last-snapshot info on demand instead).
+const SHOW_STATUS_LINE = false;
+
 /** The app frame: nav rail + the workspace tree (per-pane tabs) + the slide-in note + palette. */
 export function Shell() {
   const status = useApp((s) => s.status);
@@ -37,10 +41,13 @@ export function Shell() {
             <WorkspaceRenderer node={root} />
           </WorkspaceBoundary>
           <FloatingLayer />
-          {/* Ambient status: last Time Machine snapshot, tucked in the board's bottom-left corner. */}
-          <div className="pointer-events-none absolute bottom-1.5 left-2.5 z-10 max-w-[min(60%,32rem)] truncate">
-            <LastSnapshot />
-          </div>
+          {/* Ambient status line (last snapshot, in the board corner). Off for now — too busy for
+              everyday use; the Developer Settings toggle (coming) will let users turn it back on. */}
+          {SHOW_STATUS_LINE && (
+            <div className="pointer-events-none absolute bottom-1.5 left-2.5 z-10 max-w-[min(60%,32rem)] truncate">
+              <LastSnapshot />
+            </div>
+          )}
         </div>
         <PersonPanel />
       </main>

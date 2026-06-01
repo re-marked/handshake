@@ -19,6 +19,7 @@ import { formatBytes, formatCadence, relativeTime } from "@/lib/format";
 import { estimateGrowth } from "@/lib/timeMachineStats";
 import { notify } from "@/app/toast";
 import { LastSnapshot } from "@/app/LastSnapshot";
+import { appVersion, buildLine } from "@/lib/buildInfo";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -467,21 +468,12 @@ function TimeMachineSection() {
 }
 
 function AboutSection() {
-  const b = __BUILD_INFO__;
-  const built = (() => {
-    try {
-      return new Date(b.time).toLocaleString();
-    } catch {
-      return b.time;
-    }
-  })();
-  const meta = [b.tag || `v${b.version}`, b.sha, `built ${built}`].filter(Boolean).join(" · ");
   return (
     <div className="space-y-2 text-sm text-muted-foreground">
-      <p className="text-base font-medium text-foreground">Handshake {b.version}</p>
+      <p className="text-base font-medium text-foreground">Handshake {appVersion()}</p>
       <p>Obsidian for your network — a local-first map of the people you know.</p>
       <p>Your data is a folder of Markdown files on your machine.</p>
-      <p className="pt-1 font-mono text-xs text-muted-foreground/80">{meta}</p>
+      <p className="pt-1 font-mono text-xs text-muted-foreground/80">{buildLine()}</p>
       <div className="pt-1">
         <LastSnapshot />
       </div>
