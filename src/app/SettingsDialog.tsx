@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import {
+  Bug,
   Camera,
   FolderOpen,
   History,
@@ -10,6 +11,7 @@ import {
   Share2,
   SquareArrowOutUpRight,
   StickyNote,
+  Wrench,
 } from "lucide-react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import type { Snapshot, TmStats } from "@/vault/io";
@@ -20,6 +22,7 @@ import { estimateGrowth } from "@/lib/timeMachineStats";
 import { notify } from "@/app/toast";
 import { LastSnapshot } from "@/app/LastSnapshot";
 import { appVersion, buildLine } from "@/lib/buildInfo";
+import { buildReport, writeReport } from "@/app/debug";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -35,6 +38,7 @@ const SECTIONS = [
   { id: "board", label: "Board", icon: Share2 },
   { id: "timeMachine", label: "Time Machine", icon: History },
   { id: "networks", label: "Networks", icon: FolderOpen },
+  { id: "developer", label: "Developer", icon: Wrench },
   { id: "about", label: "About", icon: Info },
 ] as const;
 type SectionId = (typeof SECTIONS)[number]["id"];
@@ -467,6 +471,74 @@ function TimeMachineSection() {
   );
 }
 
+function DeveloperSection() {
+  const dev = useApp((x) => x.settings.dev);
+  const set = useApp.getState().updateSettings;
+  const [reportPath, setReportPath] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function writeNow() {
+    setBusy(true);
+    try {
+      setReportPath(await writeReport("manual"));
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function copyNow() {
+    try {
+      await navigator.clipboard.writeText(buildReport("clipboard"));
+      setReportPath("Copied to clipboard.");
+    } catch {
+      setReportPath("Couldn't copy.");
+    }
+  }
+
+  return (
+    <>
+      <p className="-mt-1 pb-2 text-xs leading-relaxed text-muted-foreground">
+        Debugging tools — including a state report that Claude can read to help diagnose issues without
+        seeing the app. All off by default.
+      </p>
+      <Row label="Snapshot status line" description="Show the ambient 'last snapshot' line in the board corner.">
+        <Switch
+          checked={dev.showStatusLine}
+          onCheckedChange={(showStatusLine) => set({ dev: { ...dev, showStatusLine } })}
+        />
+      </Row>
+      <Row label="Auto-report on error" description="Write a debug report automatically when an error is caught.">
+        <Switch
+          checked={dev.autoReportOnError}
+          onCheckedChange={(autoReportOnError) => set({ dev: { ...dev, autoReportOnError } })}
+        />
+      </Row>
+      <Row label="Redact personal data" description="Mask the vault path + platform in reports (safer to share).">
+        <Switch checked={dev.redact} onCheckedChange={(redact) => set({ dev: { ...dev, redact } })} />
+      </Row>
+      <Row
+        label="Debug report"
+        description={
+          reportPath ?? "Writes a full state report to .handshake/debug/latest.md (also Ctrl-Shift-D)."
+        }
+      >
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" disabled={busy} onClick={writeNow}>
+            <Bug /> Write
+          </Button>
+          <Button variant="outline" size="sm" onClick={copyNow}>
+            Copy
+          </Button>
+          {reportPath?.startsWith("/") || reportPath?.includes(":\\") ? (
+            <Button variant="outline" size="sm" onClick={() => void revealItemInDir(reportPath)}>
+              <FolderOpen /> Reveal
+            </Button>
+          ) : null}
+        </div>
+      </Row>
+    </>
+  );
+}
+
 function AboutSection() {
   return (
     <div className="space-y-2 text-sm text-muted-foreground">
@@ -520,6 +592,7 @@ export function SettingsDialog() {
               {active === "board" && <BoardSection />}
               {active === "timeMachine" && <TimeMachineSection />}
               {active === "networks" && <NetworksSection />}
+              {active === "developer" && <DeveloperSection />}
               {active === "about" && <AboutSection />}
             </div>
           </ScrollArea>
