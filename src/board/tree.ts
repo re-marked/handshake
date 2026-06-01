@@ -49,12 +49,13 @@ const FRESH_DAYS = 14;
 const STALE_DAYS = 180;
 const FLOOR = 0.35;
 const NO_ACTIVITY = 0.6;
-const LEVEL_GAP = 200; // radial distance between tree depths
+const LEVEL_GAP = 200; // radial distance between tree depths (default; scaled by the card-spacing setting)
 
 export function buildBoardModel(
   sb: Switchboard,
   now: Date,
   overrides: Map<string, string> = new Map(),
+  levelGap: number = LEVEL_GAP,
 ): BoardModel {
   const parentOf = deriveParents(sb, overrides);
   const childrenOf = invertToChildren(parentOf);
@@ -102,7 +103,7 @@ export function buildBoardModel(
   }
 
   const positions = sb.self
-    ? radialLayout(sb.self.id, childrenOf)
+    ? radialLayout(sb.self.id, childrenOf, levelGap)
     : gridFallback([...sb.people.keys()]);
   // seed goal cards in a row above the network; draggable + persisted from then on
   goalCards.forEach((gc, i) => {
@@ -196,7 +197,7 @@ function invertToChildren(parentOf: Map<string, string | null>): Map<string, str
 }
 
 // Simple tidy radial layout: each subtree gets an angular wedge ∝ its leaf count.
-function radialLayout(rootId: string, childrenOf: Map<string, string[]>): Map<string, Pos> {
+function radialLayout(rootId: string, childrenOf: Map<string, string[]>, levelGap: number): Map<string, Pos> {
   const pos = new Map<string, Pos>();
   const leaves = new Map<string, number>();
 
@@ -215,7 +216,7 @@ function radialLayout(rootId: string, childrenOf: Map<string, string[]>): Map<st
 
   const place = (id: string, depth: number, a0: number, a1: number) => {
     const angle = (a0 + a1) / 2;
-    const r = depth * LEVEL_GAP;
+    const r = depth * levelGap;
     pos.set(id, { x: r * Math.cos(angle), y: r * Math.sin(angle) });
     const kids = childrenOf.get(id) ?? [];
     const total = leaves.get(id) ?? 1;
