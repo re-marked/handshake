@@ -80,6 +80,9 @@ class FakeIO implements VaultIO {
   async tmStats(): Promise<TmStats> {
     return { snapshots: 0, firstTime: 0, lastTime: 0, activeDays: 0, addedBytes: 0, dataBytes: 0, gitBytes: 0 };
   }
+  async writeDebug(name: string): Promise<string> {
+    return `/fake/.handshake/debug/${name}`;
+  }
   /** Test helper: simulate an external editor writing a file. */
   externalWrite(relpath: string, text: string): void {
     this.files.set(relpath, text);

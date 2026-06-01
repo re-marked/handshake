@@ -16,6 +16,16 @@ export type TimeMachineMode = "manual" | "auto";
 export const CADENCE_MIN = 1;
 export const CADENCE_MAX = 1440; // 1 day
 
+/** Developer / debug preferences (off by default; surfaced in the Developer Settings section). */
+export interface DevSettings {
+  /** Show the ambient "Last snapshot" status line in the board corner. */
+  showStatusLine: boolean;
+  /** Automatically write a debug report when an error is captured. */
+  autoReportOnError: boolean;
+  /** Mask personal content (names / notes / handles / vault path) in debug reports. */
+  redact: boolean;
+}
+
 /** Time Machine (git versioning) preferences for this network. */
 export interface TimeMachineSettings {
   /** Whether the network is git-versioned at all. */
@@ -51,6 +61,8 @@ export interface Settings {
   defaultTieStrength: Strength;
   /** Time Machine (git versioning) preferences. */
   timeMachine: TimeMachineSettings;
+  /** Developer / debug preferences. */
+  dev: DevSettings;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -66,6 +78,7 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultTieStrength: "cold",
   // Frequent by default — snapshots are tiny, and dense history makes the best visuals over time.
   timeMachine: { enabled: true, mode: "auto", cadenceMin: 5, lastSnapshotAt: 0 },
+  dev: { showStatusLine: false, autoReportOnError: false, redact: false },
 };
 
 export function serializeSettings(s: Settings): string {
@@ -103,6 +116,19 @@ export function parseSettings(json: string): Settings {
       DEFAULT_SETTINGS.defaultTieStrength,
     ),
     timeMachine: parseTimeMachine(o.timeMachine),
+    dev: parseDev(o.dev),
+  };
+}
+
+function parseDev(v: unknown): DevSettings {
+  const d = DEFAULT_SETTINGS.dev;
+  if (!v || typeof v !== "object") return { ...d };
+  const o = v as Record<string, unknown>;
+  const bool = (x: unknown, fb: boolean) => (typeof x === "boolean" ? x : fb);
+  return {
+    showStatusLine: bool(o.showStatusLine, d.showStatusLine),
+    autoReportOnError: bool(o.autoReportOnError, d.autoReportOnError),
+    redact: bool(o.redact, d.redact),
   };
 }
 

@@ -138,6 +138,10 @@ export class VaultSession {
   tmStats(): Promise<TmStats> {
     return this.io.tmStats();
   }
+  /** Write a debug report into `.handshake/debug/`; resolves to its absolute path. */
+  writeDebug(name: string, content: string): Promise<string> {
+    return this.io.writeDebug(name, content);
+  }
 
   /** Begin reacting to external edits (Obsidian, git, etc.). Returns an unsubscribe fn. */
   async watch(onChange?: (change: VaultChange) => void): Promise<() => void> {
