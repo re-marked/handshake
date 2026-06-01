@@ -7,7 +7,7 @@ import {
   type Switchboard,
   type VaultFile,
 } from "../switchboard";
-import type { VaultChange, VaultIO } from "./io";
+import type { Snapshot, TmSize, TmStatus, VaultChange, VaultIO } from "./io";
 import { emptyLayout, parseLayout, serializeLayout, type Layout } from "./layout";
 import { parseWorkspace, serializeWorkspace } from "./workspace";
 import { parseSettings, serializeSettings, type Settings } from "./settings";
@@ -107,6 +107,32 @@ export class VaultSession {
   /** Persist the per-network settings sidecar. */
   async saveSettings(settings: Settings): Promise<void> {
     await this.io.writeSettings(serializeSettings(settings));
+  }
+
+  // ── Time Machine (git) — thin pass-throughs to the IO layer ──
+  /** Ensure the vault is a git repo (idempotent). */
+  tmInit(): Promise<void> {
+    return this.io.tmInit();
+  }
+  /** Snapshot the vault; commit id, or null when nothing changed. */
+  tmSnapshot(message: string): Promise<string | null> {
+    return this.io.tmSnapshot(message);
+  }
+  /** Newest-first snapshot history. */
+  tmLog(limit: number): Promise<Snapshot[]> {
+    return this.io.tmLog(limit);
+  }
+  /** Rewrite the working tree to a snapshot's state (caller reloads afterward). */
+  tmRestore(commitId: string): Promise<void> {
+    return this.io.tmRestore(commitId);
+  }
+  /** Repo state. */
+  tmStatus(): Promise<TmStatus> {
+    return this.io.tmStatus();
+  }
+  /** Disk sizes (data vs .git). */
+  tmSize(): Promise<TmSize> {
+    return this.io.tmSize();
   }
 
   /** Begin reacting to external edits (Obsidian, git, etc.). Returns an unsubscribe fn. */

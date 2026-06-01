@@ -12,6 +12,20 @@ export type Density = "compact" | "comfortable" | "spacious";
 export type AppScale = "small" | "default" | "large" | "larger";
 export type AppFont = "system" | "serif" | "mono";
 export type TextWeight = "light" | "normal" | "medium";
+export type TimeMachineMode = "manual" | "auto";
+export type TimeMachineCadence = "15m" | "1h" | "1d";
+
+/** Time Machine (git versioning) preferences for this network. */
+export interface TimeMachineSettings {
+  /** Whether the network is git-versioned at all. */
+  enabled: boolean;
+  /** `manual` = snapshot only on demand; `auto` = also snapshot after edits + on switch/close. */
+  mode: TimeMachineMode;
+  /** In `auto` mode, the most-often an automatic snapshot is taken. */
+  cadence: TimeMachineCadence;
+  /** Bookkeeping: when the last auto-snapshot ran (unix ms). Not user-facing. */
+  lastSnapshotAt: number;
+}
 
 export interface Settings {
   /** App appearance. `system` follows the OS color scheme. */
@@ -34,6 +48,8 @@ export interface Settings {
   showGoalsOnBoard: boolean;
   /** Strength a freshly-created connection starts at. */
   defaultTieStrength: Strength;
+  /** Time Machine (git versioning) preferences. */
+  timeMachine: TimeMachineSettings;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -47,6 +63,7 @@ export const DEFAULT_SETTINGS: Settings = {
   noteDefault: "panel",
   showGoalsOnBoard: true,
   defaultTieStrength: "cold",
+  timeMachine: { enabled: true, mode: "auto", cadence: "1h", lastSnapshotAt: 0 },
 };
 
 export function serializeSettings(s: Settings): string {
@@ -83,5 +100,18 @@ export function parseSettings(json: string): Settings {
       ["close", "warm", "cold", "dormant"] as const,
       DEFAULT_SETTINGS.defaultTieStrength,
     ),
+    timeMachine: parseTimeMachine(o.timeMachine),
+  };
+}
+
+function parseTimeMachine(v: unknown): TimeMachineSettings {
+  const d = DEFAULT_SETTINGS.timeMachine;
+  if (!v || typeof v !== "object") return { ...d };
+  const o = v as Record<string, unknown>;
+  return {
+    enabled: typeof o.enabled === "boolean" ? o.enabled : d.enabled,
+    mode: oneOf(o.mode, ["manual", "auto"] as const, d.mode),
+    cadence: oneOf(o.cadence, ["15m", "1h", "1d"] as const, d.cadence),
+    lastSnapshotAt: typeof o.lastSnapshotAt === "number" && isFinite(o.lastSnapshotAt) ? o.lastSnapshotAt : 0,
   };
 }

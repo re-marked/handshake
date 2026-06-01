@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { VaultSession } from "../session";
-import type { VaultChange, VaultIO } from "../io";
+import type { Snapshot, TmSize, TmStatus, VaultChange, VaultIO } from "../io";
 import {
   canonicalHandshakeId,
   canonicalPair,
@@ -61,6 +61,21 @@ class FakeIO implements VaultIO {
     return () => {
       this.listeners = this.listeners.filter((l) => l !== onChange);
     };
+  }
+  // Time Machine is git-on-disk; the in-memory fake just no-ops it.
+  async tmInit(): Promise<void> {}
+  async tmSnapshot(): Promise<string | null> {
+    return null;
+  }
+  async tmLog(): Promise<Snapshot[]> {
+    return [];
+  }
+  async tmRestore(): Promise<void> {}
+  async tmStatus(): Promise<TmStatus> {
+    return { isRepo: false, dirty: false, headId: null };
+  }
+  async tmSize(): Promise<TmSize> {
+    return { dataBytes: 0, gitBytes: 0 };
   }
   /** Test helper: simulate an external editor writing a file. */
   externalWrite(relpath: string, text: string): void {

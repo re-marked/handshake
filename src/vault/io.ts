@@ -7,6 +7,31 @@ export interface VaultChange {
   text: string | null; // null for removals
 }
 
+// ── Time Machine (git) ───────────────────────────────────────────────────────
+
+/** One snapshot (git commit) with its change stats, as returned by `tm_log`. */
+export interface Snapshot {
+  id: string;
+  time: number; // unix seconds
+  message: string;
+  files: number;
+  insertions: number;
+  deletions: number;
+}
+
+/** Repo state for a vault. */
+export interface TmStatus {
+  isRepo: boolean;
+  dirty: boolean;
+  headId: string | null;
+}
+
+/** Bytes of network data vs. bytes of `.git` history. */
+export interface TmSize {
+  dataBytes: number;
+  gitBytes: number;
+}
+
 /**
  * The disk boundary. The Rust shell implements this for the real app; tests
  * inject an in-memory fake. Keeping it an interface is what lets the whole
@@ -37,4 +62,18 @@ export interface VaultIO {
   writeSettings(content: string): Promise<void>;
   /** React to external edits (not our own writes). Resolves to an unsubscribe fn. */
   watch(onChange: (change: VaultChange) => void): Promise<() => void>;
+
+  // ── Time Machine ──
+  /** Ensure the vault is a git repo (idempotent): .gitignore + identity + initial snapshot. */
+  tmInit(): Promise<void>;
+  /** Snapshot the vault; returns the new commit id, or null when nothing changed. */
+  tmSnapshot(message: string): Promise<string | null>;
+  /** Newest-first snapshot history (capped at `limit`). */
+  tmLog(limit: number): Promise<Snapshot[]>;
+  /** Rewrite the working tree to a snapshot's state (HEAD stays put). */
+  tmRestore(commitId: string): Promise<void>;
+  /** Repo state: is-repo / dirty / current HEAD id. */
+  tmStatus(): Promise<TmStatus>;
+  /** Disk sizes: network data vs. .git history. */
+  tmSize(): Promise<TmSize>;
 }

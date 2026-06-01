@@ -217,6 +217,9 @@ export const useApp = create<AppState>()((set, get) => ({
       clearBoardCache(); // old board layouts belong to the previous network
       set({ switchboard, layout, workspace, settings, status: "ready", switching: false });
 
+      // Time Machine: ensure this network is a git repo (idempotent; no system git needed).
+      if (settings.timeMachine.enabled) void session.tmInit().catch(() => {});
+
       const resolved = await Promise.all(
         [...switchboard.people.values()]
           .filter((p) => p.photo)
@@ -257,6 +260,10 @@ export const useApp = create<AppState>()((set, get) => ({
         body: "",
       };
       await get().commit([{ op: "createPerson", person }]);
+      // Capture the founding state as the first real snapshot.
+      if (get().settings.timeMachine.enabled) {
+        void get().session?.tmSnapshot("Network created").catch(() => {});
+      }
     }
   },
 

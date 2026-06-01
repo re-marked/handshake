@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { VaultFile } from "../switchboard";
-import type { VaultChange, VaultIO } from "./io";
+import type { Snapshot, TmSize, TmStatus, VaultChange, VaultIO } from "./io";
 
 /**
  * VaultIO backed by the Rust commands in src-tauri/src/lib.rs. `vault` is the
@@ -26,5 +26,11 @@ export function createTauriIO(vault: string): VaultIO {
       await invoke<void>("start_watching", { vault });
       return unlisten;
     },
+    tmInit: () => invoke<void>("tm_init", { vault }),
+    tmSnapshot: (message) => invoke<string | null>("tm_snapshot", { vault, message }),
+    tmLog: (limit) => invoke<Snapshot[]>("tm_log", { vault, limit }),
+    tmRestore: (commitId) => invoke<void>("tm_restore", { vault, commitId }),
+    tmStatus: () => invoke<TmStatus>("tm_status", { vault }),
+    tmSize: () => invoke<TmSize>("tm_size", { vault }),
   };
 }

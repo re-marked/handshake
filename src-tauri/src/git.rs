@@ -11,6 +11,7 @@ const TM_EMAIL: &str = "time-machine@handshake.app";
 const DATA_DIRS: [&str; 5] = ["people", "handshakes", "goals", "interactions", "attachments"];
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TmStatus {
     pub is_repo: bool,
     pub dirty: bool,
@@ -28,6 +29,7 @@ pub struct Snapshot {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TmSize {
     pub data_bytes: u64,
     pub git_bytes: u64,
