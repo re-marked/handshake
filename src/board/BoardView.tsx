@@ -418,7 +418,7 @@ export function BoardView({ boardId }: { boardId: string }) {
     try {
       const sb = useApp.getState().switchboard;
       const id = mintPersonId(sb.people, name);
-      const person: Person = { kind: "person", id, name, isSelf: false, tags: [], handles: {}, body: "", photo: c.photo?.rel };
+      const person: Person = { kind: "person", id, name, isSelf: false, tags: [], affiliations: [], handles: {}, body: "", photo: c.photo?.rel };
       const [pa, pb] = canonicalPair(c.sourceId, id);
       const handshake: Handshake = {
         kind: "handshake",

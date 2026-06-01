@@ -1,12 +1,17 @@
-import { canonicalHandshakeId, lastInteractionDate, type Strength, type Switchboard } from "@/switchboard";
+import {
+  canonicalHandshakeId,
+  lastInteractionDate,
+  type Affiliation,
+  type Strength,
+  type Switchboard,
+} from "@/switchboard";
 
 export interface BoardCard {
   id: string;
   name: string;
   isSelf: boolean;
   photo?: string; // relpath into attachments/ (loaded once the asset protocol is wired)
-  role?: string;
-  company?: string;
+  affiliations: Affiliation[];
   /** 0..1 recency → card opacity (staleness). */
   freshness: number;
   /** A target goal riding on the board (faint dashed card); id is `goal:<goalId>`. */
@@ -59,8 +64,7 @@ export function buildBoardModel(
     name: p.name,
     isSelf: p.isSelf,
     photo: p.photo,
-    role: p.role,
-    company: p.company,
+    affiliations: p.affiliations,
     freshness: freshnessOf(lastInteractionDate(sb, p.id), now),
   }));
 
@@ -68,7 +72,15 @@ export function buildBoardModel(
   // outside the tree (no parent, no links) until ticked, which promotes them to a person.
   const goalCards: BoardCard[] = [...sb.goals.values()]
     .filter((g) => g.type === "target" && (g.status === "open" || g.status === "active"))
-    .map((g) => ({ id: `goal:${g.id}`, name: g.title, isSelf: false, freshness: 1, isGoal: true, goalId: g.id }));
+    .map((g) => ({
+      id: `goal:${g.id}`,
+      name: g.title,
+      isSelf: false,
+      affiliations: [],
+      freshness: 1,
+      isGoal: true,
+      goalId: g.id,
+    }));
 
   const links: BoardLink[] = [...sb.handshakes.values()]
     .filter((h) => sb.people.has(h.people[0]) && sb.people.has(h.people[1]))

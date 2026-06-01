@@ -14,9 +14,11 @@ import { useUndoStore } from "@/app/undo";
 import { notify } from "@/app/toast";
 import { pickFolder, vaultName } from "@/vault/appState";
 import {
+  affiliationTerms,
   canonicalHandshakeId,
   canonicalPair,
   mintPersonId,
+  summarizeAffiliations,
   type Diff,
   type Handshake,
   type Person,
@@ -85,7 +87,7 @@ export function CommandPalette() {
     setOpen(false);
     const sb = useApp.getState().switchboard;
     const id = mintPersonId(sb.people, name);
-    const person: Person = { kind: "person", id, name: name.trim(), isSelf: false, tags: [], handles: {}, body: "" };
+    const person: Person = { kind: "person", id, name: name.trim(), isSelf: false, tags: [], affiliations: [], handles: {}, body: "" };
     const diff: Diff = [{ op: "createPerson", person }];
     const selfId = sb.self?.id;
     if (selfId && selfId !== id) {
@@ -117,14 +119,14 @@ export function CommandPalette() {
             <CommandItem
               key={p.id}
               value={`${p.name} ${p.id}`}
-              keywords={[p.role, p.company, ...p.tags].filter(Boolean) as string[]}
+              keywords={[...affiliationTerms(p.affiliations), ...p.tags]}
               onSelect={() => jump(p.id)}
             >
               <User />
               <span className="truncate">{p.name}</span>
-              {(p.role || p.company) && (
+              {summarizeAffiliations(p.affiliations) && (
                 <span className="ml-auto truncate text-xs text-muted-foreground">
-                  {[p.role, p.company].filter(Boolean).join(" · ")}
+                  {summarizeAffiliations(p.affiliations)}
                 </span>
               )}
             </CommandItem>

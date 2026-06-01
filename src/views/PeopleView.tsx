@@ -18,9 +18,11 @@ import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
 import { TIE_COLOR } from "@/board/ties";
 import {
+  affiliationTerms,
   canonicalHandshakeId,
   canonicalPair,
   mintPersonId,
+  summarizeAffiliations,
   type Diff,
   type Handshake,
   type Person,
@@ -91,8 +93,7 @@ export function PeopleView() {
         if (!q) return true;
         return (
           p.name.toLowerCase().includes(q) ||
-          p.role?.toLowerCase().includes(q) ||
-          p.company?.toLowerCase().includes(q) ||
+          affiliationTerms(p.affiliations).some((t) => t.toLowerCase().includes(q)) ||
           p.tags.some((t) => t.toLowerCase().includes(q))
         );
       })
@@ -120,7 +121,7 @@ export function PeopleView() {
   async function createConnected(name: string) {
     const sb = useApp.getState().switchboard;
     const id = mintPersonId(sb.people, name);
-    const person: Person = { kind: "person", id, name: name.trim(), isSelf: false, tags: [], handles: {}, body: "" };
+    const person: Person = { kind: "person", id, name: name.trim(), isSelf: false, tags: [], affiliations: [], handles: {}, body: "" };
     const diff: Diff = [{ op: "createPerson", person }];
     const sid = sb.self?.id;
     if (sid && sid !== id) {
@@ -284,7 +285,7 @@ function PersonRow({
   activeTags: string[];
   onTag: (t: string) => void;
 }) {
-  const subtitle = [person.role, person.company].filter(Boolean).join(" · ");
+  const subtitle = summarizeAffiliations(person.affiliations);
   const open = () => useApp.getState().revealPerson(person.id);
   return (
     <div
