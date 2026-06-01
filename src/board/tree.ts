@@ -20,6 +20,9 @@ export interface BoardLink {
   strength: Strength;
   /** true if this handshake is the parent↔child hierarchy edge (drives movement). */
   treeEdge: boolean;
+  /** A parent↔child "introduced by" relationship with no direct handshake — a faint dotted line so
+   *  the board shows what drives the drag-as-tree behavior (matches the YAML introducer). */
+  introducedBy?: boolean;
 }
 
 export interface Pos {
@@ -74,6 +77,17 @@ export function buildBoardModel(
       const treeEdge = parentOf.get(a) === b || parentOf.get(b) === a;
       return { a, b, strength: h.strength, treeEdge };
     });
+
+  // Introduced-by edges: a child whose parent (introducer) has no direct handshake to them. Draw
+  // these as faint dotted lines so the visible board matches the tree/drag behavior + the YAML (#14).
+  const haveEdge = new Set(links.map((l) => canonicalHandshakeId(l.a, l.b)));
+  for (const [child, parent] of parentOf) {
+    if (!parent || !sb.people.has(parent) || !sb.people.has(child)) continue;
+    const key = canonicalHandshakeId(child, parent);
+    if (haveEdge.has(key)) continue;
+    haveEdge.add(key);
+    links.push({ a: child, b: parent, strength: "dormant", treeEdge: true, introducedBy: true });
+  }
 
   const positions = sb.self
     ? radialLayout(sb.self.id, childrenOf)

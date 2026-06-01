@@ -27,6 +27,16 @@ describe("buildBoardModel", () => {
     expect(sarahTom.treeEdge).toBe(false); // both hang off self → a cross-link, not hierarchy
   });
 
+  it("draws dotted introduced-by edges only for parent links lacking a handshake", () => {
+    const key = (l: { a: string; b: string }) => [l.a, l.b].sort().join("|");
+    const handshakePairs = new Set(model.links.filter((l) => !l.introducedBy).map(key));
+    for (const l of model.links.filter((l) => l.introducedBy)) {
+      expect(l.treeEdge).toBe(true);
+      expect(model.parentOf.get(l.a) === l.b || model.parentOf.get(l.b) === l.a).toBe(true);
+      expect(handshakePairs.has(key(l))).toBe(false); // never duplicates a real connection line
+    }
+  });
+
   it("gives every card a position, self at the center", () => {
     expect(model.positions.size).toBe(model.cards.length); // every card (people + goals) placed
     const self = model.positions.get("self")!;

@@ -470,7 +470,7 @@ export function BoardView({ boardId }: { boardId: string }) {
         <svg className="pointer-events-none absolute left-0 top-0 overflow-visible" width={1} height={1}>
           {model.links.map((link) => (
             <LinkLine
-              key={`${link.a}|${link.b}`}
+              key={`${link.introducedBy ? "via:" : ""}${link.a}|${link.b}`}
               link={link}
               a={at(link.a)}
               b={at(link.b)}
@@ -652,6 +652,24 @@ function LinkLine({
   b: Pos;
   onOpen: (e: { clientX: number; clientY: number }) => void;
 }) {
+  // Introduced-by edges have no handshake behind them — a faint dotted line, not clickable.
+  if (link.introducedBy) {
+    return (
+      <line
+        x1={a.x}
+        y1={a.y}
+        x2={b.x}
+        y2={b.y}
+        style={{
+          stroke: "var(--muted-foreground)",
+          strokeWidth: 1,
+          strokeOpacity: 0.35,
+          strokeDasharray: "2 6",
+          pointerEvents: "none",
+        }}
+      />
+    );
+  }
   const width = link.strength === "close" ? 2 : link.strength === "warm" ? 1.5 : 1;
   return (
     <g className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={onOpen}>
