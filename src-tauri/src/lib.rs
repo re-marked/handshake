@@ -198,6 +198,19 @@ fn write_settings(vault: String, content: String) -> Result<(), String> {
     write_atomic(&dir.join("settings.json"), &content).map_err(|e| e.to_string())
 }
 
+/// Write a debug report into the vault's `.handshake/debug/` folder (gitignored). Returns the
+/// absolute path so the UI can show it (and so it's easy to point a reader at the exact file).
+#[tauri::command]
+fn write_debug(vault: String, name: String, content: String) -> Result<String, String> {
+    let safe: String = name.chars().filter(|c| c.is_alphanumeric() || matches!(c, '.' | '-' | '_')).collect();
+    let safe = if safe.is_empty() { "report.md".to_string() } else { safe };
+    let dir = PathBuf::from(&vault).join(".handshake").join("debug");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let path = dir.join(safe);
+    write_atomic(&path, &content).map_err(|e| e.to_string())?;
+    Ok(path.to_string_lossy().to_string())
+}
+
 /// App-level state (recent vaults / last opened) — lives in the OS app-config dir, NOT in any
 /// vault, since it tracks which vaults exist. Empty string if absent.
 #[tauri::command]
@@ -357,6 +370,7 @@ pub fn run() {
             write_workspace,
             read_settings,
             write_settings,
+            write_debug,
             read_app_state,
             write_app_state,
             git::tm_init,
