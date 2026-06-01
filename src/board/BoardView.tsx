@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/compon
 import { ConnectionMenuItems } from "@/app/ConnectionMenu";
 import { promoteGoalDiff } from "@/app/goals";
 import { useApp } from "@/app/store";
+import { recordBoardMove, registerBoard, unregisterBoard, type BoardPatch } from "@/app/undo";
 import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
 import type { Layout } from "@/vault/layout";
 
@@ -113,6 +114,20 @@ export function BoardView({ boardId }: { boardId: string }) {
     },
     [boardId],
   );
+
+  // Let the undo controller replay card-position patches against this board's live state.
+  useEffect(() => {
+    registerBoard(boardId, (patch) => {
+      setPositions((prev) => {
+        const next = new Map(prev);
+        for (const [id, p] of Object.entries(patch)) next.set(id, p);
+        return next;
+      });
+      schedulePersist();
+    });
+    return () => unregisterBoard(boardId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardId]);
 
   // Locate: center the viewport on a person (requested from the People view) + briefly ring them.
   useEffect(() => {
@@ -271,7 +286,19 @@ export function BoardView({ boardId }: { boardId: string }) {
           },
         ]);
       } else {
-        schedulePersist(); // repositioned in open space
+        // Repositioned in open space — record before/after for undo (exact via the total delta).
+        const wdx = (e.clientX - d.downX) / zoom;
+        const wdy = (e.clientY - d.downY) / zoom;
+        const before: BoardPatch = {};
+        const after: BoardPatch = {};
+        for (const id of d.subtree) {
+          const b = d.start.get(id);
+          if (!b) continue;
+          before[id] = b;
+          after[id] = { x: b.x + wdx, y: b.y + wdy };
+        }
+        recordBoardMove(boardId, before, after);
+        schedulePersist();
       }
     } else {
       schedulePersist(); // pan

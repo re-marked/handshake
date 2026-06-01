@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { MotionConfig } from "motion/react";
 import { useApp } from "@/app/store";
+import * as undo from "@/app/undo";
 import { Shell } from "@/app/Shell";
 import { FrontDoor } from "@/app/FrontDoor";
 import { NewNetworkDialog } from "@/app/NewNetworkDialog";
@@ -64,11 +65,30 @@ function useAppearance() {
   }, [appScale, font, textWeight]);
 }
 
+/** Global Ctrl/Cmd-Z (undo) + Shift / Ctrl-Y (redo), gated so text editors keep their own undo. */
+function useGlobalUndo() {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      const k = e.key.toLowerCase();
+      const isUndo = k === "z" && !e.shiftKey;
+      const isRedo = (k === "z" && e.shiftKey) || k === "y";
+      if ((!isUndo && !isRedo) || undo.isEditableTarget(e.target)) return;
+      e.preventDefault();
+      if (isRedo) void undo.redo();
+      else void undo.undo();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+}
+
 export default function App() {
   const status = useApp((s) => s.status);
   const reduceMotion = useApp((s) => s.settings.reduceMotion);
   useTheme();
   useAppearance();
+  useGlobalUndo();
 
   useEffect(() => {
     void useApp.getState().init(DEV_VAULT);

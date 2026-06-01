@@ -6,6 +6,7 @@ import { DEFAULT_SETTINGS, type Density, type Settings } from "@/vault/settings"
 import { loadRecents, saveRecents, vaultName } from "@/vault/appState";
 import { importPhoto } from "@/vault/photos";
 import { clearBoardCache } from "@/board/boardCache";
+import * as undo from "@/app/undo";
 import {
   emptySwitchboard,
   mintPersonId,
@@ -93,7 +94,7 @@ interface AppState {
   forgetVault: (path: string) => void;
   /** Route a diff through the funnel, persist it, and swap in the new state. The board
    *  updates in place — no reload — because applyDiff hands back the derived next state. */
-  commit: (diff: Diff) => Promise<ApplyResult>;
+  commit: (diff: Diff, opts?: { record?: boolean }) => Promise<ApplyResult>;
   saveLayout: (layout: Layout) => void;
   /** Reveal a person in the remembered note mode — or focus them if already shown
    *  somewhere. `toggle` lets the board's tap-again close the slide-in panel. */
@@ -192,6 +193,7 @@ export const useApp = create<AppState>()((set, get) => ({
   async switchVault(path) {
     // Tear down the current vault and load `path`. Reset transient UI + clear the board cache so
     // the new network's cards don't inherit the old network's positions.
+    undo.clear(); // undo history is per-network
     set({
       switching: true,
       status: "loading",
@@ -273,11 +275,15 @@ export const useApp = create<AppState>()((set, get) => ({
     void saveRecents(recents);
   },
 
-  async commit(diff) {
+  async commit(diff, opts) {
     const session = get().session;
     if (!session) throw new Error("commit before vault init");
     const result = await session.commit(diff);
-    if (result.ok) set({ switchboard: result.next });
+    if (result.ok) {
+      set({ switchboard: result.next });
+      // Record for undo unless this commit IS an undo/redo replay.
+      if (opts?.record !== false) undo.recordData(result.inverse, diff);
+    }
     return result;
   },
 
