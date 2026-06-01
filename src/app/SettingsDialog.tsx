@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import {
   Bug,
   Camera,
+  Contrast,
   FolderOpen,
   History,
   Info,
@@ -39,6 +40,7 @@ const SECTIONS = [
   { id: "appearance", label: "Appearance", icon: Palette },
   { id: "notes", label: "Notes & workspace", icon: StickyNote },
   { id: "board", label: "Board", icon: Share2 },
+  { id: "fade", label: "Card fade", icon: Contrast },
   { id: "timeMachine", label: "Time Machine", icon: History },
   { id: "networks", label: "Networks", icon: FolderOpen },
   { id: "developer", label: "Developer", icon: Wrench },
@@ -228,6 +230,8 @@ function KeywordManager() {
                     key={c}
                     type="button"
                     title={c}
+                    aria-label={`${c}${k.color === c ? " (selected)" : ""}`}
+                    aria-pressed={k.color === c}
                     onClick={() => update(keywords.map((x, j) => (j === i ? { ...x, color: c } : x)))}
                     className={cn(
                       "size-6 overflow-hidden rounded-md ring-1 ring-inset transition-all hover:scale-110",
@@ -265,9 +269,6 @@ function BoardSection() {
       <Row label="Show “introduced by” links" description="Faint dotted lines from a person to whoever introduced them.">
         <Switch checked={s.showIntroducedBy} onCheckedChange={(showIntroducedBy) => set({ showIntroducedBy })} />
       </Row>
-      <Row label="Fade inactive cards" description="Dim cards you haven’t touched in a while (staleness).">
-        <Switch checked={s.fadeStaleCards} onCheckedChange={(fadeStaleCards) => set({ fadeStaleCards })} />
-      </Row>
       <Row label="Default connection strength" description="Warmth a new tie starts at.">
         <Seg
           value={s.defaultTieStrength}
@@ -280,6 +281,35 @@ function BoardSection() {
           ]}
         />
       </Row>
+    </>
+  );
+}
+
+function FadeSection() {
+  const s = useApp((x) => x.settings);
+  const set = useApp.getState().updateSettings;
+  return (
+    <>
+      <p className="-mt-1 mb-1 text-xs leading-relaxed text-muted-foreground">
+        Cards dim as a connection goes quiet, so the people you’re most active with stand out. Turn it
+        off to keep every card at full strength.
+      </p>
+      <Row label="Fade inactive cards" description="Dim cards by how long since you last interacted (staleness).">
+        <Switch checked={s.fadeStaleCards} onCheckedChange={(fadeStaleCards) => set({ fadeStaleCards })} />
+      </Row>
+      {s.fadeStaleCards && (
+        <Row label="Fade strength" description="How far stale cards dim.">
+          <Seg
+            value={s.fadeStrength}
+            onChange={(fadeStrength) => set({ fadeStrength })}
+            options={[
+              { value: "subtle", label: "Subtle" },
+              { value: "medium", label: "Medium" },
+              { value: "strong", label: "Strong" },
+            ]}
+          />
+        </Row>
+      )}
     </>
   );
 }
@@ -508,7 +538,9 @@ function TimeMachineSection() {
                       className="group flex items-center justify-between gap-3 rounded-md px-2 py-1.5 hover:bg-muted/40"
                     >
                       <div className="min-w-0">
-                        <div className="truncate text-sm">{snap.message || "Snapshot"}</div>
+                        <div className="truncate text-sm" title={snap.message || "Snapshot"}>
+                          {snap.message || "Snapshot"}
+                        </div>
                         <div className="text-xs text-muted-foreground">
                           {relativeTime(snap.time)}
                           {current && " · current"}
@@ -666,6 +698,7 @@ export function SettingsDialog() {
               {active === "appearance" && <AppearanceSection />}
               {active === "notes" && <NotesSection />}
               {active === "board" && <BoardSection />}
+              {active === "fade" && <FadeSection />}
               {active === "timeMachine" && <TimeMachineSection />}
               {active === "networks" && <NetworksSection />}
               {active === "developer" && <DeveloperSection />}
