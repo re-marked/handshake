@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Camera, FolderOpen, LayoutGrid, Plus, Redo2, Settings, Share2, Undo2, User } from "lucide-react";
+import { Camera, FolderOpen, Plus, Redo2, Settings, Share2, Undo2, User, Wand2 } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -201,12 +201,12 @@ export function CommandPalette() {
                   body: ok
                     ? "Cards snapped back to the auto-layout. Undo (Ctrl-Z) to restore."
                     : "Open the board first.",
-                  icon: LayoutGrid,
+                  icon: Wand2,
                   tone: ok ? "success" : "muted",
                 });
               }}
             >
-              <LayoutGrid /> Re-tidy board
+              <Wand2 /> Re-tidy board
             </CommandItem>
           </CommandGroup>
         )}

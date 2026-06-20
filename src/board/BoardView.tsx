@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion } from "motion/react";
-import { Check, LayoutGrid, Maximize, Minus, Plus, UserPlus } from "lucide-react";
+import { Check, Maximize, Minus, Plus, UserPlus, Wand2 } from "lucide-react";
 import { buildBoardModel, type BoardCard, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { boardCache } from "@/board/boardCache";
 import { PhotoUpload } from "@/app/PhotoUpload";
@@ -829,7 +829,7 @@ function BoardToolbar({
       </ToolButton>
       <ToolDivider />
       <ToolButton label="Re-tidy board" onClick={onTidy}>
-        <LayoutGrid className="size-4" />
+        <Wand2 className="size-4" />
       </ToolButton>
     </motion.div>
   );
