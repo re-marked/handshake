@@ -208,24 +208,27 @@ function NotesSection() {
         />
       </Row>
       <Row label="Floating note size" description="Default width × height a popped-out note opens at.">
-        <FloatSizeControl />
+        <SizeControl field="floatSize" label="Float" />
+      </Row>
+      <Row label="Side panel size" description="Default size of the slide-in note panel (you can also drag its corner).">
+        <SizeControl field="panelSize" label="Panel" />
       </Row>
       <KeywordManager />
     </>
   );
 }
 
-/** Two clamped number inputs (W × H) for the default float size, plus a one-click 16:9 button. */
-function FloatSizeControl() {
-  const { w, h } = useApp((x) => x.settings.floatSize);
-  const set = (next: { w: number; h: number }) => useApp.getState().updateSettings({ floatSize: next });
+/** Two clamped number inputs (W × H) for a size setting, plus a one-click 16:9 button. */
+function SizeControl({ field, label }: { field: "floatSize" | "panelSize"; label: string }) {
+  const { w, h } = useApp((x) => x.settings[field]);
+  const set = (next: { w: number; h: number }) => useApp.getState().updateSettings({ [field]: next });
   const clampW = (n: number) => Math.max(FLOAT_W_MIN, Math.min(FLOAT_W_MAX, Math.round(n) || FLOAT_W_MIN));
   const clampH = (n: number) => Math.max(FLOAT_H_MIN, Math.min(FLOAT_H_MAX, Math.round(n) || FLOAT_H_MIN));
   return (
     <div className="flex items-center gap-1.5">
       <Input
         type="number"
-        aria-label="Float width"
+        aria-label={`${label} width`}
         value={w}
         min={FLOAT_W_MIN}
         max={FLOAT_W_MAX}
@@ -235,7 +238,7 @@ function FloatSizeControl() {
       <span className="text-xs text-muted-foreground">×</span>
       <Input
         type="number"
-        aria-label="Float height"
+        aria-label={`${label} height`}
         value={h}
         min={FLOAT_H_MIN}
         max={FLOAT_H_MAX}
