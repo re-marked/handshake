@@ -12,8 +12,12 @@ export interface BoardCard {
   isSelf: boolean;
   photo?: string; // relpath into attachments/ (loaded once the asset protocol is wired)
   affiliations: Affiliation[];
+  /** The person's tags — for the inline board filter (#16). */
+  tags: string[];
   /** 0..1 recency → card opacity (staleness). */
   freshness: number;
+  /** How many other people's notes `[[mention]]` this person — drives card size (#16). */
+  backlinkCount: number;
   /** A target goal riding on the board (faint dashed card); id is `goal:<goalId>`. */
   isGoal?: boolean;
   goalId?: string;
@@ -28,6 +32,8 @@ export interface BoardLink {
   /** A parent↔child "introduced by" relationship with no direct handshake — a faint dotted line so
    *  the board shows what drives the drag-as-tree behavior (matches the YAML introducer). */
   introducedBy?: boolean;
+  /** A `[[mention]]` in a note with no handshake/introducer edge behind it — a faint rose dotted line (#16). */
+  backlink?: boolean;
 }
 
 export interface Pos {
@@ -66,7 +72,9 @@ export function buildBoardModel(
     isSelf: p.isSelf,
     photo: p.photo,
     affiliations: p.affiliations,
+    tags: p.tags,
     freshness: freshnessOf(lastInteractionDate(sb, p.id), now),
+    backlinkCount: sb.backlinks.get(p.id)?.size ?? 0,
   }));
 
   // Aspirational target goals ride along as faint dashed cards (open/active only). They sit
@@ -78,7 +86,9 @@ export function buildBoardModel(
       name: g.title,
       isSelf: false,
       affiliations: [],
+      tags: [],
       freshness: 1,
+      backlinkCount: 0,
       isGoal: true,
       goalId: g.id,
     }));
@@ -100,6 +110,19 @@ export function buildBoardModel(
     if (haveEdge.has(key)) continue;
     haveEdge.add(key);
     links.push({ a: child, b: parent, strength: "dormant", treeEdge: true, introducedBy: true });
+  }
+
+  // Backlink edges: a `[[mention]]` with no handshake/introducer edge already between the pair (#16).
+  // Drawn as faint rose dotted lines; the dedupe set means a real tie or introducer line wins.
+  for (const [target, mentioners] of sb.backlinks) {
+    if (!sb.people.has(target)) continue;
+    for (const mentioner of mentioners) {
+      if (!sb.people.has(mentioner)) continue;
+      const key = canonicalHandshakeId(mentioner, target);
+      if (haveEdge.has(key)) continue;
+      haveEdge.add(key);
+      links.push({ a: mentioner, b: target, strength: "dormant", treeEdge: false, backlink: true });
+    }
   }
 
   const positions = sb.self

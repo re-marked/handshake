@@ -1,5 +1,6 @@
 import { kindFromRelpath, parseEntity } from "./parse";
 import { canonicalHandshakeId } from "./ids";
+import { backlinkRegex, buildNameIndex, resolvePersonRef } from "./backlinks";
 import type { Entity, Goal, Handshake, Interaction, Person, VaultProblem } from "./types";
 
 /** One markdown file from the vault. `relpath` is relative to the vault root. */
@@ -24,6 +25,8 @@ export interface Switchboard {
   adjacency: Map<string, Set<string>>;
   /** person id -> their interactions, newest first. Drives staleness / photo-fade. */
   interactionsByPerson: Map<string, Interaction[]>;
+  /** Inbound `[[mentions]]`: target id -> set of people who reference them in their notes. */
+  backlinks: Map<string, Set<string>>;
   problems: VaultProblem[];
 }
 
@@ -35,7 +38,14 @@ export function emptyStores(): EntityStores {
 }
 
 export function emptySwitchboard(): Switchboard {
-  return { ...emptyStores(), self: null, adjacency: new Map(), interactionsByPerson: new Map(), problems: [] };
+  return {
+    ...emptyStores(),
+    self: null,
+    adjacency: new Map(),
+    interactionsByPerson: new Map(),
+    backlinks: new Map(),
+    problems: [],
+  };
 }
 
 export function buildSwitchboard(files: VaultFile[]): Switchboard {
@@ -76,10 +86,12 @@ export function deriveSwitchboard(stores: EntityStores, seedProblems: VaultProbl
     self: null,
     adjacency: new Map(),
     interactionsByPerson: new Map(),
+    backlinks: new Map(),
     problems: [...seedProblems],
   };
   resolveSelf(sb);
   buildAdjacency(sb);
+  buildBacklinks(sb);
   buildInteractionsByPerson(sb);
   // NB: a goal.target that isn't in the vault is deliberately NOT a problem -
   // it's the normal "meet someone I haven't added yet" case pathfinding handles.
@@ -170,6 +182,29 @@ function buildAdjacency(sb: Switchboard): void {
     }
     if (h.establishedVia && !sb.people.has(h.establishedVia)) {
       sb.problems.push(warn(rel, `establishedVia references unknown person "${h.establishedVia}"`));
+    }
+  }
+}
+
+/**
+ * Scan every note body for `[[Person]]` references and index them inbound (target -> mentioners).
+ * Purely visual: unresolved refs and self-mentions are skipped; nothing is written to disk.
+ */
+function buildBacklinks(sb: Switchboard): void {
+  const nameIndex = buildNameIndex(sb.people);
+  for (const [mentionerId, person] of sb.people) {
+    if (!person.body.includes("[[")) continue; // cheap skip for the common case
+    const re = backlinkRegex();
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(person.body))) {
+      const targetId = resolvePersonRef(m[1], nameIndex, sb.people);
+      if (!targetId || targetId === mentionerId) continue; // skip unresolved + self-mention
+      let set = sb.backlinks.get(targetId);
+      if (!set) {
+        set = new Set();
+        sb.backlinks.set(targetId, set);
+      }
+      set.add(mentionerId);
     }
   }
 }

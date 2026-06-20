@@ -14,9 +14,28 @@ import {
   rewriteHighlight,
 } from "@/views/remarkHighlight";
 import { HighlightPalette } from "@/views/HighlightPalette";
+import { remarkBacklinks, type BacklinkResolver } from "@/views/remarkBacklinks";
+import { useApp } from "@/app/store";
 
-/** Links open in the system browser, never navigating the webview away from the app. */
+/** Links open in the system browser — except `[[backlinks]]` (href `#backlink:<id>`), which
+ *  navigate to that person inside the app instead of leaving the webview. */
 function Link({ href, children }: { href?: string; children?: React.ReactNode }) {
+  if (href?.startsWith("#backlink:")) {
+    const id = href.slice("#backlink:".length);
+    return (
+      <a
+        href={href}
+        className="backlink"
+        title="Open this person"
+        onClick={(e) => {
+          e.preventDefault();
+          useApp.getState().revealPerson(id);
+        }}
+      >
+        {children}
+      </a>
+    );
+  }
   return (
     <a
       href={href}
@@ -63,6 +82,9 @@ const PROSE = cn(
   "[&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:text-foreground",
   "[&_p]:my-2",
   "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 [&_a]:cursor-pointer hover:[&_a]:opacity-80",
+  // `[[backlinks]]` read as little rose chips (resolved) or a faint dashed span (unresolved).
+  "[&_.backlink]:rounded [&_.backlink]:bg-primary/10 [&_.backlink]:px-1 [&_.backlink]:py-0.5 [&_.backlink]:font-medium [&_.backlink]:text-primary [&_.backlink]:no-underline hover:[&_.backlink]:bg-primary/20 hover:[&_.backlink]:opacity-100",
+  "[&_.backlink-unresolved]:cursor-default [&_.backlink-unresolved]:text-muted-foreground/70 [&_.backlink-unresolved]:underline [&_.backlink-unresolved]:decoration-dashed [&_.backlink-unresolved]:decoration-muted-foreground/40 [&_.backlink-unresolved]:underline-offset-2",
   "[&_strong]:font-semibold [&_strong]:text-foreground",
   "[&_ul]:my-2 [&_ul]:ml-5 [&_ul]:list-disc [&_ul]:space-y-1",
   "[&_ol]:my-2 [&_ol]:ml-5 [&_ol]:list-decimal [&_ol]:space-y-1",
@@ -89,11 +111,13 @@ export function MarkdownView({
   className,
   onChange,
   keywords,
+  resolveBacklink,
 }: {
   source: string;
   className?: string;
   onChange?: (next: string) => void;
   keywords?: KeywordRule[];
+  resolveBacklink?: BacklinkResolver;
 }) {
   const [recolor, setRecolor] = useState<Recolor | null>(null);
   const editable = !!onChange;
@@ -142,7 +166,13 @@ export function MarkdownView({
   return (
     <div className={cn(PROSE, className)}>
       <Markdown
-        remarkPlugins={[remarkGfm, remarkBreaks, remarkHighlight, remarkKeywords(keywords ?? [])]}
+        remarkPlugins={[
+          remarkGfm,
+          remarkBreaks,
+          remarkHighlight,
+          remarkBacklinks(resolveBacklink ?? (() => null)),
+          remarkKeywords(keywords ?? []),
+        ]}
         components={{ a: Link, mark: Mark, img: Img }}
       >
         {source}

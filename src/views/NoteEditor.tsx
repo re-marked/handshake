@@ -10,6 +10,7 @@ import {
 import { RangeSetBuilder } from "@codemirror/state";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { autocompletion, type Completion, type CompletionContext, type CompletionResult } from "@codemirror/autocomplete";
 import { tags as t } from "@lezer/highlight";
 import {
   findHighlightAt,
@@ -18,6 +19,8 @@ import {
   recolorSpan,
   type HlColor,
 } from "@/views/remarkHighlight";
+import { backlinkRegex, buildNameIndex, resolvePersonRef } from "@/switchboard";
+import { useApp } from "@/app/store";
 import { HighlightPalette } from "@/views/HighlightPalette";
 
 const MONO = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
@@ -69,6 +72,51 @@ const highlightDecorations = ViewPlugin.fromClass(
   { decorations: (v) => v.decorations },
 );
 
+/** Decorate `[[Person]]` refs: resolved ones tint primary, unresolved ones read muted + dashed.
+ *  Resolution reads the live people map fresh (so it tracks renames/additions without re-mounting). */
+function buildBacklinkDecos(view: EditorView): DecorationSet {
+  const builder = new RangeSetBuilder<Decoration>();
+  const people = useApp.getState().switchboard.people;
+  const nameIndex = buildNameIndex(people);
+  for (const { from, to } of view.visibleRanges) {
+    const text = view.state.sliceDoc(from, to);
+    const re = backlinkRegex();
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text))) {
+      const cls = resolvePersonRef(m[1], nameIndex, people) ? "cm-backlink" : "cm-backlink-unresolved";
+      builder.add(from + m.index, from + m.index + m[0].length, Decoration.mark({ class: cls }));
+    }
+  }
+  return builder.finish();
+}
+
+const backlinkDecorations = ViewPlugin.fromClass(
+  class {
+    decorations: DecorationSet;
+    constructor(view: EditorView) {
+      this.decorations = buildBacklinkDecos(view);
+    }
+    update(u: ViewUpdate) {
+      if (u.docChanged || u.viewportChanged) this.decorations = buildBacklinkDecos(u.view);
+    }
+  },
+  { decorations: (v) => v.decorations },
+);
+
+/** `[[`-triggered autocomplete of people by name. Reads the live people map at call time. */
+function backlinkCompletions(context: CompletionContext): CompletionResult | null {
+  const before = context.matchBefore(/\[\[([^\]\n]*)$/); // an open [[ + partial text up to the cursor
+  if (!before) return null;
+  const typed = before.text.slice(2).trim().toLowerCase();
+  const options: Completion[] = [...useApp.getState().switchboard.people.values()]
+    .filter((p) => !typed || p.name.toLowerCase().includes(typed))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 50)
+    .map((p) => ({ label: p.name, type: "text", apply: `${p.name}]]` }));
+  if (!options.length) return null;
+  return { from: before.from + 2, options }; // replace the text after `[[`
+}
+
 // Borderless, transparent, prose-feeling editor that inherits the note's font / weight / size and
 // the rose caret + selection. No per-theme config — everything reads from the app's CSS vars.
 const editorTheme = EditorView.theme({
@@ -92,6 +140,9 @@ const editorTheme = EditorView.theme({
   },
   ".cm-scroller": { fontFamily: "inherit", lineHeight: "inherit" },
   ".cm-placeholder": { color: "var(--color-muted-foreground)", opacity: "0.55" },
+  // `[[backlinks]]` while editing — resolved tints rose, unresolved reads muted + dashed.
+  ".cm-backlink": { color: "var(--color-primary)", fontWeight: "500" },
+  ".cm-backlink-unresolved": { color: "var(--color-muted-foreground)", textDecoration: "underline dashed" },
 });
 
 // Trim the "code editor" chrome — no gutters / line numbers / active-line — so it reads as prose.
@@ -104,7 +155,7 @@ const BASIC_SETUP = {
   highlightSelectionMatches: false,
   bracketMatching: false,
   closeBrackets: false,
-  autocompletion: false,
+  autocompletion: false, // we add our own autocompletion() with the [[ source + default keymap
   rectangularSelection: false,
   crosshairCursor: false,
   indentOnInput: false,
@@ -126,6 +177,8 @@ function NoteEditor({ value, onChange }: { value: string; onChange: (next: strin
       syntaxHighlighting(mdHighlightStyle),
       EditorView.lineWrapping,
       highlightDecorations,
+      backlinkDecorations,
+      autocompletion({ override: [backlinkCompletions], icons: false }),
       // Right-click a highlight → recolor palette. Off a highlight, return false so the native
       // copy/paste menu still shows (and the app-wide palette skips contenteditable targets).
       EditorView.domEventHandlers({

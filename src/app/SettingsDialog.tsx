@@ -335,6 +335,15 @@ function BoardSection() {
       <Row label="Show “introduced by” links" description="Faint dotted lines from a person to whoever introduced them.">
         <Switch checked={s.showIntroducedBy} onCheckedChange={(showIntroducedBy) => set({ showIntroducedBy })} />
       </Row>
+      <Row label="Show backlink links" description="Faint rose dotted lines from a [[mention]] in a note (no tie behind it).">
+        <Switch checked={s.showBacklinks} onCheckedChange={(showBacklinks) => set({ showBacklinks })} />
+      </Row>
+      <Row label="Size cards by backlinks" description="Grow a card by how many other notes [[mention]] them.">
+        <Switch
+          checked={s.sizeCardsByBacklinks}
+          onCheckedChange={(sizeCardsByBacklinks) => set({ sizeCardsByBacklinks })}
+        />
+      </Row>
       <Row label="Card spacing" description="Room the board gives cards when it arranges + spawns them.">
         <Seg
           value={s.cardSpacing}
