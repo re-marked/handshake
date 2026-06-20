@@ -14,6 +14,8 @@ import { ConnectionMenuItems } from "@/app/ConnectionMenu";
 import { promoteGoalDiff } from "@/app/goals";
 import { useApp } from "@/app/store";
 import { recordBoardMove, registerBoard, unregisterBoard, type BoardPatch } from "@/app/undo";
+import { registerRetidy, unregisterRetidy } from "@/board/retidy";
+import { cn } from "@/lib/utils";
 import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
 import type { CardSpacing, FadeStrength, FlashDuration, ZoomRange } from "@/vault/settings";
 import type { Layout } from "@/vault/layout";
@@ -94,6 +96,12 @@ export function BoardView({ boardId }: { boardId: string }) {
   const [linkPreview, setLinkPreview] = useState<{ from: string; to: string } | null>(null);
   // A briefly-highlighted card after a "locate" from the People view.
   const [focusId, setFocusId] = useState<string | null>(null);
+  // True for the brief window after a re-tidy, so cards animate (transition left/top) to their
+  // fresh auto-layout spots instead of snapping. Off during normal drags (which must be 1:1).
+  const [tidying, setTidying] = useState(false);
+  // Latest model, for the retidy handler registered once below (reads it fresh at call time).
+  const modelRef = useRef(model);
+  modelRef.current = model;
 
   // First-ever open (no saved viewport): center self (world origin) in the viewport.
   useEffect(() => {
@@ -156,6 +164,39 @@ export function BoardView({ boardId }: { boardId: string }) {
       schedulePersist();
     });
     return () => unregisterBoard(boardId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardId]);
+
+  // Re-tidy: snap every card back to the current auto-layout (which already honours card spacing),
+  // as one undoable move, and re-centre the viewport so the result is in view. Registered so the
+  // command palette can trigger it; reads positions/model fresh via refs.
+  function retidy() {
+    const cur = latest.current.positions;
+    const tidy = modelRef.current.positions;
+    const before: BoardPatch = {};
+    const after: BoardPatch = {};
+    for (const c of modelRef.current.cards) {
+      const t = tidy.get(c.id);
+      if (!t) continue;
+      before[c.id] = cur.get(c.id) ?? t;
+      after[c.id] = t;
+    }
+    if (Object.keys(after).length === 0) return;
+    recordBoardMove(boardId, before, after); // Ctrl-Z restores the previous arrangement
+    setTidying(true);
+    setPositions((prev) => {
+      const next = new Map(prev);
+      for (const [id, p] of Object.entries(after)) next.set(id, p);
+      return next;
+    });
+    const el = containerRef.current;
+    if (el) setPan({ x: el.clientWidth / 2, y: el.clientHeight / 2 }); // re-centre on the root
+    schedulePersist();
+    window.setTimeout(() => setTidying(false), 560); // clear the transition once it has played
+  }
+  useEffect(() => {
+    registerRetidy(boardId, retidy);
+    return () => unregisterRetidy(boardId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardId]);
 
@@ -554,7 +595,10 @@ export function BoardView({ boardId }: { boardId: string }) {
             <div
               key={card.id}
               data-card-id={card.id}
-              className="group absolute cursor-grab"
+              className={cn(
+                "group absolute cursor-grab",
+                tidying && "transition-[left,top] duration-500 ease-out",
+              )}
               style={{ left: p.x, top: p.y, transform: "translate(-50%, -50%)" }}
             >
               <motion.div
