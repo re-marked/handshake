@@ -27,6 +27,9 @@ const FADE_SCALE: Record<FadeStrength, number> = { subtle: 0.5, medium: 1, stron
 // Board feel knobs (0.8.3 customization): how spread out cards are, how far you can zoom, and how
 // long a located card flashes. Spacing scales both the auto-layout gap and the new-card spawn search.
 const SPACING_FACTOR: Record<CardSpacing, number> = { compact: 0.78, comfortable: 1, spacious: 1.3 };
+// Card grows with inbound `[[mentions]]` (#16) — gentle + capped so the board stays legible.
+const CARD_SCALE_MAX = 1.35;
+const cardSizeScale = (backlinkCount: number): number => 1 + Math.min(backlinkCount, 5) * 0.07;
 const ZOOM_LIMITS: Record<ZoomRange, [number, number]> = { standard: [0.2, 4], wide: [0.05, 8] };
 const FLASH_MS: Record<FlashDuration, number> = { brief: 700, normal: 1400, long: 3000 };
 
@@ -53,6 +56,8 @@ export function BoardView({ boardId }: { boardId: string }) {
   const locate = useApp((s) => s.locate);
   const showGoals = useApp((s) => s.settings.showGoalsOnBoard);
   const showIntroducedBy = useApp((s) => s.settings.showIntroducedBy);
+  const showBacklinks = useApp((s) => s.settings.showBacklinks);
+  const sizeCardsByBacklinks = useApp((s) => s.settings.sizeCardsByBacklinks);
   const fadeStaleCards = useApp((s) => s.settings.fadeStaleCards);
   const fadeStrength = useApp((s) => s.settings.fadeStrength);
   const cardSpacing = useApp((s) => s.settings.cardSpacing);
@@ -452,8 +457,11 @@ export function BoardView({ boardId }: { boardId: string }) {
     const from = parent ? at(parent) : { x: src.x, y: src.y - 1 };
     const baseAngle = Math.atan2(src.y - from.y, src.x - from.x);
     const occupied = [...positions.values()];
-    const W = 186; // card is ~144 wide; leave a clear gutter
-    const H = 236; // ~196 tall + gutter
+    // Leave clearance for the largest a card can get when sized by backlinks, so new cards don't
+    // spawn under a big polaroid.
+    const grow = sizeCardsByBacklinks ? CARD_SCALE_MAX : 1;
+    const W = 186 * grow; // card is ~144 wide; leave a clear gutter
+    const H = 236 * grow; // ~196 tall + gutter
     const free = (p: Pos) => !occupied.some((q) => Math.abs(q.x - p.x) < W && Math.abs(q.y - p.y) < H);
     // Spawn radius scales with the card-spacing setting — new cards land closer (compact) or
     // farther (spacious) from their source.
@@ -584,10 +592,10 @@ export function BoardView({ boardId }: { boardId: string }) {
             at once blew past the layer limit and one board's links silently vanished — issue #3.) */}
         <svg className="pointer-events-none absolute left-0 top-0 overflow-visible" width={1} height={1}>
           {model.links
-            .filter((link) => showIntroducedBy || !link.introducedBy)
+            .filter((link) => (showIntroducedBy || !link.introducedBy) && (showBacklinks || !link.backlink))
             .map((link) => (
             <LinkLine
-              key={`${link.introducedBy ? "via:" : ""}${link.a}|${link.b}`}
+              key={`${link.introducedBy ? "via:" : link.backlink ? "bl:" : ""}${link.a}|${link.b}`}
               link={link}
               a={at(link.a)}
               b={at(link.b)}
@@ -665,6 +673,7 @@ export function BoardView({ boardId }: { boardId: string }) {
                     card={card}
                     photoSrc={photos.get(card.id)}
                     highlighted={card.id === linkPreview?.to || card.id === focusId}
+                    sizeScale={sizeCardsByBacklinks ? cardSizeScale(card.backlinkCount) : 1}
                   />
                 )}
               </motion.div>
@@ -877,6 +886,25 @@ function LinkLine({
           strokeWidth: 1,
           strokeOpacity: 0.35,
           strokeDasharray: "2 6",
+          pointerEvents: "none",
+        }}
+      />
+    );
+  }
+  // Backlink edges (a `[[mention]]`, no tie behind it) — same dotted treatment, but rose-tinted so
+  // it reads apart from the muted introduced-by lines. Not clickable.
+  if (link.backlink) {
+    return (
+      <line
+        x1={a.x}
+        y1={a.y}
+        x2={b.x}
+        y2={b.y}
+        style={{
+          stroke: "var(--primary)",
+          strokeWidth: 1,
+          strokeOpacity: 0.4,
+          strokeDasharray: "2 5",
           pointerEvents: "none",
         }}
       />

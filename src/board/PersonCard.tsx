@@ -11,10 +11,13 @@ export function PersonCard({
   card,
   photoSrc,
   highlighted,
+  sizeScale = 1,
 }: {
   card: BoardCard;
   photoSrc?: string;
   highlighted?: boolean;
+  /** Multiplier on the base 144px width (#16 — popular cards, by backlink count, grow). */
+  sizeScale?: number;
 }) {
   // The card is small, so show only the headline affiliation here; "+N" hints at the rest.
   const extra = Math.max(0, card.affiliations.length - 1);
@@ -22,8 +25,9 @@ export function PersonCard({
   const subtitle = primary && extra > 0 ? `${primary} +${extra}` : primary;
   return (
     <div
+      style={{ width: 144 * sizeScale }}
       className={cn(
-        "w-36 select-none overflow-hidden rounded-md border bg-card shadow-sm transition-shadow",
+        "select-none overflow-hidden rounded-md border bg-card shadow-sm transition-shadow",
         card.isSelf ? "border-primary" : "border-border",
         highlighted && "ring-2 ring-primary ring-offset-2 ring-offset-background",
       )}

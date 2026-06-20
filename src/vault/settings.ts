@@ -93,6 +93,10 @@ export interface Settings {
   defaultTieStrength: Strength;
   /** Draw the faint dotted "introduced by" lines on the board. */
   showIntroducedBy: boolean;
+  /** Draw the faint dotted "backlink" lines (a `[[mention]]` with no tie behind it). */
+  showBacklinks: boolean;
+  /** Grow a person's card by how many other notes `[[mention]]` them. */
+  sizeCardsByBacklinks: boolean;
   /** Fade cards by how long since you last interacted (staleness). Off = all cards full strength. */
   fadeStaleCards: boolean;
   /** How hard the staleness fade dims (when `fadeStaleCards` is on). */
@@ -126,6 +130,8 @@ export const DEFAULT_SETTINGS: Settings = {
   showGoalsOnBoard: true,
   defaultTieStrength: "cold",
   showIntroducedBy: true,
+  showBacklinks: true,
+  sizeCardsByBacklinks: true,
   fadeStaleCards: true,
   fadeStrength: "medium",
   cardSpacing: "comfortable",
@@ -176,6 +182,9 @@ export function parseSettings(json: string): Settings {
     ),
     showIntroducedBy:
       typeof o.showIntroducedBy === "boolean" ? o.showIntroducedBy : DEFAULT_SETTINGS.showIntroducedBy,
+    showBacklinks: typeof o.showBacklinks === "boolean" ? o.showBacklinks : DEFAULT_SETTINGS.showBacklinks,
+    sizeCardsByBacklinks:
+      typeof o.sizeCardsByBacklinks === "boolean" ? o.sizeCardsByBacklinks : DEFAULT_SETTINGS.sizeCardsByBacklinks,
     fadeStaleCards: typeof o.fadeStaleCards === "boolean" ? o.fadeStaleCards : DEFAULT_SETTINGS.fadeStaleCards,
     fadeStrength: oneOf(o.fadeStrength, ["subtle", "medium", "strong"] as const, DEFAULT_SETTINGS.fadeStrength),
     cardSpacing: oneOf(o.cardSpacing, ["compact", "comfortable", "spacious"] as const, DEFAULT_SETTINGS.cardSpacing),
