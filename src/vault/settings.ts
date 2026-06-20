@@ -30,7 +30,7 @@ export type ZoomRange = "standard" | "wide";
 export type FlashDuration = "brief" | "normal" | "long";
 /** Note autosave debounce — how long after you stop typing before the edit commits. */
 export type SaveDelay = "instant" | "normal" | "relaxed";
-/** Default pixel size a popped-out (floating) note opens at. */
+/** A pixel size (used for the default float + the slide-in panel). */
 export interface FloatSize {
   w: number;
   h: number;
@@ -85,6 +85,8 @@ export interface Settings {
   autosaveDelay: SaveDelay;
   /** Default pixel size a floating (popped-out) note opens at. */
   floatSize: FloatSize;
+  /** Pixel size of the slide-in side panel (resizable; remembers what you drag it to). */
+  panelSize: FloatSize;
   /** Show aspirational goal cards on the board. */
   showGoalsOnBoard: boolean;
   /** Strength a freshly-created connection starts at. */
@@ -120,6 +122,7 @@ export const DEFAULT_SETTINGS: Settings = {
   noteDefault: "panel",
   autosaveDelay: "normal",
   floatSize: { w: 340, h: 460 },
+  panelSize: { w: 320, h: 600 },
   showGoalsOnBoard: true,
   defaultTieStrength: "cold",
   showIntroducedBy: true,
@@ -162,7 +165,8 @@ export function parseSettings(json: string): Settings {
     reduceMotion: typeof o.reduceMotion === "boolean" ? o.reduceMotion : DEFAULT_SETTINGS.reduceMotion,
     noteDefault: oneOf(o.noteDefault, ["panel", "float", "tab"] as const, DEFAULT_SETTINGS.noteDefault),
     autosaveDelay: oneOf(o.autosaveDelay, ["instant", "normal", "relaxed"] as const, DEFAULT_SETTINGS.autosaveDelay),
-    floatSize: parseFloatSize(o.floatSize),
+    floatSize: parseSize(o.floatSize, DEFAULT_SETTINGS.floatSize),
+    panelSize: parseSize(o.panelSize, DEFAULT_SETTINGS.panelSize),
     showGoalsOnBoard:
       typeof o.showGoalsOnBoard === "boolean" ? o.showGoalsOnBoard : DEFAULT_SETTINGS.showGoalsOnBoard,
     defaultTieStrength: oneOf(
@@ -183,15 +187,14 @@ export function parseSettings(json: string): Settings {
   };
 }
 
-function parseFloatSize(v: unknown): FloatSize {
-  const d = DEFAULT_SETTINGS.floatSize;
-  if (!v || typeof v !== "object") return { ...d };
+function parseSize(v: unknown, fallback: FloatSize): FloatSize {
+  if (!v || typeof v !== "object") return { ...fallback };
   const o = v as Record<string, unknown>;
   const clamp = (n: unknown, lo: number, hi: number, fb: number) =>
     typeof n === "number" && isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n))) : fb;
   return {
-    w: clamp(o.w, FLOAT_W_MIN, FLOAT_W_MAX, d.w),
-    h: clamp(o.h, FLOAT_H_MIN, FLOAT_H_MAX, d.h),
+    w: clamp(o.w, FLOAT_W_MIN, FLOAT_W_MAX, fallback.w),
+    h: clamp(o.h, FLOAT_H_MIN, FLOAT_H_MAX, fallback.h),
   };
 }
 
