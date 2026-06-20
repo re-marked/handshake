@@ -12,6 +12,8 @@ export interface BoardCard {
   isSelf: boolean;
   photo?: string; // relpath into attachments/ (loaded once the asset protocol is wired)
   affiliations: Affiliation[];
+  /** The person's tags — for the inline board filter (#16). */
+  tags: string[];
   /** 0..1 recency → card opacity (staleness). */
   freshness: number;
   /** How many other people's notes `[[mention]]` this person — drives card size (#16). */
@@ -70,6 +72,7 @@ export function buildBoardModel(
     isSelf: p.isSelf,
     photo: p.photo,
     affiliations: p.affiliations,
+    tags: p.tags,
     freshness: freshnessOf(lastInteractionDate(sb, p.id), now),
     backlinkCount: sb.backlinks.get(p.id)?.size ?? 0,
   }));
@@ -83,6 +86,7 @@ export function buildBoardModel(
       name: g.title,
       isSelf: false,
       affiliations: [],
+      tags: [],
       freshness: 1,
       backlinkCount: 0,
       isGoal: true,

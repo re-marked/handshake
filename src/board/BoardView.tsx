@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion } from "motion/react";
-import { Check, Maximize, Minus, Plus, UserPlus, Wand2 } from "lucide-react";
+import { Check, Filter, Maximize, Minus, Plus, UserPlus, Wand2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { buildBoardModel, type BoardCard, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { boardCache } from "@/board/boardCache";
 import { PhotoUpload } from "@/app/PhotoUpload";
@@ -16,7 +17,7 @@ import { useApp } from "@/app/store";
 import { recordBoardMove, registerBoard, unregisterBoard, type BoardPatch } from "@/app/undo";
 import { registerRetidy, unregisterRetidy } from "@/board/retidy";
 import { cn } from "@/lib/utils";
-import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person } from "@/switchboard";
+import { canonicalHandshakeId, canonicalPair, mintPersonId, type Handshake, type Person, type Strength } from "@/switchboard";
 import type { CardSpacing, FadeStrength, FlashDuration, ZoomRange } from "@/vault/settings";
 import type { Layout } from "@/vault/layout";
 
@@ -75,6 +76,32 @@ export function BoardView({ boardId }: { boardId: string }) {
       ),
     [switchboard, layout, spacing],
   );
+
+  // Inline board filter (#16): dim cards that don't carry every chosen tag / a chosen tie strength.
+  const [boardFilter, setBoardFilter] = useState<{ tags: string[]; strengths: Strength[] }>({
+    tags: [],
+    strengths: [],
+  });
+  const filterActive = boardFilter.tags.length > 0 || boardFilter.strengths.length > 0;
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of switchboard.people.values()) p.tags.forEach((t) => set.add(t));
+    return [...set].sort();
+  }, [switchboard.people]);
+  const strengthsByPerson = useMemo(() => {
+    const m = new Map<string, Set<Strength>>();
+    for (const h of switchboard.handshakes.values()) {
+      for (const pid of h.people) {
+        let set = m.get(pid);
+        if (!set) {
+          set = new Set();
+          m.set(pid, set);
+        }
+        set.add(h.strength);
+      }
+    }
+    return m;
+  }, [switchboard.handshakes]);
 
   const cached = boardCache.get(boardId);
   const [positions, setPositions] = useState<Map<string, Pos>>(
@@ -648,6 +675,13 @@ export function BoardView({ boardId }: { boardId: string }) {
           // scales how much of that "staleness" translates to dimming (floored so cards stay legible).
           const dim = (1 - card.freshness) * FADE_SCALE[fadeStrength];
           const fade = fadeStaleCards && !card.isSelf && !card.isGoal ? Math.max(0.22, 1 - dim) : 1;
+          // Filter dim composes with the staleness fade into one opacity (don't stack two sources).
+          const matches =
+            !filterActive ||
+            (boardFilter.tags.every((t) => card.tags.includes(t)) &&
+              (boardFilter.strengths.length === 0 ||
+                boardFilter.strengths.some((s) => strengthsByPerson.get(card.id)?.has(s))));
+          const opacity = card.id === deletingId ? 0 : fade * (matches ? 1 : 0.12);
           return (
             <div
               key={card.id}
@@ -662,7 +696,7 @@ export function BoardView({ boardId }: { boardId: string }) {
                 initial={card.id === justCreated ? { scale: 0.5, opacity: 0 } : false}
                 animate={{
                   scale: card.id === deletingId ? 0.4 : 1,
-                  opacity: card.id === deletingId ? 0 : fade,
+                  opacity,
                 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               >
@@ -781,13 +815,14 @@ export function BoardView({ boardId }: { boardId: string }) {
           onZoomIn={() => zoomBy(1.25)}
           onFit={fitToView}
           onTidy={retidy}
+          filter={<BoardFilter allTags={allTags} filter={boardFilter} onChange={setBoardFilter} />}
         />
       )}
     </div>
   );
 }
 
-/** The always-on board controls — a floating pill at the bottom-centre (create · zoom · layout). */
+/** The always-on board controls — a floating pill at the bottom-centre (create · zoom · layout · filter). */
 function BoardToolbar({
   zoom,
   onNew,
@@ -796,6 +831,7 @@ function BoardToolbar({
   onZoomIn,
   onFit,
   onTidy,
+  filter,
 }: {
   zoom: number;
   onNew: () => void;
@@ -804,6 +840,7 @@ function BoardToolbar({
   onZoomIn: () => void;
   onFit: () => void;
   onTidy: () => void;
+  filter?: ReactNode;
 }) {
   return (
     <motion.div
@@ -840,7 +877,103 @@ function BoardToolbar({
       <ToolButton label="Re-tidy board" onClick={onTidy}>
         <Wand2 className="size-4" />
       </ToolButton>
+      {filter && (
+        <>
+          <ToolDivider />
+          {filter}
+        </>
+      )}
     </motion.div>
+  );
+}
+
+const STRENGTHS: { value: Strength; label: string }[] = [
+  { value: "close", label: "Close" },
+  { value: "warm", label: "Warm" },
+  { value: "cold", label: "Cold" },
+  { value: "dormant", label: "Dormant" },
+];
+
+/** The board filter: a toolbar button → popover of tag + tie-strength chips. Non-matching cards dim. */
+function BoardFilter({
+  allTags,
+  filter,
+  onChange,
+}: {
+  allTags: string[];
+  filter: { tags: string[]; strengths: Strength[] };
+  onChange: (next: { tags: string[]; strengths: Strength[] }) => void;
+}) {
+  const count = filter.tags.length + filter.strengths.length;
+  const toggleTag = (t: string) =>
+    onChange({ ...filter, tags: filter.tags.includes(t) ? filter.tags.filter((x) => x !== t) : [...filter.tags, t] });
+  const toggleStrength = (s: Strength) =>
+    onChange({
+      ...filter,
+      strengths: filter.strengths.includes(s) ? filter.strengths.filter((x) => x !== s) : [...filter.strengths, s],
+    });
+  const chip = (active: boolean) =>
+    cn(
+      "rounded-full border px-2 py-0.5 text-xs capitalize transition-colors",
+      active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-accent/50",
+    );
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label="Filter board"
+          title="Filter board"
+          className={cn(
+            "relative grid size-8 place-items-center rounded-md transition-colors hover:bg-accent/50",
+            count > 0 ? "text-primary" : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          <Filter className="size-4" />
+          {count > 0 && (
+            <span className="absolute -right-0.5 -top-0.5 grid size-3.5 place-items-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+              {count}
+            </span>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" align="end" className="w-64 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-muted-foreground">Filter board</span>
+          {count > 0 && (
+            <button
+              type="button"
+              onClick={() => onChange({ tags: [], strengths: [] })}
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <div className="space-y-1">
+          <div className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Tie strength</div>
+          <div className="flex flex-wrap gap-1">
+            {STRENGTHS.map((s) => (
+              <button key={s.value} type="button" onClick={() => toggleStrength(s.value)} className={chip(filter.strengths.includes(s.value))}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {allTags.length > 0 && (
+          <div className="space-y-1">
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Tags</div>
+            <div className="flex max-h-40 flex-wrap gap-1 overflow-y-auto">
+              {allTags.map((t) => (
+                <button key={t} type="button" onClick={() => toggleTag(t)} className={chip(filter.tags.includes(t))}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 }
 
