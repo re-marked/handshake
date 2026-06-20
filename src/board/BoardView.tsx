@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion } from "motion/react";
-import { Check, Plus } from "lucide-react";
+import { Check, Maximize, Minus, Plus, UserPlus, Wand2 } from "lucide-react";
 import { buildBoardModel, type BoardCard, type BoardLink, type BoardModel, type Pos } from "@/board/tree";
 import { boardCache } from "@/board/boardCache";
 import { PhotoUpload } from "@/app/PhotoUpload";
@@ -394,6 +394,55 @@ export function BoardView({ boardId }: { boardId: string }) {
   const at = (id: string): Pos => positions.get(id) ?? { x: 0, y: 0 };
   const selfId = switchboard.self?.id;
 
+  // ---- board toolbar actions ----
+  // Zoom by a fixed factor about the viewport centre (keeps the middle of the view put).
+  function zoomBy(factor: number) {
+    const el = containerRef.current;
+    if (!el) return;
+    const [zMin, zMax] = ZOOM_LIMITS[zoomRange];
+    const next = Math.min(zMax, Math.max(zMin, zoom * factor));
+    const cx = el.clientWidth / 2;
+    const cy = el.clientHeight / 2;
+    const wx = (cx - pan.x) / zoom;
+    const wy = (cy - pan.y) / zoom;
+    setPan({ x: cx - wx * next, y: cy - wy * next });
+    setZoom(next);
+    schedulePersist();
+  }
+  // Frame the whole network in the viewport (the "I'm lost, take me home" button).
+  function fitToView() {
+    const el = containerRef.current;
+    const pts = [...positions.values()];
+    if (!el || pts.length === 0) return;
+    const xs = pts.map((p) => p.x);
+    const ys = pts.map((p) => p.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const pad = 140; // half a card + breathing room
+    const [zMin, zMax] = ZOOM_LIMITS[zoomRange];
+    const z = Math.min(
+      zMax,
+      Math.max(zMin, Math.min(el.clientWidth / (maxX - minX + pad * 2), el.clientHeight / (maxY - minY + pad * 2))),
+    );
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    setZoom(z);
+    setPan({ x: el.clientWidth / 2 - cx * z, y: el.clientHeight / 2 - cy * z });
+    schedulePersist();
+  }
+  // Start the create-and-connect ghost at the centre of the current view, connected to you.
+  function newPersonHere() {
+    const el = containerRef.current;
+    if (!el || !selfId) return;
+    setComposeName("");
+    setComposing({
+      sourceId: selfId,
+      pos: { x: (el.clientWidth / 2 - pan.x) / zoom, y: (el.clientHeight / 2 - pan.y) / zoom },
+    });
+  }
+
   // Find an open spot for a new card: fan outward from the source (in its growth
   // direction, away from its parent), expanding the radius until it clears every
   // existing card so the newcomer never lands on top of one.
@@ -713,8 +762,95 @@ export function BoardView({ boardId }: { boardId: string }) {
           </DropdownMenuContent>
         )}
       </DropdownMenu>
+
+      {selfId && (
+        <BoardToolbar
+          zoom={zoom}
+          onNew={newPersonHere}
+          onZoomOut={() => zoomBy(0.8)}
+          onZoomReset={() => zoomBy(1 / zoom)}
+          onZoomIn={() => zoomBy(1.25)}
+          onFit={fitToView}
+          onTidy={retidy}
+        />
+      )}
     </div>
   );
+}
+
+/** The always-on board controls — a floating pill at the bottom-centre (create · zoom · layout). */
+function BoardToolbar({
+  zoom,
+  onNew,
+  onZoomOut,
+  onZoomReset,
+  onZoomIn,
+  onFit,
+  onTidy,
+}: {
+  zoom: number;
+  onNew: () => void;
+  onZoomOut: () => void;
+  onZoomReset: () => void;
+  onZoomIn: () => void;
+  onFit: () => void;
+  onTidy: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+      // Don't let interactions with the bar pan/zoom the board behind it.
+      onPointerDown={(e) => e.stopPropagation()}
+      onWheel={(e) => e.stopPropagation()}
+      className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-0.5 rounded-xl border bg-card/90 p-1 shadow-lg backdrop-blur-sm"
+    >
+      <ToolButton label="New person" onClick={onNew}>
+        <UserPlus className="size-4" />
+      </ToolButton>
+      <ToolDivider />
+      <ToolButton label="Zoom out" onClick={onZoomOut}>
+        <Minus className="size-4" />
+      </ToolButton>
+      <button
+        type="button"
+        onClick={onZoomReset}
+        title="Reset zoom to 100%"
+        className="min-w-[3rem] rounded-md px-1.5 py-1 text-xs tabular-nums text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+      >
+        {Math.round(zoom * 100)}%
+      </button>
+      <ToolButton label="Zoom in" onClick={onZoomIn}>
+        <Plus className="size-4" />
+      </ToolButton>
+      <ToolButton label="Fit to view" onClick={onFit}>
+        <Maximize className="size-4" />
+      </ToolButton>
+      <ToolDivider />
+      <ToolButton label="Re-tidy board" onClick={onTidy}>
+        <Wand2 className="size-4" />
+      </ToolButton>
+    </motion.div>
+  );
+}
+
+function ToolButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+    >
+      {children}
+    </button>
+  );
+}
+
+function ToolDivider() {
+  return <div className="mx-0.5 h-5 w-px bg-border" />;
 }
 
 function LinkLine({
