@@ -1,6 +1,10 @@
 # Build the desktop app for every platform and attach the installers to a GitHub release
 # whenever a version tag (e.g. v0.1.1) is pushed. The release is created as a DRAFT so you can
 # add notes and publish when the builds look good. Can also be run manually (workflow_dispatch).
+#
+# A single `create-release` job mints the draft release first; every build job then uploads INTO
+# that one release by id. (When the matrix jobs each created the release themselves, they raced and
+# GitHub sometimes made two release objects for the same tag, splitting the installers across them.)
 name: release
 
 on:
@@ -10,7 +14,42 @@ on:
   workflow_dispatch:
 
 jobs:
+  create-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    outputs:
+      release_id: ${{ steps.create-release.outputs.result }}
+    steps:
+      - name: Create (or reuse) the draft release
+        uses: actions/github-script@v7
+        id: create-release
+        with:
+          result-encoding: string
+          script: |
+            const tag = process.env.GITHUB_REF_NAME;
+            // Reuse an existing release for this tag (e.g. on a re-run) instead of making a duplicate.
+            const releases = await github.paginate(github.rest.repos.listReleases, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+            let release = releases.find((r) => r.tag_name === tag);
+            if (!release) {
+              release = (await github.rest.repos.createRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_name: tag,
+                name: `Handshake ${tag}`,
+                body: "Download the installer for your platform from the assets below.",
+                draft: true,
+                prerelease: false,
+              })).data;
+            }
+            return release.id;
+
   build:
+    needs: create-release
     permissions:
       contents: write
     strategy:
@@ -61,14 +100,10 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install
 
-      - name: Build app + create release
+      - name: Build app + upload to the release
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: "Handshake ${{ github.ref_name }}"
-          releaseBody: "Download the installer for your platform from the assets below."
-          releaseDraft: true
-          prerelease: false
+          releaseId: ${{ needs.create-release.outputs.release_id }}
           args: ${{ matrix.args }}
