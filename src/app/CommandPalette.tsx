@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Camera, FolderOpen, Plus, Redo2, Settings, Share2, Undo2, User } from "lucide-react";
+import { Camera, FolderOpen, LayoutGrid, Plus, Redo2, Settings, Share2, Undo2, User } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -9,6 +9,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useApp } from "@/app/store";
+import { retidyBoard } from "@/board/retidy";
 import * as undo from "@/app/undo";
 import { useUndoStore } from "@/app/undo";
 import { notify } from "@/app/toast";
@@ -187,6 +188,26 @@ export function CommandPalette() {
                 <Redo2 /> Redo
               </CommandItem>
             )}
+          </CommandGroup>
+        )}
+        {self && (
+          <CommandGroup heading="Board">
+            <CommandItem
+              value="re-tidy board arrange layout clean up cards"
+              onSelect={() => {
+                setOpen(false);
+                const ok = retidyBoard("main");
+                notify(ok ? "Board tidied" : "No board to tidy", {
+                  body: ok
+                    ? "Cards snapped back to the auto-layout. Undo (Ctrl-Z) to restore."
+                    : "Open the board first.",
+                  icon: LayoutGrid,
+                  tone: ok ? "success" : "muted",
+                });
+              }}
+            >
+              <LayoutGrid /> Re-tidy board
+            </CommandItem>
           </CommandGroup>
         )}
         <CommandGroup heading="Networks">
