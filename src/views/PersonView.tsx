@@ -12,7 +12,7 @@ import { MarkdownView } from "@/views/MarkdownView";
 import { SafeNoteEditor } from "@/views/NoteEditor";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
-import { pruneAffiliations } from "@/switchboard";
+import { buildNameIndex, pruneAffiliations, resolvePersonRef } from "@/switchboard";
 import type { Affiliation, Handshake, Person, PersonPatch } from "@/switchboard";
 import type { SaveDelay } from "@/vault/settings";
 
@@ -111,6 +111,11 @@ export function PersonView({ id }: { id: string }) {
 
   const handshakes = useApp((s) => s.switchboard.handshakes);
   const people = useApp((s) => s.switchboard.people);
+  // Resolver for `[[Person]]` backlinks in the rendered note (by display name, then slug).
+  const resolveBacklink = useMemo(() => {
+    const nameIndex = buildNameIndex(people);
+    return (text: string) => resolvePersonRef(text, nameIndex, people);
+  }, [people]);
   const connections = useMemo(
     () =>
       [...handshakes.values()]
@@ -329,7 +334,12 @@ export function PersonView({ id }: { id: string }) {
       ) : draft.body.trim() ? (
         // Rendered markdown; click bare text to edit, click a highlight to recolor it.
         <div className="-mx-0.5 cursor-text rounded-sm px-0.5 py-0.5" onClick={() => setMode("edit")}>
-          <MarkdownView source={draft.body} onChange={(body) => update({ body })} keywords={keywords} />
+          <MarkdownView
+            source={draft.body}
+            onChange={(body) => update({ body })}
+            keywords={keywords}
+            resolveBacklink={resolveBacklink}
+          />
         </div>
       ) : (
         <button

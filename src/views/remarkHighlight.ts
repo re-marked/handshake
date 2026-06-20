@@ -78,7 +78,8 @@ export function remarkKeywords(rules: KeywordRule[]) {
   return (tree: unknown) => {
     if (!pattern) return;
     visit(tree as never, "text", (node: any, index: number | undefined, parent: any) => {
-      if (!parent || index == null || parent.type === "highlight" || typeof node.value !== "string") return;
+      if (!parent || index == null || typeof node.value !== "string") return;
+      if (parent.type === "highlight" || parent.type === "backlink") return; // skip [[link]] labels too
       const value: string = node.value;
       const out: any[] = [];
       let last = 0;
