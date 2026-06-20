@@ -54,15 +54,14 @@ export default function Home() {
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Free &amp; open · macOS, Windows &amp; Linux</p>
 
-          {/* a real screenshot of the board */}
-          <div className="mt-14 overflow-hidden rounded-xl border shadow-2xl ring-1 ring-black/5">
-            <Image
-              src="/screenshot-board.png"
-              alt="The Handshake board — a founder's network of people connected by ties weighted by warmth, with real photos and goal cards"
-              width={1998}
-              height={1185}
+          {/* a real screenshot: the board with a person's note slid in */}
+          <div className="mt-14">
+            <Shot
+              src="/screenshot-hero.png"
+              alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
+              width={1999}
+              height={1184}
               priority
-              className="w-full"
             />
           </div>
         </section>
@@ -124,6 +123,48 @@ export default function Home() {
                 a hidden schema — your `.md` files stay byte-for-byte yours.
               </Point>
             </ul>
+          </div>
+        </Section>
+
+        {/* ── Views ─────────────────────────────────────────── */}
+        <Section
+          eyebrow="See it your way"
+          title="The same network, two ways."
+          blurb="A spatial board for thinking; a dense, searchable list for finding. Sort by name or by closeness, dial the density — same plain files underneath, your pick any moment."
+        >
+          <Shot
+            src="/screenshot-people.png"
+            alt="The People view — a searchable, sortable list of everyone in the network with roles, tags, and warmth dots"
+            width={1999}
+            height={1180}
+          />
+        </Section>
+
+        {/* ── Multitasking ──────────────────────────────────── */}
+        <Section
+          eyebrow="A real workspace"
+          title="Lay it out like you think."
+          blurb="Tabs, resizable splits, and pop-out notes — a true Obsidian-style workspace. Put the board beside your people and your goals beneath it, and it's right where you left it next time."
+        >
+          <Shot
+            src="/screenshot-split.png"
+            alt="A split workspace — the board and a goals list stacked on the left, the People list on the right"
+            width={1999}
+            height={1184}
+          />
+        </Section>
+
+        {/* ── Customisability ───────────────────────────────── */}
+        <Section
+          eyebrow="Yours to tune"
+          title="Tuned to your taste."
+          blurb="Themes, fonts, scale, density, card spacing, the staleness fade, snapshot cadence — dozens of dials, each with a sensible default. Make it feel like yours."
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Shot src="/settings-appearance.png" alt="Appearance settings — theme, scale, font, weight, density" width={1585} height={1266} />
+            <Shot src="/settings-board.png" alt="Board settings — goal cards, introduced-by + backlink lines, card sizing, spacing, zoom" width={1582} height={1266} />
+            <Shot src="/settings-timemachine.png" alt="Time Machine settings — git versioning, snapshot cadence, history + restore" width={1582} height={1271} />
+            <Shot src="/settings-developer.png" alt="Developer settings — the debug report and diagnostics" width={1591} height={1270} />
           </div>
         </Section>
 
@@ -244,6 +285,26 @@ function Ghost({ href, children }: { href: string; children: React.ReactNode }) 
     >
       {children}
     </a>
+  );
+}
+
+function Shot({
+  src,
+  alt,
+  width,
+  height,
+  priority,
+}: {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  priority?: boolean;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border shadow-2xl ring-1 ring-black/5">
+      <Image src={src} alt={alt} width={width} height={height} priority={priority} className="w-full" />
+    </div>
   );
 }
 
