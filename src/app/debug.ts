@@ -199,6 +199,9 @@ export async function writeReport(reason = "manual"): Promise<string | null> {
 }
 
 function safeStr(v: unknown): string {
+  // Errors JSON.stringify to "{}" (message/stack are non-enumerable) — surface them properly so
+  // a caught render error reads as its real message + stack, not an empty object.
+  if (v instanceof Error) return `${v.name}: ${v.message}${v.stack ? `\n${v.stack}` : ""}`;
   try {
     return JSON.stringify(v);
   } catch {
