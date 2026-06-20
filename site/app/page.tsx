@@ -28,15 +28,6 @@ const DOWNLOAD = `${REPO}/releases/latest`;
 export default function Home() {
   return (
     <div className="relative overflow-x-clip">
-      {/* soft rose glow behind the hero */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px]"
-        style={{
-          background:
-            "radial-gradient(60% 80% at 50% -10%, color-mix(in oklch, var(--color-primary) 22%, transparent), transparent 70%)",
-        }}
-      />
-
       <Nav />
 
       <main className="mx-auto w-full max-w-6xl px-5">
