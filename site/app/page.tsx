@@ -23,6 +23,10 @@ function Github({ className }: { className?: string }) {
 
 const REPO = "https://github.com/re-marked/handshake";
 const DOWNLOAD = `${REPO}/releases/latest`;
+// next/image with `unoptimized` does NOT prepend basePath to public assets — do it ourselves so
+// images resolve under the GitHub Pages subpath (/handshake) in prod and at root in dev.
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const asset = (p: string) => `${BASE}${p}`;
 
 export default function Home() {
   return (
@@ -244,7 +248,7 @@ function Nav() {
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-5">
         <a href="#" className="flex items-center gap-2">
-          <Image src="/handshake-logo.png" alt="" width={26} height={26} priority />
+          <Image src={asset("/handshake-logo.png")} alt="" width={26} height={26} priority />
           <span className="font-display text-lg font-semibold tracking-tight">Handshake</span>
         </a>
         <nav className="flex items-center gap-1.5">
@@ -303,7 +307,7 @@ function Shot({
 }) {
   return (
     <div className="overflow-hidden rounded-xl border shadow-2xl ring-1 ring-black/5">
-      <Image src={src} alt={alt} width={width} height={height} priority={priority} className="w-full" />
+      <Image src={asset(src)} alt={alt} width={width} height={height} priority={priority} className="w-full" />
     </div>
   );
 }
@@ -364,7 +368,7 @@ function Footer() {
   return (
     <footer className="border-t">
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-4 px-5 py-12 text-center">
-        <Image src="/handshake-logo.png" alt="" width={40} height={40} />
+        <Image src={asset("/handshake-logo.png")} alt="" width={40} height={40} />
         <p className="text-sm text-muted-foreground">Plain files. One rose accent. Yours.</p>
         <div className="flex items-center gap-5 text-sm text-muted-foreground">
           <a href={REPO} className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground">
