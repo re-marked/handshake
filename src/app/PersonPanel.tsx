@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Trash2, X } from "lucide-react";
+import { FLOAT_H_MAX, FLOAT_H_MIN, FLOAT_W_MAX, FLOAT_W_MIN } from "@/vault/settings";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,40 @@ export function PersonPanel() {
   const openPersonId = useApp((s) => s.openPersonId);
   const closePerson = useApp((s) => s.closePerson);
   const person = useApp((s) => (openPersonId ? s.switchboard.people.get(openPersonId) : undefined));
+  const panelSize = useApp((s) => s.settings.panelSize);
+
+  // Live size while dragging the grip; falls back to the saved default. Resizing the panel
+  // updates the default (settings.panelSize) on release — it remembers what you drag it to.
+  const [drag, setDrag] = useState<{ w: number; h: number } | null>(null);
+  const size = drag ?? panelSize;
+  // Drag origin + the live size (kept in the ref so the commit on release is never stale).
+  const resize = useRef<{ x: number; y: number; w0: number; h0: number; w: number; h: number } | null>(null);
+
+  function onGripDown(e: React.PointerEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    resize.current = { x: e.clientX, y: e.clientY, w0: size.w, h0: size.h, w: size.w, h: size.h };
+    setDrag({ w: size.w, h: size.h });
+  }
+  function onGripMove(e: React.PointerEvent) {
+    const r = resize.current;
+    if (!r) return;
+    const maxW = Math.min(FLOAT_W_MAX, window.innerWidth - 48);
+    const maxH = Math.min(FLOAT_H_MAX, window.innerHeight - 80);
+    // Panel hugs the top-right: dragging the grip left widens it, dragging down lengthens it.
+    r.w = Math.max(FLOAT_W_MIN, Math.min(maxW, r.w0 - (e.clientX - r.x)));
+    r.h = Math.max(FLOAT_H_MIN, Math.min(maxH, r.h0 + (e.clientY - r.y)));
+    setDrag({ w: r.w, h: r.h });
+  }
+  function onGripUp(e: React.PointerEvent) {
+    const r = resize.current;
+    if (!r) return;
+    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    resize.current = null;
+    setDrag(null);
+    useApp.getState().updateSettings({ panelSize: { w: r.w, h: r.h } });
+  }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -44,16 +79,17 @@ export function PersonPanel() {
   }, [openPersonId, closePerson]);
 
   return (
-    <div className="pointer-events-none absolute right-3 top-14 z-40 w-80">
+    <div className="pointer-events-none absolute right-3 top-14 z-40">
       <AnimatePresence mode="wait">
         {openPersonId && (
           <motion.div
             key={openPersonId}
-            initial={{ x: 340, opacity: 0 }}
+            initial={{ x: size.w + 24, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 340, opacity: 0, transition: EXIT }}
-            transition={ENTER}
-            className="pointer-events-auto flex max-h-[calc(100vh-4.5rem)] flex-col overflow-hidden rounded-xl border bg-card shadow-xl"
+            exit={{ x: size.w + 24, opacity: 0, transition: EXIT }}
+            transition={drag ? { duration: 0 } : ENTER}
+            style={{ width: size.w, height: size.h, maxHeight: "calc(100vh - 4.5rem)", maxWidth: "calc(100vw - 1.5rem)" }}
+            className="pointer-events-auto relative flex flex-col overflow-hidden rounded-xl border bg-card shadow-xl"
           >
             <div className="flex h-10 shrink-0 items-center justify-between border-b pl-2 pr-1.5">
               <NoteModeSwitch id={openPersonId} current="panel" />
@@ -69,6 +105,15 @@ export function PersonPanel() {
                 <PersonView id={openPersonId} />
               </div>
             </ScrollArea>
+            {/* Bottom-left grip: the panel hugs the right edge, so it resizes toward the centre. */}
+            <div
+              role="separator"
+              aria-label="Resize panel"
+              onPointerDown={onGripDown}
+              onPointerMove={onGripMove}
+              onPointerUp={onGripUp}
+              className="absolute bottom-0 left-0 z-10 size-4 cursor-nesw-resize touch-none"
+            />
           </motion.div>
         )}
       </AnimatePresence>
