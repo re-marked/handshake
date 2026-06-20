@@ -10,7 +10,6 @@ import {
   SquareStack,
   StickyNote,
 } from "lucide-react";
-import { FauxBoard } from "@/components/FauxBoard";
 import { FauxNote } from "@/components/FauxNote";
 
 /** Inline GitHub mark — lucide 1.x dropped its brand icons. */
@@ -55,11 +54,16 @@ export default function Home() {
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Free &amp; open · macOS, Windows &amp; Linux</p>
 
-          {/* the built faux-board, framed as the app window */}
-          <div className="mt-14">
-            <Window title="my personal network — Handshake">
-              <FauxBoard />
-            </Window>
+          {/* a real screenshot of the board */}
+          <div className="mt-14 overflow-hidden rounded-xl border shadow-2xl ring-1 ring-black/5">
+            <Image
+              src="/screenshot-board.png"
+              alt="The Handshake board — a founder's network of people connected by ties weighted by warmth, with real photos and goal cards"
+              width={1998}
+              height={1185}
+              priority
+              className="w-full"
+            />
           </div>
         </section>
 
@@ -240,20 +244,6 @@ function Ghost({ href, children }: { href: string; children: React.ReactNode }) 
     >
       {children}
     </a>
-  );
-}
-
-function Window({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="overflow-hidden rounded-xl border bg-card/40 shadow-2xl ring-1 ring-black/5">
-      <div className="flex items-center gap-1.5 border-b border-border/60 px-4 py-3">
-        <span className="size-2.5 rounded-full bg-muted-foreground/30" />
-        <span className="size-2.5 rounded-full bg-muted-foreground/30" />
-        <span className="size-2.5 rounded-full bg-muted-foreground/30" />
-        <span className="ml-3 text-xs text-muted-foreground">{title}</span>
-      </div>
-      <div className="bg-background/40 p-3 sm:p-6">{children}</div>
-    </div>
   );
 }
 
