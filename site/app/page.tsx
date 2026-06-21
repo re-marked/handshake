@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, FileText, Lock, SlidersHorizontal } from "lucide-react";
 
 /** Inline GitHub mark — lucide 1.x dropped its brand icons. */
 function Github({ className }: { className?: string }) {
@@ -55,15 +55,15 @@ export default function Home() {
         {/* ── Value band ─────────────────────────────────────── */}
         <section className="border-t py-20">
           <div className="grid gap-10 sm:grid-cols-3">
-            <ValueProp title="Your network is yours.">
+            <ValueProp icon={Lock} title="Your network is yours.">
               Everyone you know, stored as plain files on your machine. No cloud, no account, no one
               reading your relationships — not even us.
             </ValueProp>
-            <ValueProp title="Your way of seeing is yours.">
+            <ValueProp icon={SlidersHorizontal} title="Your way of seeing is yours.">
               Themes, density, layout, the warmth of every tie. Bend Handshake to fit how you think about
               the people in your life.
             </ValueProp>
-            <ValueProp title="Your memory should last.">
+            <ValueProp icon={FileText} title="Your memory should last.">
               Open markdown underneath. Your network outlives the app, the company, and the hype — it&apos;s
               just a folder of text.
             </ValueProp>
@@ -72,7 +72,6 @@ export default function Home() {
 
         {/* ── Links / backlinks ─────────────────────────────── */}
         <FeatureRow
-          eyebrow="Links"
           title="Write a name. Draw a line."
           blurb="Type [[ in any note and it completes from your people. Mention someone and the board draws the connection — and their card grows with every mention. Your notes quietly become a map you can click straight through."
           reverse
@@ -87,7 +86,6 @@ export default function Home() {
 
         {/* ── Two views ─────────────────────────────────────── */}
         <Section
-          eyebrow="Two views"
           title="Spatial, or a tidy list."
           blurb="Think in space on the board; find fast in a sortable, searchable list. Order by name or by closeness, dial the density — same plain files underneath, switched in a keystroke."
         >
@@ -101,7 +99,6 @@ export default function Home() {
 
         {/* ── Workspace ─────────────────────────────────────── */}
         <Section
-          eyebrow="Workspace"
           title="Lay it out like you think."
           blurb="Tabs, resizable splits, and pop-out notes — a true Obsidian-style layout. Put the board beside your people and your goals beneath it, and it's right where you left it next time."
         >
@@ -115,7 +112,6 @@ export default function Home() {
 
         {/* ── Plain text ─────────────────────────────────────── */}
         <FeatureRow
-          eyebrow="Yours, in plain text"
           title="The vault is the database."
           blurb="Every person, every handshake, every goal is just a markdown file with YAML frontmatter, in a folder you choose. No database, no proprietary format, no account, no telemetry."
         >
@@ -206,10 +202,20 @@ function Ghost({ href, children }: { href: string; children: React.ReactNode }) 
   );
 }
 
-function ValueProp({ title, children }: { title: string; children: React.ReactNode }) {
+function ValueProp({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <div className="mb-3 size-1.5 rounded-full bg-primary" />
+      <div className="mb-4 grid size-10 place-items-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="size-5" />
+      </div>
       <h3 className="font-display text-xl font-semibold tracking-tight">{title}</h3>
       <p className="mt-3 leading-relaxed text-muted-foreground">{children}</p>
     </div>
@@ -236,14 +242,12 @@ function Shot({
   );
 }
 
-/** A full-width feature: centered eyebrow/title/blurb above a big visual. */
+/** A full-width feature: centered title/blurb above a big visual. */
 function Section({
-  eyebrow,
   title,
   blurb,
   children,
 }: {
-  eyebrow: string;
   title: string;
   blurb: string;
   children: React.ReactNode;
@@ -251,8 +255,7 @@ function Section({
   return (
     <section className="border-t py-24">
       <div className="mx-auto mb-12 max-w-2xl text-center">
-        <div className="text-sm font-medium text-primary">{eyebrow}</div>
-        <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
+        <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{blurb}</p>
       </div>
       {children}
@@ -262,13 +265,11 @@ function Section({
 
 /** A side-by-side feature: text in one column, a visual in the other (alternates via `reverse`). */
 function FeatureRow({
-  eyebrow,
   title,
   blurb,
   reverse,
   children,
 }: {
-  eyebrow: string;
   title: string;
   blurb: string;
   reverse?: boolean;
@@ -278,8 +279,7 @@ function FeatureRow({
     <section className="border-t py-24">
       <div className="grid items-center gap-12 lg:grid-cols-2">
         <div className={reverse ? "lg:order-2" : ""}>
-          <div className="text-sm font-medium text-primary">{eyebrow}</div>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
+          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
           <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{blurb}</p>
         </div>
         <div className={reverse ? "lg:order-1" : ""}>{children}</div>
