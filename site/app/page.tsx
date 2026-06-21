@@ -19,7 +19,7 @@ const asset = (p: string) => `${BASE}${p}`;
 
 export default function Home() {
   return (
-    <div className="relative overflow-x-clip">
+    <div className="relative">
       <Nav />
 
       {/* ── Hero ───────────────────────────────────────────── */}
@@ -51,7 +51,7 @@ export default function Home() {
             priority
             className="w-full rounded-t-xl"
           />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 [background-image:linear-gradient(to_bottom,transparent,var(--background))]" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 [background-image:linear-gradient(to_bottom,transparent,var(--background))]" />
         </div>
       </div>
 
@@ -89,7 +89,7 @@ export default function Home() {
         </FeatureRow>
 
         {/* ── Two views ─────────────────────────────────────── */}
-        <Section
+        <FeatureRow
           title="Spatial, or a tidy list."
           blurb="Think in space on the board; find fast in a sortable, searchable list. Order by name or by closeness, dial the density — same plain files underneath, switched in a keystroke."
         >
@@ -99,10 +99,11 @@ export default function Home() {
             width={1999}
             height={1180}
           />
-        </Section>
+        </FeatureRow>
 
         {/* ── Workspace ─────────────────────────────────────── */}
-        <Section
+        <FeatureRow
+          reverse
           title="Lay it out like you think."
           blurb="Tabs, resizable splits, and pop-out notes — a true Obsidian-style layout. Put the board beside your people and your goals beneath it, and it's right where you left it next time."
         >
@@ -112,7 +113,7 @@ export default function Home() {
             width={1999}
             height={1184}
           />
-        </Section>
+        </FeatureRow>
 
         {/* ── Plain text ─────────────────────────────────────── */}
         <FeatureRow
@@ -246,28 +247,12 @@ function Shot({
   );
 }
 
-/** A full-width feature: centered title/blurb above a big visual. */
-function Section({
-  title,
-  blurb,
-  children,
-}: {
-  title: string;
-  blurb: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="py-24">
-      <div className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
-        <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{blurb}</p>
-      </div>
-      {children}
-    </section>
-  );
-}
-
-/** A side-by-side feature: text in one column, a visual in the other (alternates via `reverse`). */
+/**
+ * A side-by-side feature: a BIG title + body that stays *sticky* while its screenshot scrolls past,
+ * alternating sides via `reverse`. The text column pins under the nav and releases at the next
+ * section — all native CSS `position: sticky`, so the motion is perfectly smooth. The image column
+ * is the wider of the two so there's real scroll distance for the title to ride through.
+ */
 function FeatureRow({
   title,
   blurb,
@@ -280,11 +265,17 @@ function FeatureRow({
   children: React.ReactNode;
 }) {
   return (
-    <section className="py-24">
-      <div className="grid items-center gap-12 lg:grid-cols-2">
-        <div className={reverse ? "lg:order-2" : ""}>
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
-          <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{blurb}</p>
+    <section className="py-16 lg:py-28">
+      <div
+        className={`grid items-start gap-12 lg:gap-20 ${
+          reverse ? "lg:grid-cols-[7fr_5fr]" : "lg:grid-cols-[5fr_7fr]"
+        }`}
+      >
+        <div className={`lg:sticky lg:top-28 lg:self-start ${reverse ? "lg:order-2" : ""}`}>
+          <h2 className="font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            {title}
+          </h2>
+          <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{blurb}</p>
         </div>
         <div className={reverse ? "lg:order-1" : ""}>{children}</div>
       </div>
