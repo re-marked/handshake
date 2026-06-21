@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { ArrowRight, FileText, Lock, SlidersHorizontal } from "lucide-react";
+import { VaultWindow } from "@/components/VaultWindow";
 
 /** Inline GitHub mark — lucide 1.x dropped its brand icons. */
 function Github({ className }: { className?: string }) {
@@ -84,7 +85,7 @@ export default function Home() {
             src="/screenshot-note.png"
             alt="A person's note open in the workspace — connections and a note where [[Chip Sterling]] and [[Kevin Zhao]] render as rose backlink chips"
             width={1999}
-            height={1180}
+            height={1185}
           />
         </FeatureRow>
 
@@ -96,8 +97,8 @@ export default function Home() {
           <Shot
             src="/screenshot-people.png"
             alt="The People view — a searchable, sortable list of everyone in the network with roles, tags, and warmth dots"
-            width={1999}
-            height={1180}
+            width={1998}
+            height={1179}
           />
         </FeatureRow>
 
@@ -109,9 +110,9 @@ export default function Home() {
         >
           <Shot
             src="/screenshot-split.png"
-            alt="A split workspace — the board and a goals list stacked on the left, the People list on the right"
+            alt="A split workspace — a goals list with a floating note on the left, the board on the right"
             width={1999}
-            height={1184}
+            height={1181}
           />
         </FeatureRow>
 
@@ -120,15 +121,7 @@ export default function Home() {
           title="The vault is the database."
           blurb="Every person, every handshake, every goal is just a markdown file with YAML frontmatter, in a folder you choose. No database, no proprietary format, no account, no telemetry."
         >
-          <pre className="w-fit max-w-full overflow-x-auto rounded-xl border bg-card/60 p-6 font-mono text-sm leading-relaxed text-muted-foreground">
-            {`your-network/
-├─ people/         self.md · sarah-chen.md …
-├─ handshakes/     sarah-chen__tom-okonkwo.md
-├─ goals/          meet-naval.md
-├─ interactions/   2026-05-26-dm-sarah.md
-├─ attachments/    the photos
-└─ .handshake/     layout & settings`}
-          </pre>
+          <VaultWindow />
         </FeatureRow>
 
         {/* ── Download CTA ──────────────────────────────────── */}
