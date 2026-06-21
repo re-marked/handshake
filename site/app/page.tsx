@@ -24,17 +24,13 @@ export default function Home() {
 
       <main className="mx-auto w-full max-w-6xl px-5">
         {/* ── Hero ───────────────────────────────────────────── */}
-        <section className="pt-16 text-center sm:pt-28">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <span className="size-1.5 rounded-full bg-primary" />
-            Obsidian for your network
-          </div>
-          <h1 className="mx-auto mt-7 max-w-3xl font-display text-6xl font-semibold leading-[1.02] tracking-tight sm:text-8xl">
+        <section className="pt-20 text-center sm:pt-32">
+          <h1 className="mx-auto max-w-3xl font-display text-6xl font-semibold leading-[1.02] tracking-tight sm:text-8xl">
             Know who you know.
           </h1>
           <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            The free, local-first app for the people in your orbit — the ties, the warmth, the
-            introductions, all in plain files you own.
+            A desktop app for mapping the people you know — who they are, how you met, and how everyone&apos;s
+            connected. Local-first, and yours in plain text.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <CTA href={DOWNLOAD}>Download for desktop</CTA>
