@@ -325,7 +325,7 @@ function Orbit() {
 
 function Footer() {
   return (
-    <footer className="border-t">
+    <footer>
       <div className="mx-auto flex w-full max-w-[2000px] flex-col items-center gap-4 px-6 py-12 text-center sm:px-12 lg:px-20">
         <Image src={asset("/handshake-logo.png")} alt="" width={40} height={40} />
         <p className="text-sm text-muted-foreground">Plain files. One rose accent. Yours.</p>
