@@ -278,16 +278,16 @@ function FeatureRow({
 }
 
 /**
- * Three concentric orbit rings, each carrying a single rose "planet" that rides a continuously
- * rotating wrapper around the shared center (where the CTA copy sits — "you", in focus). Different
- * radii, speeds, and directions; staggered start angles via negative animation-delay. The whole rig
- * scales down on small screens. Decorative + pointer-events-none, so it never blocks the buttons.
+ * Three concentric rings, each carrying one rose ball that rides a continuously-rotating wrapper
+ * around the shared center (where the CTA copy sits). Uneven speeds + one counter-rotation so the
+ * balls never sync; staggered start angles via negative delay. No glow, no center — minimal: just
+ * monochrome rings and the rose accent in motion. Scales down on mobile; respects reduced-motion.
  */
 function Orbit() {
   const rings = [
-    { d: 340, dur: 20, reverse: false, planet: 11, delay: 0 },
-    { d: 530, dur: 30, reverse: true, planet: 9, delay: -10 },
-    { d: 720, dur: 42, reverse: false, planet: 13, delay: -28 },
+    { d: 340, dur: 22, reverse: false, ball: 20, delay: 0 },
+    { d: 530, dur: 35, reverse: true, ball: 26, delay: -12 },
+    { d: 720, dur: 50, reverse: false, ball: 30, delay: -33 },
   ];
   return (
     <div
@@ -297,7 +297,7 @@ function Orbit() {
       {rings.map((r) => (
         <div
           key={r.d}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/15"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-muted-foreground/20"
           style={{ width: r.d, height: r.d }}
         >
           <div
@@ -314,16 +314,11 @@ function Orbit() {
           >
             <span
               className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
-              style={{ width: r.planet, height: r.planet, boxShadow: "0 0 16px 3px var(--primary)" }}
+              style={{ width: r.ball, height: r.ball }}
             />
           </div>
         </div>
       ))}
-      {/* the center — you, in focus */}
-      <span
-        className="absolute top-1/2 left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
-        style={{ boxShadow: "0 0 28px 6px var(--primary)" }}
-      />
     </div>
   );
 }
