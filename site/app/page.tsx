@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { FauxNote } from "@/components/FauxNote";
 
 /** Inline GitHub mark — lucide 1.x dropped its brand icons. */
 function Github({ className }: { className?: string }) {
@@ -45,26 +44,20 @@ export default function Home() {
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Free &amp; open · macOS, Windows &amp; Linux</p>
 
+          {/* the board with a person's note slid in */}
+          <div className="mt-16">
+            <Shot
+              src="/screenshot-hero.png"
+              alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
+              width={1999}
+              height={1184}
+              priority
+            />
+          </div>
         </section>
 
-        {/* the board with a person's note slid in — full-bleed, large, bleeding off the bottom */}
-        <div className="relative left-1/2 mt-16 w-screen -translate-x-1/2">
-          <div className="mx-auto max-w-[1700px] px-4 sm:px-6">
-            <div className="overflow-hidden rounded-t-2xl border border-b-0 shadow-2xl ring-1 ring-black/5">
-              <Image
-                src={asset("/screenshot-hero.png")}
-                alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
-                width={1999}
-                height={1184}
-                priority
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-
         {/* ── Value band ─────────────────────────────────────── */}
-        <section className="py-20">
+        <section className="border-t py-20">
           <div className="grid gap-10 sm:grid-cols-3">
             <ValueProp title="Your network is yours.">
               Everyone you know, stored as plain files on your machine. No cloud, no account, no one
@@ -88,9 +81,12 @@ export default function Home() {
           blurb="Type [[ in any note and it completes from your people. Mention someone and the board draws the connection — and their card grows with every mention. Your notes quietly become a map you can click straight through."
           reverse
         >
-          <div className="flex justify-center">
-            <FauxNote />
-          </div>
+          <Shot
+            src="/screenshot-note.png"
+            alt="A person's note in Preview — [[Kevin Zhao]] and [[Maggie Doyle]] rendered as rose backlink chips, with a soft highlight"
+            width={623}
+            height={237}
+          />
         </FeatureRow>
 
         {/* ── Two views ─────────────────────────────────────── */}
