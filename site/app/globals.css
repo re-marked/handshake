@@ -7,9 +7,8 @@
 :root {
   --radius: 0.5rem;
 
-  /* Near-black, far darker than the app's own background (oklch 0.24), so the framed screenshots
-   * — which carry the app's lighter surface — sit well forward and really pop off the page. */
-  --background: oklch(0.1 0.006 75);
+  /* Matches the app's own background, so the site reads as one surface with the screenshots. */
+  --background: oklch(0.24 0.009 75);
   --foreground: oklch(0.9 0.005 75);
   --card: oklch(0.275 0.009 75);
   --card-foreground: oklch(0.9 0.005 75);
