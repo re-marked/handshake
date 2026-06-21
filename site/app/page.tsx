@@ -40,15 +40,19 @@ export default function Home() {
         <p className="mt-4 text-sm text-muted-foreground">Free &amp; open · macOS, Windows &amp; Linux</p>
       </section>
 
-      {/* the board with a person's note slid in — a touch wider than the rest */}
+      {/* the board with a person's note slid in — a touch wider than the rest, fading into the page */}
       <div className="mx-auto mt-16 max-w-7xl px-5">
-        <Shot
-          src="/screenshot-hero.png"
-          alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
-          width={1999}
-          height={1184}
-          priority
-        />
+        <div className="relative">
+          <Image
+            src={asset("/screenshot-hero.png")}
+            alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
+            width={1999}
+            height={1184}
+            priority
+            className="w-full rounded-t-xl"
+          />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 [background-image:linear-gradient(to_bottom,transparent,var(--background))]" />
+        </div>
       </div>
 
       <main className="mx-auto w-full max-w-6xl px-5">
