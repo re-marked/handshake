@@ -80,14 +80,12 @@ export default function Home() {
           blurb="Type [[ in any note and it completes from your people. Mention someone and the board draws the connection — and their card grows with every mention. Your notes quietly become a map you can click straight through."
           reverse
         >
-          <div className="mx-auto max-w-xl">
-            <Shot
-              src="/screenshot-note.png"
-              alt="A person's note panel — photo, role, tags, handles, connections, and a note where [[Kevin Zhao]] and [[Maggie Doyle]] render as rose backlink chips"
-              width={734}
-              height={785}
-            />
-          </div>
+          <Shot
+            src="/screenshot-note.png"
+            alt="A person's note open in the workspace — connections and a note where [[Chip Sterling]] and [[Kevin Zhao]] render as rose backlink chips"
+            width={1999}
+            height={1180}
+          />
         </FeatureRow>
 
         {/* ── Two views ─────────────────────────────────────── */}
