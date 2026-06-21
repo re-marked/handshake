@@ -285,9 +285,9 @@ function FeatureRow({
  */
 function Orbit() {
   const rings = [
-    { d: 340, dur: 22, reverse: false, ball: 20, delay: 0 },
-    { d: 530, dur: 35, reverse: true, ball: 26, delay: -12 },
-    { d: 720, dur: 50, reverse: false, ball: 30, delay: -33 },
+    { d: 340, dur: 22, reverse: false, ball: 32, delay: 0 },
+    { d: 530, dur: 35, reverse: true, ball: 40, delay: -12 },
+    { d: 720, dur: 50, reverse: false, ball: 48, delay: -33 },
   ];
   return (
     <div

@@ -72,14 +72,10 @@
   }
 }
 
-/* The CTA orbit: each ring's planet rides a continuously-rotating wrapper. */
+/* The CTA orbit: each ring's ball rides a continuously-rotating wrapper. Intentionally NOT gated on
+ * prefers-reduced-motion — it's the signature brand centerpiece and is meant to always be in motion. */
 @keyframes orbit-spin {
   to {
     transform: rotate(360deg);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-orbit] {
-    animation: none !important;
   }
 }
