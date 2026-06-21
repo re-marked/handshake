@@ -25,10 +25,10 @@ export default function Home() {
       <main className="mx-auto w-full max-w-6xl px-5">
         {/* ── Hero ───────────────────────────────────────────── */}
         <section className="pt-20 text-center sm:pt-32">
-          <h1 className="mx-auto max-w-3xl font-display text-6xl font-semibold leading-[1.02] tracking-tight sm:text-8xl">
+          <h1 className="mx-auto font-display text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl lg:text-8xl">
             Know who you know.
           </h1>
-          <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+          <p className="mx-auto mt-7 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
             A desktop app for mapping the people you know — who they are, how you met, and how everyone&apos;s
             connected. Local-first, and yours in plain text.
           </p>
