@@ -83,9 +83,9 @@ export default function Home() {
         >
           <Shot
             src="/screenshot-note.png"
-            alt="A person's note in Preview — [[Kevin Zhao]] and [[Maggie Doyle]] rendered as rose backlink chips, with a soft highlight"
-            width={623}
-            height={237}
+            alt="A person's note panel — photo, role, tags, handles, connections, and a note where [[Kevin Zhao]] and [[Maggie Doyle]] render as rose backlink chips"
+            width={734}
+            height={785}
           />
         </FeatureRow>
 
