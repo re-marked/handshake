@@ -22,38 +22,42 @@ export default function Home() {
     <div className="relative overflow-x-clip">
       <Nav />
 
+      {/* ── Hero ───────────────────────────────────────────── */}
+      <section className="mx-auto max-w-6xl px-5 pt-20 text-center sm:pt-32">
+        <h1 className="mx-auto font-display text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl lg:text-8xl">
+          Know who you know.
+        </h1>
+        <p className="mx-auto mt-7 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+          A desktop app for mapping the people you know — who they are, how you met, and how everyone&apos;s
+          connected. Local-first, and yours in plain text.
+        </p>
+        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <CTA href={DOWNLOAD}>Download for desktop</CTA>
+          <Ghost href={REPO}>
+            <Github className="size-4" /> View on GitHub
+          </Ghost>
+        </div>
+        <p className="mt-4 text-sm text-muted-foreground">Free &amp; open · macOS, Windows &amp; Linux</p>
+      </section>
+
+      {/* the board with a person's note slid in — a touch wider than the rest, fading into the page */}
+      <div className="mx-auto mt-16 max-w-7xl px-5">
+        <div className="relative">
+          <Image
+            src={asset("/screenshot-hero.png")}
+            alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
+            width={1999}
+            height={1184}
+            priority
+            className="w-full rounded-t-xl"
+          />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 [background-image:linear-gradient(to_bottom,transparent,var(--background))]" />
+        </div>
+      </div>
+
       <main className="mx-auto w-full max-w-6xl px-5">
-        {/* ── Hero ───────────────────────────────────────────── */}
-        <section className="pt-20 text-center sm:pt-32">
-          <h1 className="mx-auto font-display text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl lg:text-8xl">
-            Know who you know.
-          </h1>
-          <p className="mx-auto mt-7 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            A desktop app for mapping the people you know — who they are, how you met, and how everyone&apos;s
-            connected. Local-first, and yours in plain text.
-          </p>
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <CTA href={DOWNLOAD}>Download for desktop</CTA>
-            <Ghost href={REPO}>
-              <Github className="size-4" /> View on GitHub
-            </Ghost>
-          </div>
-          <p className="mt-4 text-sm text-muted-foreground">Free &amp; open · macOS, Windows &amp; Linux</p>
-
-          {/* the board with a person's note slid in */}
-          <div className="mt-16">
-            <Shot
-              src="/screenshot-hero.png"
-              alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
-              width={1999}
-              height={1184}
-              priority
-            />
-          </div>
-        </section>
-
         {/* ── Value band ─────────────────────────────────────── */}
-        <section className="border-t py-20">
+        <section className="py-20">
           <div className="grid gap-10 sm:grid-cols-3">
             <ValueProp icon={Lock} title="Your network is yours.">
               Everyone you know, stored as plain files on your machine. No cloud, no account, no one
@@ -253,7 +257,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-t py-24">
+    <section className="py-24">
       <div className="mx-auto mb-12 max-w-2xl text-center">
         <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{blurb}</p>
@@ -276,7 +280,7 @@ function FeatureRow({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-t py-24">
+    <section className="py-24">
       <div className="grid items-center gap-12 lg:grid-cols-2">
         <div className={reverse ? "lg:order-2" : ""}>
           <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
