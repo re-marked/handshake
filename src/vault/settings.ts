@@ -16,7 +16,6 @@ export interface HighlightKeyword {
 export type Theme = "dark" | "light" | "paper" | "system";
 export type PaperVariant = "soft" | "vintage";
 export type Density = "compact" | "comfortable" | "spacious";
-export type AppScale = "small" | "default" | "large" | "larger";
 export type AppFont = "system" | "serif" | "mono";
 export type TextWeight = "light" | "normal" | "medium";
 export type TimeMachineMode = "manual" | "auto";
@@ -41,6 +40,10 @@ export const FLOAT_H_MIN = 180;
 export const FLOAT_H_MAX = 1200;
 export const CADENCE_MIN = 1;
 export const CADENCE_MAX = 1440; // 1 day
+// Overall UI zoom, as a percentage of the base root font size. 100 = default.
+export const APP_SCALE_MIN = 80;
+export const APP_SCALE_MAX = 300;
+export const APP_SCALE_STEP = 5;
 
 /** Developer / debug preferences (off by default; surfaced in the Developer Settings section). */
 export interface DevSettings {
@@ -69,8 +72,8 @@ export interface Settings {
   theme: Theme;
   /** Which paper look, when `theme` is `paper`. `soft` = gentle ivory; `vintage` = aged sepia + grain. */
   paperVariant: PaperVariant;
-  /** Overall UI scale (drives the root font size; rem-based layout scales with it). */
-  appScale: AppScale;
+  /** Overall UI scale as a percentage (drives the root font size; rem-based layout scales with it). */
+  appScale: number;
   /** UI font family. */
   font: AppFont;
   /** Base text weight. */
@@ -118,7 +121,7 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
   paperVariant: "soft",
-  appScale: "default",
+  appScale: 100,
   font: "system",
   textWeight: "normal",
   density: "comfortable",
@@ -164,7 +167,7 @@ export function parseSettings(json: string): Settings {
   return {
     theme: oneOf(o.theme, ["dark", "light", "paper", "system"] as const, DEFAULT_SETTINGS.theme),
     paperVariant: oneOf(o.paperVariant, ["soft", "vintage"] as const, DEFAULT_SETTINGS.paperVariant),
-    appScale: oneOf(o.appScale, ["small", "default", "large", "larger"] as const, DEFAULT_SETTINGS.appScale),
+    appScale: parseScale(o.appScale, DEFAULT_SETTINGS.appScale),
     font: oneOf(o.font, ["system", "serif", "mono"] as const, DEFAULT_SETTINGS.font),
     textWeight: oneOf(o.textWeight, ["light", "normal", "medium"] as const, DEFAULT_SETTINGS.textWeight),
     density: oneOf(o.density, ["compact", "comfortable", "spacious"] as const, DEFAULT_SETTINGS.density),
@@ -194,6 +197,16 @@ export function parseSettings(json: string): Settings {
     dev: parseDev(o.dev),
     highlightKeywords: parseKeywords(o.highlightKeywords),
   };
+}
+
+// appScale used to be an enum; map old files forward, otherwise clamp the number into range.
+const SCALE_LEGACY: Record<string, number> = { small: 90, default: 100, large: 110, larger: 125 };
+function parseScale(v: unknown, fallback: number): number {
+  if (typeof v === "number" && isFinite(v)) {
+    return Math.max(APP_SCALE_MIN, Math.min(APP_SCALE_MAX, Math.round(v)));
+  }
+  if (typeof v === "string" && v in SCALE_LEGACY) return SCALE_LEGACY[v];
+  return fallback;
 }
 
 function parseSize(v: unknown, fallback: FloatSize): FloatSize {

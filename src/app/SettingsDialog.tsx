@@ -19,6 +19,9 @@ import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import type { Snapshot, TmStats } from "@/vault/io";
 import { Input } from "@/components/ui/input";
 import {
+  APP_SCALE_MAX,
+  APP_SCALE_MIN,
+  APP_SCALE_STEP,
   CADENCE_MAX,
   CADENCE_MIN,
   DEFAULT_SETTINGS,
@@ -40,6 +43,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/app/store";
@@ -128,17 +132,21 @@ function AppearanceSection() {
           />
         </Row>
       )}
-      <Row label="App scale" description="Zoom the whole interface up or down.">
-        <Seg
-          value={s.appScale}
-          onChange={(appScale) => set({ appScale })}
-          options={[
-            { value: "small", label: "90%" },
-            { value: "default", label: "100%" },
-            { value: "large", label: "110%" },
-            { value: "larger", label: "125%" },
-          ]}
-        />
+      <Row label="App scale" description="Zoom the whole interface up or down, from 80% to 300%.">
+        <div className="flex items-center gap-3">
+          <Slider
+            value={[s.appScale]}
+            min={APP_SCALE_MIN}
+            max={APP_SCALE_MAX}
+            step={APP_SCALE_STEP}
+            onValueChange={([appScale]) => set({ appScale })}
+            className="w-40"
+            aria-label="App scale"
+          />
+          <span className="w-11 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+            {s.appScale}%
+          </span>
+        </div>
       </Row>
       <Row label="Font" description="The interface typeface.">
         <Seg
