@@ -71,3 +71,15 @@
     color: var(--color-primary-foreground);
   }
 }
+
+/* The CTA orbit: each ring's planet rides a continuously-rotating wrapper. */
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-orbit] {
+    animation: none !important;
+  }
+}

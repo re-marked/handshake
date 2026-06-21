@@ -48,7 +48,7 @@ export default function Home() {
             src={asset("/screenshot-hero.png")}
             alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
             width={1999}
-            height={1184}
+            height={1074}
             priority
             className="w-full rounded-t-xl"
           />
@@ -124,17 +124,18 @@ export default function Home() {
           <VaultWindow />
         </FeatureRow>
 
-        {/* ── Download CTA ──────────────────────────────────── */}
-        <section className="pb-28 pt-4">
-          <div className="overflow-hidden rounded-2xl border bg-card/50 px-6 py-16 text-center">
-            <h2 className="mx-auto max-w-xl font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        {/* ── Download CTA — the heading sits at the center of a literal orbit ── */}
+        <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden py-24 sm:min-h-[680px] lg:min-h-[820px]">
+          <Orbit />
+          <div className="relative z-10 mx-auto max-w-lg px-4 text-center">
+            <h2 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
               Bring your orbit into focus.
             </h2>
-            <p className="mx-auto mt-4 max-w-md text-muted-foreground">
+            <p className="mx-auto mt-5 max-w-md text-muted-foreground">
               Free, open, and entirely on your machine. The best introductions are usually one or two
               handshakes away.
             </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <CTA href={DOWNLOAD}>Download Handshake</CTA>
               <Ghost href={REPO}>
                 <Github className="size-4" /> Star it on GitHub
@@ -273,6 +274,57 @@ function FeatureRow({
         <div className={reverse ? "lg:order-1" : ""}>{children}</div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Three concentric orbit rings, each carrying a single rose "planet" that rides a continuously
+ * rotating wrapper around the shared center (where the CTA copy sits — "you", in focus). Different
+ * radii, speeds, and directions; staggered start angles via negative animation-delay. The whole rig
+ * scales down on small screens. Decorative + pointer-events-none, so it never blocks the buttons.
+ */
+function Orbit() {
+  const rings = [
+    { d: 340, dur: 20, reverse: false, planet: 11, delay: 0 },
+    { d: 530, dur: 30, reverse: true, planet: 9, delay: -10 },
+    { d: 720, dur: 42, reverse: false, planet: 13, delay: -28 },
+  ];
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[0.5] sm:scale-75 lg:scale-100"
+    >
+      {rings.map((r) => (
+        <div
+          key={r.d}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/15"
+          style={{ width: r.d, height: r.d }}
+        >
+          <div
+            data-orbit
+            className="absolute inset-0"
+            style={{
+              animationName: "orbit-spin",
+              animationDuration: `${r.dur}s`,
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
+              animationDirection: r.reverse ? "reverse" : "normal",
+              animationDelay: `${r.delay}s`,
+            }}
+          >
+            <span
+              className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
+              style={{ width: r.planet, height: r.planet, boxShadow: "0 0 16px 3px var(--primary)" }}
+            />
+          </div>
+        </div>
+      ))}
+      {/* the center — you, in focus */}
+      <span
+        className="absolute top-1/2 left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
+        style={{ boxShadow: "0 0 28px 6px var(--primary)" }}
+      />
+    </div>
   );
 }
 
