@@ -166,12 +166,15 @@ export function MarkdownView({
   return (
     <div className={cn(PROSE, className)}>
       <Markdown
+        // Parametrized plugins MUST be passed as [plugin, options] tuples — unified calls the
+        // attacher to get the transformer. Pre-calling them (remarkBacklinks(...)) passes a
+        // transformer where an attacher is expected, so unified runs it with no tree → visit(undefined).
         remarkPlugins={[
           remarkGfm,
           remarkBreaks,
           remarkHighlight,
-          remarkBacklinks(resolveBacklink ?? (() => null)),
-          remarkKeywords(keywords ?? []),
+          [remarkBacklinks, resolveBacklink ?? (() => null)],
+          [remarkKeywords, keywords ?? []],
         ]}
         components={{ a: Link, mark: Mark, img: Img }}
       >
