@@ -23,7 +23,7 @@ export default function Home() {
       <Nav />
 
       {/* ── Hero ───────────────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-5 pt-20 text-center sm:pt-32">
+      <section className="mx-auto w-full max-w-[2000px] px-6 pt-20 text-center sm:px-12 sm:pt-32 lg:px-20">
         <h1 className="mx-auto font-display text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl lg:text-8xl">
           Know who you know.
         </h1>
@@ -40,8 +40,8 @@ export default function Home() {
         <p className="mt-4 text-sm text-muted-foreground">Free &amp; open · macOS, Windows &amp; Linux</p>
       </section>
 
-      {/* the board with a person's note slid in — a touch wider than the rest, fading into the page */}
-      <div className="mx-auto mt-16 max-w-7xl px-5">
+      {/* the board with a person's note slid in — fades into the page at the bottom */}
+      <div className="mx-auto mt-16 w-full max-w-[2000px] px-6 sm:px-12 lg:px-20">
         <div className="relative">
           <Image
             src={asset("/screenshot-hero.png")}
@@ -55,7 +55,7 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="mx-auto w-full max-w-6xl px-5">
+      <main className="mx-auto w-full max-w-[2000px] px-6 sm:px-12 lg:px-20">
         {/* ── Value band ─────────────────────────────────────── */}
         <section className="py-20">
           <div className="grid gap-10 sm:grid-cols-3">
@@ -80,12 +80,14 @@ export default function Home() {
           blurb="Type [[ in any note and it completes from your people. Mention someone and the board draws the connection — and their card grows with every mention. Your notes quietly become a map you can click straight through."
           reverse
         >
-          <Shot
-            src="/screenshot-note.png"
-            alt="A person's note panel — photo, role, tags, handles, connections, and a note where [[Kevin Zhao]] and [[Maggie Doyle]] render as rose backlink chips"
-            width={734}
-            height={785}
-          />
+          <div className="mx-auto max-w-xl">
+            <Shot
+              src="/screenshot-note.png"
+              alt="A person's note panel — photo, role, tags, handles, connections, and a note where [[Kevin Zhao]] and [[Maggie Doyle]] render as rose backlink chips"
+              width={734}
+              height={785}
+            />
+          </div>
         </FeatureRow>
 
         {/* ── Two views ─────────────────────────────────────── */}
@@ -120,7 +122,7 @@ export default function Home() {
           title="The vault is the database."
           blurb="Every person, every handshake, every goal is just a markdown file with YAML frontmatter, in a folder you choose. No database, no proprietary format, no account, no telemetry."
         >
-          <pre className="overflow-x-auto rounded-xl border bg-card/60 p-5 font-mono text-[13px] leading-relaxed text-muted-foreground">
+          <pre className="w-fit max-w-full overflow-x-auto rounded-xl border bg-card/60 p-6 font-mono text-sm leading-relaxed text-muted-foreground">
             {`your-network/
 ├─ people/         self.md · sarah-chen.md …
 ├─ handshakes/     sarah-chen__tom-okonkwo.md
@@ -161,7 +163,7 @@ export default function Home() {
 function Nav() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-5">
+      <div className="mx-auto flex h-14 w-full max-w-[2000px] items-center justify-between px-6 sm:px-12 lg:px-20">
         <a href="#" className="flex items-center gap-2">
           <Image src={asset("/handshake-logo.png")} alt="" width={26} height={26} priority />
           <span className="font-display text-lg font-semibold tracking-tight">Handshake</span>
@@ -265,17 +267,17 @@ function FeatureRow({
   children: React.ReactNode;
 }) {
   return (
-    <section className="py-16 lg:py-28">
+    <section className="py-20 lg:py-32">
       <div
-        className={`grid items-start gap-12 lg:gap-20 ${
+        className={`grid items-start gap-12 lg:gap-24 ${
           reverse ? "lg:grid-cols-[7fr_5fr]" : "lg:grid-cols-[5fr_7fr]"
         }`}
       >
         <div className={`lg:sticky lg:top-28 lg:self-start ${reverse ? "lg:order-2" : ""}`}>
-          <h2 className="font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+          <h2 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
             {title}
           </h2>
-          <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{blurb}</p>
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">{blurb}</p>
         </div>
         <div className={reverse ? "lg:order-1" : ""}>{children}</div>
       </div>
@@ -286,7 +288,7 @@ function FeatureRow({
 function Footer() {
   return (
     <footer className="border-t">
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-4 px-5 py-12 text-center">
+      <div className="mx-auto flex w-full max-w-[2000px] flex-col items-center gap-4 px-6 py-12 text-center sm:px-12 lg:px-20">
         <Image src={asset("/handshake-logo.png")} alt="" width={40} height={40} />
         <p className="text-sm text-muted-foreground">Plain files. One rose accent. Yours.</p>
         <div className="flex items-center gap-5 text-sm text-muted-foreground">
