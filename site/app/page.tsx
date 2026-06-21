@@ -45,20 +45,26 @@ export default function Home() {
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Free &amp; open · macOS, Windows &amp; Linux</p>
 
-          {/* the board with a person's note slid in */}
-          <div className="mt-16">
-            <Shot
-              src="/screenshot-hero.png"
-              alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
-              width={1999}
-              height={1184}
-              priority
-            />
-          </div>
         </section>
 
+        {/* the board with a person's note slid in — full-bleed, large, bleeding off the bottom */}
+        <div className="relative left-1/2 mt-16 w-screen -translate-x-1/2">
+          <div className="mx-auto max-w-[1700px] px-4 sm:px-6">
+            <div className="overflow-hidden rounded-t-2xl border border-b-0 shadow-2xl ring-1 ring-black/5">
+              <Image
+                src={asset("/screenshot-hero.png")}
+                alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
+                width={1999}
+                height={1184}
+                priority
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* ── Value band ─────────────────────────────────────── */}
-        <section className="border-t py-20">
+        <section className="py-20">
           <div className="grid gap-10 sm:grid-cols-3">
             <ValueProp title="Your network is yours.">
               Everyone you know, stored as plain files on your machine. No cloud, no account, no one
