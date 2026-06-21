@@ -7,8 +7,8 @@
 :root {
   --radius: 0.5rem;
 
-  /* Matches the app's own background, so the site reads as one surface with the screenshots. */
-  --background: oklch(0.24 0.009 75);
+  /* Between the app's own background and near-black — a touch darker than the screenshots. */
+  --background: oklch(0.17 0.008 75);
   --foreground: oklch(0.9 0.005 75);
   --card: oklch(0.275 0.009 75);
   --card-foreground: oklch(0.9 0.005 75);
@@ -48,7 +48,8 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  /* Headings use the app's exact mono stack — Mark's daily profile is Mono. */
+  --font-display: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
 }
 
 @layer base {
