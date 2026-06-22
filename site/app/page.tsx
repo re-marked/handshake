@@ -25,7 +25,7 @@ export default function Home() {
 
       {/* ── Hero ───────────────────────────────────────────── */}
       <section className="mx-auto w-full max-w-[2000px] px-6 pt-20 text-center sm:px-12 sm:pt-32 lg:px-20">
-        <h1 className="mx-auto font-display text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl lg:text-8xl">
+        <h1 className="mx-auto font-display text-5xl font-semibold leading-[1.02] sm:text-7xl lg:text-8xl">
           Know who you know.
         </h1>
         <p className="mx-auto mt-7 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
@@ -128,7 +128,7 @@ export default function Home() {
         <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden py-24 sm:min-h-[680px] lg:min-h-[820px]">
           <Orbit />
           <div className="relative z-10 mx-auto max-w-lg px-4 text-center">
-            <h2 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+            <h2 className="font-display text-4xl font-semibold sm:text-5xl">
               Bring your orbit into focus.
             </h2>
             <p className="mx-auto mt-5 max-w-md text-muted-foreground">
@@ -158,7 +158,7 @@ function Nav() {
       <div className="mx-auto flex h-14 w-full max-w-[2000px] items-center justify-between px-6 sm:px-12 lg:px-20">
         <a href="#" className="flex items-center gap-2">
           <Image src={asset("/handshake-logo.png")} alt="" width={26} height={26} priority />
-          <span className="font-display text-lg font-semibold tracking-tight">Handshake</span>
+          <span className="font-display text-lg font-semibold">Handshake</span>
         </a>
         <nav className="flex items-center gap-1.5">
           <a
@@ -215,7 +215,7 @@ function ValueProp({
       <div className="mb-4 grid size-10 place-items-center rounded-lg bg-primary/10 text-primary">
         <Icon className="size-5" />
       </div>
-      <h3 className="font-display text-xl font-semibold tracking-tight">{title}</h3>
+      <h3 className="font-display text-xl font-semibold">{title}</h3>
       <p className="mt-3 leading-relaxed text-muted-foreground">{children}</p>
     </div>
   );
@@ -266,7 +266,7 @@ function FeatureRow({
         }`}
       >
         <div className={`lg:sticky lg:top-28 lg:self-start ${reverse ? "lg:order-2" : ""}`}>
-          <h2 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+          <h2 className="font-display text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
             {title}
           </h2>
           <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">{blurb}</p>
