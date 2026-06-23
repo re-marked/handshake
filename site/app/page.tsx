@@ -149,9 +149,15 @@ export default function Home() {
               const reverse = i % 2 === 1; // odd rows put the Q+A on the right
               return (
                 <div key={f.q} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-20">
-                  <div className={reverse ? "lg:order-2" : ""}>
+                  <div className={reverse ? "lg:order-2 lg:text-right" : ""}>
                     <h3 className="font-display text-xl font-medium text-foreground">{f.q}</h3>
-                    <p className="mt-3 max-w-xl leading-relaxed text-muted-foreground">{f.a}</p>
+                    <p
+                      className={`mt-3 max-w-xl leading-relaxed text-muted-foreground ${
+                        reverse ? "lg:ml-auto" : ""
+                      }`}
+                    >
+                      {f.a}
+                    </p>
                   </div>
                   <div className={`flex justify-center ${reverse ? "lg:order-1" : ""}`}>
                     <div className="grid size-20 place-items-center rounded-full border border-primary/20 bg-primary/5 text-primary">
