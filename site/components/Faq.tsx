@@ -75,15 +75,12 @@ export function Faq() {
                 </p>
               </div>
               <div className={`flex justify-center ${reverse ? "lg:order-1" : ""}`}>
-                <div
-                  className={`grid size-20 place-items-center rounded-full border transition-colors duration-500 ease-out ${
-                    on
-                      ? "border-primary/40 bg-primary/5 text-primary"
-                      : "border-border/60 text-muted-foreground/40"
+                <Icon
+                  className={`size-12 transition-colors duration-500 ease-out ${
+                    on ? "text-primary" : "text-muted-foreground/40"
                   }`}
-                >
-                  <Icon className="size-8" aria-hidden />
-                </div>
+                  aria-hidden
+                />
               </div>
             </div>
           );
