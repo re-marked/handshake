@@ -1,5 +1,15 @@
 import Image from "next/image";
-import { ArrowRight, FileText, Lock, SlidersHorizontal } from "lucide-react";
+import {
+  ArrowRight,
+  FileText,
+  Gift,
+  Laptop,
+  Lock,
+  Share2,
+  SlidersHorizontal,
+  Sparkles,
+  WifiOff,
+} from "lucide-react";
 import { VaultWindow } from "@/components/VaultWindow";
 import { APP_VERSION, DESCRIPTION, DOWNLOAD, FAQS, FEATURES, REPO, SITE_NAME, SITE_URL } from "@/lib/seo";
 
@@ -16,6 +26,9 @@ function Github({ className }: { className?: string }) {
 // images resolve under the GitHub Pages subpath (/handshake) in prod and at root in dev.
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const asset = (p: string) => `${BASE}${p}`;
+
+// One icon per FAQ (parallel to FAQS by index) — kept out of lib/seo.ts so that file stays pure data.
+const FAQ_ICONS = [Share2, Gift, Lock, Laptop, WifiOff, FileText, Sparkles];
 
 export default function Home() {
   return (
@@ -124,17 +137,31 @@ export default function Home() {
           <VaultWindow />
         </FeatureRow>
 
-        {/* ── FAQ — prompt-aligned Q&A; mirrored 1:1 in the FAQPage JSON-LD ── */}
+        {/* ── FAQ — prompt-aligned Q&A; mirrored 1:1 in the FAQPage JSON-LD. Alternating sides: the
+              Q+A zigzags left/right, with a centered icon badge on the opposite half each row. ── */}
         <section className="py-20 lg:py-28">
-          <h2 className="font-display text-3xl font-semibold sm:text-4xl">Questions &amp; answers</h2>
-          <dl className="mt-10 max-w-3xl space-y-9">
-            {FAQS.map((f) => (
-              <div key={f.q}>
-                <dt className="font-display text-lg font-medium text-foreground">{f.q}</dt>
-                <dd className="mt-2 leading-relaxed text-muted-foreground">{f.a}</dd>
-              </div>
-            ))}
-          </dl>
+          <h2 className="text-center font-display text-3xl font-semibold sm:text-4xl">
+            Questions &amp; answers
+          </h2>
+          <div className="mt-14 space-y-14 lg:space-y-20">
+            {FAQS.map((f, i) => {
+              const Icon = FAQ_ICONS[i] ?? Share2;
+              const reverse = i % 2 === 1; // odd rows put the Q+A on the right
+              return (
+                <div key={f.q} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-20">
+                  <div className={reverse ? "lg:order-2" : ""}>
+                    <h3 className="font-display text-xl font-medium text-foreground">{f.q}</h3>
+                    <p className="mt-3 max-w-xl leading-relaxed text-muted-foreground">{f.a}</p>
+                  </div>
+                  <div className={`flex justify-center ${reverse ? "lg:order-1" : ""}`}>
+                    <div className="grid size-20 place-items-center rounded-full border border-primary/20 bg-primary/5 text-primary">
+                      <Icon className="size-8" aria-hidden />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </section>
 
         {/* ── Download CTA — the heading sits at the center of a literal orbit ── */}
