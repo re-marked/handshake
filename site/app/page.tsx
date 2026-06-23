@@ -1,16 +1,7 @@
 import Image from "next/image";
-import {
-  ArrowRight,
-  FileText,
-  Gift,
-  Laptop,
-  Lock,
-  Share2,
-  SlidersHorizontal,
-  Sparkles,
-  WifiOff,
-} from "lucide-react";
+import { ArrowRight, FileText, Lock, SlidersHorizontal } from "lucide-react";
 import { VaultWindow } from "@/components/VaultWindow";
+import { Faq } from "@/components/Faq";
 import { APP_VERSION, DESCRIPTION, DOWNLOAD, FAQS, FEATURES, REPO, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 /** Inline GitHub mark — lucide 1.x dropped its brand icons. */
@@ -26,9 +17,6 @@ function Github({ className }: { className?: string }) {
 // images resolve under the GitHub Pages subpath (/handshake) in prod and at root in dev.
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const asset = (p: string) => `${BASE}${p}`;
-
-// One icon per FAQ (parallel to FAQS by index) — kept out of lib/seo.ts so that file stays pure data.
-const FAQ_ICONS = [Share2, Gift, Lock, Laptop, WifiOff, FileText, Sparkles];
 
 export default function Home() {
   return (
@@ -137,38 +125,9 @@ export default function Home() {
           <VaultWindow />
         </FeatureRow>
 
-        {/* ── FAQ — prompt-aligned Q&A; mirrored 1:1 in the FAQPage JSON-LD. Alternating sides: the
-              Q+A zigzags left/right, with a centered icon badge on the opposite half each row. ── */}
-        <section className="py-20 lg:py-28">
-          <h2 className="text-center font-display text-3xl font-semibold sm:text-4xl">
-            Questions &amp; answers
-          </h2>
-          <div className="mt-14 space-y-14 lg:space-y-20">
-            {FAQS.map((f, i) => {
-              const Icon = FAQ_ICONS[i] ?? Share2;
-              const reverse = i % 2 === 1; // odd rows put the Q+A on the right
-              return (
-                <div key={f.q} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-20">
-                  <div className={reverse ? "lg:order-2 lg:text-right" : ""}>
-                    <h3 className="font-display text-xl font-medium text-foreground">{f.q}</h3>
-                    <p
-                      className={`mt-3 max-w-xl leading-relaxed text-muted-foreground ${
-                        reverse ? "lg:ml-auto" : ""
-                      }`}
-                    >
-                      {f.a}
-                    </p>
-                  </div>
-                  <div className={`flex justify-center ${reverse ? "lg:order-1" : ""}`}>
-                    <div className="grid size-20 place-items-center rounded-full border border-primary/20 bg-primary/5 text-primary">
-                      <Icon className="size-8" aria-hidden />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+        {/* ── FAQ — prompt-aligned Q&A (mirrored 1:1 in the FAQPage JSON-LD), with a scroll-spy that
+              lights only the centered row's icon. Client component for the scroll state. ── */}
+        <Faq />
 
         {/* ── Download CTA — the heading sits at the center of a literal orbit ── */}
         <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden py-24 sm:min-h-[680px] lg:min-h-[820px]">
