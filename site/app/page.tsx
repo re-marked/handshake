@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowRight, FileText, Lock, SlidersHorizontal } from "lucide-react";
 import { VaultWindow } from "@/components/VaultWindow";
+import { APP_VERSION, DESCRIPTION, DOWNLOAD, FAQS, FEATURES, REPO, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 /** Inline GitHub mark — lucide 1.x dropped its brand icons. */
 function Github({ className }: { className?: string }) {
@@ -11,8 +12,6 @@ function Github({ className }: { className?: string }) {
   );
 }
 
-const REPO = "https://github.com/re-marked/handshake";
-const DOWNLOAD = `${REPO}/releases/latest`;
 // next/image with `unoptimized` does NOT prepend basePath to public assets — do it ourselves so
 // images resolve under the GitHub Pages subpath (/handshake) in prod and at root in dev.
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -21,6 +20,7 @@ const asset = (p: string) => `${BASE}${p}`;
 export default function Home() {
   return (
     <div className="relative">
+      <JsonLd />
       <Nav />
 
       {/* ── Hero ───────────────────────────────────────────── */}
@@ -124,6 +124,19 @@ export default function Home() {
           <VaultWindow />
         </FeatureRow>
 
+        {/* ── FAQ — prompt-aligned Q&A; mirrored 1:1 in the FAQPage JSON-LD ── */}
+        <section className="py-20 lg:py-28">
+          <h2 className="font-display text-3xl font-semibold sm:text-4xl">Questions &amp; answers</h2>
+          <dl className="mt-10 max-w-3xl space-y-9">
+            {FAQS.map((f) => (
+              <div key={f.q}>
+                <dt className="font-display text-lg font-medium text-foreground">{f.q}</dt>
+                <dd className="mt-2 leading-relaxed text-muted-foreground">{f.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
         {/* ── Download CTA — the heading sits at the center of a literal orbit ── */}
         <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden py-24 sm:min-h-[680px] lg:min-h-[820px]">
           <Orbit />
@@ -151,6 +164,62 @@ export default function Home() {
 }
 
 /* ── building blocks ─────────────────────────────────────── */
+
+/**
+ * Triple JSON-LD stack — SoftwareApplication + Organization + WebSite + FAQPage — combined in one
+ * @graph. This is what AI answer engines (ChatGPT, Perplexity, Google AI Overviews) parse to ground
+ * and cite the page; the FAQ entries mirror the visible Q&A section exactly (shared source of truth).
+ */
+function JsonLd() {
+  const graph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${SITE_URL}/#app`,
+        name: SITE_NAME,
+        applicationCategory: "ProductivityApplication",
+        operatingSystem: "macOS, Windows, Linux",
+        description: DESCRIPTION,
+        url: SITE_URL,
+        downloadUrl: DOWNLOAD,
+        softwareVersion: APP_VERSION,
+        isAccessibleForFree: true,
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        screenshot: `${SITE_URL}/screenshot-hero.png`,
+        featureList: FEATURES,
+        creator: { "@type": "Organization", name: "re-marked", url: "https://github.com/re-marked" },
+      },
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#org`,
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: `${SITE_URL}/handshake-logo.png`,
+        sameAs: [REPO],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        name: SITE_NAME,
+        url: SITE_URL,
+        publisher: { "@id": `${SITE_URL}/#org` },
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${SITE_URL}/#faq`,
+        mainEntity: FAQS.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+  };
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }} />
+  );
+}
 
 function Nav() {
   return (
