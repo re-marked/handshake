@@ -3,7 +3,7 @@ import { createTauriIO } from "@/vault/tauriIo";
 import { VaultSession } from "@/vault/session";
 import { emptyLayout, type Layout } from "@/vault/layout";
 import { DEFAULT_SETTINGS, type Density, type Settings } from "@/vault/settings";
-import { loadRecents, saveRecents, vaultExists, vaultName } from "@/vault/appState";
+import { isVault, loadRecents, saveRecents, vaultExists, vaultName } from "@/vault/appState";
 import { importPhoto } from "@/vault/photos";
 import { clearBoardCache } from "@/board/boardCache";
 import * as undo from "@/app/undo";
@@ -95,8 +95,9 @@ interface AppState {
 
   /** Boot: open the last network (or `seed`/dev fallback), else show the front door. */
   init: (seed?: string) => Promise<void>;
-  /** Open a vault by path: tear down the current one, load it, remember it in recents. */
-  switchVault: (path: string) => Promise<void>;
+  /** Open a vault by path: tear down the current one, load it, remember it in recents. Pass
+   *  `{ create: true }` when seeding a brand-new folder (skips the exists/valid-vault guards). */
+  switchVault: (path: string, opts?: { create?: boolean }) => Promise<void>;
   /** Create a new network in `path` (an empty folder) seeded with your "self" card, then open it. */
   createNetwork: (path: string, selfName: string) => Promise<void>;
   /** Drop a path from recents (e.g. it no longer exists). */
@@ -203,7 +204,7 @@ export const useApp = create<AppState>()((set, get) => ({
     else set({ status: "no-vault" });
   },
 
-  async switchVault(path) {
+  async switchVault(path, opts) {
     // Tear down the current vault and load `path`. Reset transient UI + clear the board cache so
     // the new network's cards don't inherit the old network's positions.
     const prev = get();
@@ -227,9 +228,15 @@ export const useApp = create<AppState>()((set, get) => ({
     const session = new VaultSession(createTauriIO(path));
     set({ session });
     try {
-      // A stale recent (folder deleted/moved) would otherwise "load" as a blank ready network,
-      // since read_vault treats missing folders as empty — verify the root exists first.
-      if (!(await vaultExists(path))) throw new Error(`${vaultName(path)} no longer exists`);
+      // When OPENING (not creating): a stale recent (folder deleted/moved) or an arbitrary folder
+      // that isn't ours would otherwise "load" as a blank ready network, since read_vault treats
+      // missing/empty folders as empty. So verify the folder exists AND looks like a real vault.
+      // Creation deliberately skips both — it's seeding a brand-new (possibly not-yet-created) folder.
+      if (!opts?.create) {
+        if (!(await vaultExists(path))) throw new Error(`${vaultName(path)} no longer exists`);
+        if (!(await isVault(path)))
+          throw new Error(`${vaultName(path)} isn't a Handshake vault — no owner card found`);
+      }
       const [switchboard, layout, workspace, settings] = await Promise.all([
         session.load(),
         session.loadLayout(),
@@ -276,7 +283,7 @@ export const useApp = create<AppState>()((set, get) => ({
   },
 
   async createNetwork(path, selfName) {
-    await get().switchVault(path);
+    await get().switchVault(path, { create: true });
     const s = get();
     if (s.status !== "ready") return; // open failed
     if (!s.switchboard.self && selfName.trim()) {
