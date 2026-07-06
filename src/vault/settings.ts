@@ -135,7 +135,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showIntroducedBy: true,
   showBacklinks: true,
   sizeCardsByBacklinks: true,
-  fadeStaleCards: true,
+  fadeStaleCards: false,
   fadeStrength: "medium",
   cardSpacing: "comfortable",
   zoomRange: "wide",
