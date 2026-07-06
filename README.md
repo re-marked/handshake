@@ -11,7 +11,15 @@ plain markdown underneath, a calm rose-on-monochrome canvas on top.
 
 <sub>A local-first desktop app · 100% on your machine · 0% in the cloud</sub>
 
-[![Latest release](https://img.shields.io/badge/release-v0.9.0-b24a6d?style=flat-square&labelColor=2b2b2b)](https://github.com/re-marked/handshake/releases/latest)
+[![Latest release](https://img.shields.io/badge/release-v0.9.1-b24a6d?style=flat-square&labelColor=2b2b2b)](https://github.com/re-marked/handshake/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-b24a6d?style=flat-square&labelColor=2b2b2b)](LICENSE)
+![Platforms](https://img.shields.io/badge/macOS%20·%20Windows%20·%20Linux-2b2b2b?style=flat-square)
+
+**[⬇ Download](#download) · [Website](https://re-marked.github.io/handshake/)**
+
+<br>
+
+<img src="site/public/screenshot-hero.png" alt="The Handshake board — a network of people connected by warmth-weighted ties" width="840" />
 
 </div>
 
@@ -29,6 +37,20 @@ Stripe"* — and the board traces a path through the people you already know to 
 you want to reach.
 
 It's a tool for remembering that the best introductions are usually one or two handshakes away.
+
+## Download
+
+**[Get Handshake for macOS, Windows, or Linux →](https://re-marked.github.io/handshake/download/)**
+
+Every release ships native installers — a `.dmg` for macOS (Apple Silicon + Intel), a
+`.msi` for Windows, and `.AppImage` / `.deb` / `.rpm` for Linux. Grab yours from the
+[download page](https://re-marked.github.io/handshake/download/) or straight from
+[GitHub Releases](https://github.com/re-marked/handshake/releases/latest).
+
+> **Heads up — it's not code-signed yet.** On first launch, macOS (Gatekeeper) and Windows
+> (SmartScreen) may warn about an unidentified developer: right-click → **Open** on macOS, or
+> **More info → Run anyway** on Windows. On a Wayland compositor (Hyprland, sway), if the
+> window comes up blank, launch it with `WEBKIT_DISABLE_DMABUF_RENDERER=1`.
 
 ## Yours, in plain text
 
@@ -113,6 +135,10 @@ your-network/
 Handshake is a **personal tool, made to be lived in, not sold**. It runs on plain files you
 own, and **AI comes last and never load-bearing** — every part of the app stands on its own,
 with or without it.
+
+## License
+
+[MIT](LICENSE) — free to use, fork, and build on.
 
 <div align="center">
 

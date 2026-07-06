@@ -15,6 +15,12 @@ export function vaultExists(path: string): Promise<boolean> {
   return invoke<boolean>("vault_exists", { vault: path });
 }
 
+/** Does this folder actually look like a Handshake vault (owner card / minimal structure)? Used to
+ *  refuse opening an arbitrary folder as a vault. Creation bypasses this (a new folder is empty). */
+export function isVault(path: string): Promise<boolean> {
+  return invoke<boolean>("is_vault", { vault: path });
+}
+
 /** A filesystem-safe folder name from a network name (strips path-illegal chars; keeps spaces). */
 export function sanitizeFolderName(name: string): string {
   return name

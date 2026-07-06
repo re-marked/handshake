@@ -1,0 +1,16 @@
+# The repo is LF (Linux / cross-platform). This fixes the CRLF churn from the Windows era
+# and keeps line endings consistent going forward.
+* text=auto eol=lf
+
+# Binary assets — never normalize.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.icns binary
+*.webp binary
+*.woff  binary
+*.woff2 binary
+*.ttf  binary
+*.otf  binary

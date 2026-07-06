@@ -12,8 +12,12 @@ dist
 dist-ssr
 *.local
 
-# Dev vault — personal network data stays out of git
+# Claude Code local project config (plans, settings, transcripts) — never publish
+.claude/
+
+# Dev / demo vaults — personal network data stays out of git
 /corkboard
+/demo-network
 
 # Editor directories and files
 .vscode/*

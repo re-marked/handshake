@@ -205,6 +205,26 @@ fn vault_exists(vault: String) -> bool {
     PathBuf::from(&vault).is_dir()
 }
 
+/// Does this folder actually look like a Handshake vault? A real vault has a `people/` directory
+/// with at least one markdown file (the owner/self card is always seeded on creation), or our
+/// `.handshake/` sidecar folder. Lets the frontend refuse to open an arbitrary, non-Handshake
+/// folder as a vault. (Creation deliberately bypasses this — a brand-new folder is empty.)
+#[tauri::command]
+fn is_vault(vault: String) -> bool {
+    let root = PathBuf::from(&vault);
+    if !root.is_dir() {
+        return false;
+    }
+    if let Ok(entries) = fs::read_dir(root.join("people")) {
+        for entry in entries.flatten() {
+            if entry.path().extension().and_then(|e| e.to_str()) == Some("md") {
+                return true;
+            }
+        }
+    }
+    root.join(".handshake").is_dir()
+}
+
 /// Write a debug report into the vault's `.handshake/debug/` folder (gitignored). Returns the
 /// absolute path so the UI can show it (and so it's easy to point a reader at the exact file).
 #[tauri::command]
@@ -379,6 +399,7 @@ pub fn run() {
             write_settings,
             write_debug,
             vault_exists,
+            is_vault,
             read_app_state,
             write_app_state,
             git::tm_init,
