@@ -26,12 +26,6 @@ export default function Home() {
 
       {/* ── Hero ───────────────────────────────────────────── */}
       <section className="mx-auto w-full max-w-[2000px] px-6 pt-20 text-center sm:px-12 sm:pt-32 lg:px-20">
-        {/* brand lockup — rounded-square icon, hairline divider, mono wordmark */}
-        <div className="mb-9 inline-flex items-center gap-2.5 rounded-full border border-border/70 bg-card/50 py-1 pr-3.5 pl-1.5 shadow-sm backdrop-blur">
-          <Image src={asset("/handshake-logo.png")} alt="" width={22} height={22} />
-          <span className="h-3.5 w-px bg-border/70" />
-          <span className="font-display text-[13px] font-medium text-foreground">Handshake</span>
-        </div>
         <h1 className="mx-auto font-display text-5xl font-semibold leading-[1.02] sm:text-7xl lg:text-8xl">
           Know who you know.
         </h1>
