@@ -133,8 +133,7 @@ your-network/
 ## Built in the open
 
 Handshake is a **personal tool, made to be lived in, not sold**. It runs on plain files you
-own, and **AI comes last and never load-bearing** — every part of the app stands on its own,
-with or without it.
+own.
 
 ## License
 
