@@ -6,6 +6,7 @@ export const REPO = "https://github.com/re-marked/handshake";
 export const DOWNLOAD = `${REPO}/releases/latest`;
 export const SITE_NAME = "Handshake";
 export const TAGLINE = "Know who you know.";
+// The latest PUBLISHED release (what the download page links to). Bump on every release.
 export const APP_VERSION = "0.9.2";
 
 // Definition-led (the "[Entity] is a [category] that [differentiator]" shape AI retrieval prefers).
