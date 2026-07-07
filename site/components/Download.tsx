@@ -113,10 +113,13 @@ export function Download() {
     <main className="mx-auto w-full max-w-3xl px-6 pb-28 pt-16 sm:pt-24">
       {/* ── Hero ── */}
       <div className="text-center">
+        <span className="mb-4 inline-block rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-primary">
+          Public Beta
+        </span>
         <h1 className="font-display text-4xl font-semibold sm:text-6xl">Download Handshake</h1>
         <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-          Free, open source, and entirely on your machine. Pick your platform below — {version} is the
-          latest release.
+          Free, open source, and entirely on your machine. {version} is the latest release — Handshake
+          is in public beta (pre-1.0), moving fast toward a stable 1.0.
         </p>
       </div>
 

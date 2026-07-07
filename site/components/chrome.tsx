@@ -44,6 +44,9 @@ export function Nav() {
         <a href={asset("/")} className="flex items-center gap-2">
           <Image src={asset("/handshake-logo.png")} alt="" width={26} height={26} priority />
           <span className="font-display text-lg font-semibold">Handshake</span>
+          <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+            Beta
+          </span>
         </a>
         <nav className="flex items-center gap-1.5">
           <a
@@ -75,7 +78,9 @@ export function Footer() {
             Download
           </a>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground/60">A local-first desktop app · built in the open</p>
+        <p className="mt-2 text-xs text-muted-foreground/60">
+          A local-first desktop app · public beta · built in the open
+        </p>
       </div>
     </footer>
   );
