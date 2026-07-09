@@ -23,5 +23,17 @@ Handshake is "Obsidian for your network": a calm, monochrome, rose-accented canv
 ## Links
 
 - Website: https://re-marked.github.io/handshake/
-- Download (macOS, Windows, Linux): https://github.com/re-marked/handshake/releases/latest
+- Download (macOS, Windows, Linux): https://re-marked.github.io/handshake/download/
+- FAQ: https://re-marked.github.io/handshake/faq/
 - Source code: https://github.com/re-marked/handshake
+
+## Guide
+
+- Guide overview: https://re-marked.github.io/handshake/guide/
+- Getting started: https://re-marked.github.io/handshake/guide/getting-started/
+- The board: https://re-marked.github.io/handshake/guide/board/
+- Notes & backlinks: https://re-marked.github.io/handshake/guide/notes-and-backlinks/
+- The workspace: https://re-marked.github.io/handshake/guide/workspace/
+- Time Machine: https://re-marked.github.io/handshake/guide/time-machine/
+- Networks & plain files: https://re-marked.github.io/handshake/guide/networks-and-files/
+- Customization: https://re-marked.github.io/handshake/guide/customization/

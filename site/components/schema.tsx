@@ -7,8 +7,8 @@ export function JsonLdScript({ data }: { data: object }) {
   );
 }
 
-/** BreadcrumbList for a sub-page: Home → <name>. */
-export function BreadcrumbJsonLd({ name, path }: { name: string; path: string }) {
+/** BreadcrumbList: Home → …trail. Each trail item is { name, path } with a site-relative path. */
+export function BreadcrumbJsonLd({ trail }: { trail: { name: string; path: string }[] }) {
   return (
     <JsonLdScript
       data={{
@@ -16,7 +16,12 @@ export function BreadcrumbJsonLd({ name, path }: { name: string; path: string })
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
-          { "@type": "ListItem", position: 2, name, item: `${SITE_URL}${path}` },
+          ...trail.map((t, i) => ({
+            "@type": "ListItem",
+            position: i + 2,
+            name: t.name,
+            item: `${SITE_URL}${t.path}`,
+          })),
         ],
       }}
     />

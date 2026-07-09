@@ -42,7 +42,7 @@ export default function FaqPage() {
   return (
     <div className="relative">
       <FaqJsonLd />
-      <BreadcrumbJsonLd name="FAQ" path="/faq" />
+      <BreadcrumbJsonLd trail={[{ name: "FAQ", path: "/faq/" }]} />
       <Nav />
 
       <main className="mx-auto w-full max-w-3xl px-6 pb-28 pt-16 sm:pt-24">

@@ -47,7 +47,7 @@ export default function DownloadPage() {
   return (
     <div className="relative">
       <HowToJsonLd />
-      <BreadcrumbJsonLd name="Download" path="/download" />
+      <BreadcrumbJsonLd trail={[{ name: "Download", path: "/download/" }]} />
       <Nav />
       <Download />
       <Footer />
