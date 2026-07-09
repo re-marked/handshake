@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FileText, Gift, Laptop, Lock, Share2, Sparkles, WifiOff } from "lucide-react";
 import { FAQS } from "@/lib/seo";
+import { asset } from "@/lib/asset";
 
 // One icon per FAQ, parallel to FAQS by index.
 const FAQ_ICONS = [Share2, Gift, Lock, Laptop, WifiOff, FileText, Sparkles];
@@ -86,6 +87,14 @@ export function Faq() {
           );
         })}
       </div>
+      <p className="mt-14 text-center">
+        <a
+          href={asset("/faq")}
+          className="text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          More questions? Read the full FAQ →
+        </a>
+      </p>
     </section>
   );
 }

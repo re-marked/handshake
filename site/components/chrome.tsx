@@ -50,6 +50,12 @@ export function Nav() {
         </a>
         <nav className="flex items-center gap-1.5">
           <a
+            href={asset("/faq")}
+            className="hidden rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:block"
+          >
+            FAQ
+          </a>
+          <a
             href={REPO}
             className="hidden items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:flex"
           >
@@ -76,6 +82,9 @@ export function Footer() {
           </a>
           <a href={asset("/download")} className="transition-colors hover:text-foreground">
             Download
+          </a>
+          <a href={asset("/faq")} className="transition-colors hover:text-foreground">
+            FAQ
           </a>
         </div>
         <p className="mt-2 text-xs text-muted-foreground/60">
