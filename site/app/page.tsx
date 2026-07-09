@@ -34,7 +34,7 @@ export default function Home() {
       <div className="mx-auto mt-16 w-full max-w-[2000px] px-6 sm:px-12 lg:px-20">
         <div className="relative">
           <Image
-            src={asset("/screenshot-hero.png")}
+            src={asset("/screenshot-hero.webp")}
             alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
             width={1999}
             height={1074}
@@ -71,7 +71,7 @@ export default function Home() {
           reverse
         >
           <Shot
-            src="/screenshot-note.png"
+            src="/screenshot-note.webp"
             alt="A person's note open in the workspace — connections and a note where [[Chip Sterling]] and [[Kevin Zhao]] render as rose backlink chips"
             width={1999}
             height={1185}
@@ -84,7 +84,7 @@ export default function Home() {
           blurb="Think in space on the board; find fast in a sortable, searchable list. Order by name or by closeness, dial the density — same plain files underneath, switched in a keystroke."
         >
           <Shot
-            src="/screenshot-people.png"
+            src="/screenshot-people.webp"
             alt="The People view — a searchable, sortable list of everyone in the network with roles, tags, and warmth dots"
             width={1998}
             height={1179}
@@ -98,7 +98,7 @@ export default function Home() {
           blurb="Tabs, resizable splits, and pop-out notes — a true Obsidian-style layout. Put the board beside your people and your goals beneath it, and it's right where you left it next time."
         >
           <Shot
-            src="/screenshot-split.png"
+            src="/screenshot-split.webp"
             alt="A split workspace — a goals list with a floating note on the left, the board on the right"
             width={1999}
             height={1181}
