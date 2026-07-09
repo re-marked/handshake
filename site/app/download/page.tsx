@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Footer, Nav } from "@/components/chrome";
 import { Download } from "@/components/Download";
 import { BreadcrumbJsonLd, JsonLdScript } from "@/components/schema";
-import { INSTALL_STEPS_TEXT, SITE_URL } from "@/lib/seo";
+import { INSTALL_STEPS_TEXT, OG_IMAGE, SITE_URL } from "@/lib/seo";
 
 const TITLE = "Download";
 const DESC =
@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     title: "Download Handshake — macOS, Windows, Linux",
     description: DESC,
     url: `${SITE_URL}/download`,
+    images: [OG_IMAGE],
   },
 };
 

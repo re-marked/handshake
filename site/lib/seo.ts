@@ -9,6 +9,14 @@ export const TAGLINE = "Know who you know.";
 // The latest PUBLISHED release (what the download page links to). Bump on every release.
 export const APP_VERSION = "0.9.2";
 
+/** The branded 1200×630 social card (source: site/assets/og-source.svg). */
+export const OG_IMAGE = {
+  url: `${SITE_URL}/og.png`,
+  width: 1200,
+  height: 630,
+  alt: "Handshake — Know who you know. Map the people you know, local-first, in plain text.",
+};
+
 // Definition-led (the "[Entity] is a [category] that [differentiator]" shape AI retrieval prefers).
 export const DESCRIPTION =
   "Handshake is a free, local-first desktop app for mapping the people you know — who they are, how you met, and how everyone's connected. Your network lives as plain markdown files on your own machine. macOS, Windows, and Linux.";

@@ -1,13 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { SITE_URL, SITE_NAME, DESCRIPTION } from "@/lib/seo";
+import { SITE_URL, SITE_NAME, DESCRIPTION, OG_IMAGE } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const TITLE = "Handshake — Know who you know";
-const OG_IMAGE = `${SITE_URL}/screenshot-hero.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -41,20 +40,13 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: SITE_URL,
     locale: "en_US",
-    images: [
-      {
-        url: OG_IMAGE,
-        width: 1999,
-        height: 1074,
-        alt: "The Handshake board — a founder's network as a graph of warmth-weighted ties",
-      },
-    ],
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: [OG_IMAGE],
+    images: [OG_IMAGE.url],
   },
   robots: {
     index: true,

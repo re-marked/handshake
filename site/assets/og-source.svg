@@ -1,0 +1,30 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- bg: the site's warm near-black (oklch .17 .008 75) -->
+  <rect width="1200" height="630" fill="#1a1815"/>
+
+  <!-- orbit motif, anchored right and cropped by the frame -->
+  <g fill="none" stroke="#46413a" stroke-width="2.5">
+    <circle cx="985" cy="315" r="130"/>
+    <circle cx="985" cy="315" r="215"/>
+    <circle cx="985" cy="315" r="300"/>
+  </g>
+  <!-- rose balls riding the rings, spread apart -->
+  <circle cx="1063" cy="211" r="15" fill="#b24a6d"/>
+  <circle cx="828" cy="459" r="19" fill="#b24a6d"/>
+  <circle cx="1195" cy="115" r="23" fill="#b24a6d"/>
+
+  <!-- wordmark row (logo composited on at 92,84 size 64 afterwards) -->
+  <text x="172" y="128" font-family="Adwaita Mono" font-weight="bold" font-size="33" fill="#e8e4de">Handshake</text>
+  <!-- beta chip -->
+  <rect x="384" y="99" rx="16" ry="16" width="86" height="34" fill="none" stroke="#b24a6d" stroke-width="2"/>
+  <text x="427" y="122" font-family="Inter" font-weight="600" font-size="18" letter-spacing="2" fill="#b24a6d" text-anchor="middle">BETA</text>
+
+  <!-- headline: mono, one rose word -->
+  <text x="88" y="330" font-family="Adwaita Mono" font-weight="bold" font-size="84" fill="#e8e4de">Know who you <tspan fill="#b24a6d">know.</tspan></text>
+
+  <!-- subline -->
+  <text x="90" y="404" font-family="Inter" font-size="33" fill="#a49d93">Map the people you know — local-first, in plain text.</text>
+
+  <!-- footer facts -->
+  <text x="90" y="540" font-family="Adwaita Mono" font-size="25" fill="#7d766c">Free &amp; open source · macOS · Windows · Linux</text>
+</svg>

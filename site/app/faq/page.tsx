@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Footer, Nav } from "@/components/chrome";
 import { BreadcrumbJsonLd } from "@/components/schema";
-import { FAQ_GROUPS, SITE_URL } from "@/lib/seo";
+import { FAQ_GROUPS, OG_IMAGE, SITE_URL } from "@/lib/seo";
 
 const TITLE = "FAQ";
 const DESC =
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     title: "Handshake FAQ",
     description: DESC,
     url: `${SITE_URL}/faq`,
+    images: [OG_IMAGE],
   },
 };
 
