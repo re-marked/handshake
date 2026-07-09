@@ -11,12 +11,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${SITE_URL}/download`,
+      url: `${SITE_URL}/download/`,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${SITE_URL}/faq`,
+      url: `${SITE_URL}/faq/`,
       changeFrequency: "monthly",
       priority: 0.8,
     },
