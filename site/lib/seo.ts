@@ -53,6 +53,35 @@ export const FAQS: { q: string; a: string }[] = [
   },
 ];
 
+/** Plain-text install steps per platform — the HowTo JSON-LD on /download. Mirrors the visible
+ *  steps in components/Download.tsx (which carry JSX formatting, so they can't be shared directly). */
+export const INSTALL_STEPS_TEXT: { os: string; steps: string[] }[] = [
+  {
+    os: "macOS",
+    steps: [
+      "Download the Handshake .dmg and open it.",
+      "Drag Handshake into your Applications folder.",
+      "Right-click the app and choose Open the first time (it isn't notarized yet), then open it from Applications or Spotlight.",
+    ],
+  },
+  {
+    os: "Windows",
+    steps: [
+      "Download and run the Handshake .msi installer.",
+      "If SmartScreen appears, click More info, then Run anyway (it isn't code-signed yet).",
+      "Launch Handshake from the Start menu.",
+    ],
+  },
+  {
+    os: "Linux",
+    steps: [
+      "Download the Handshake .AppImage (or the .deb / .rpm for your distro).",
+      "Make it executable: chmod +x handshake_*.AppImage",
+      "Run it: ./handshake_*.AppImage — on Wayland compositors like Hyprland or sway, launch with WEBKIT_DISABLE_DMABUF_RENDERER=1 if the window is blank.",
+    ],
+  },
+];
+
 /** The full FAQ, grouped by topic — drives the /faq page AND its FAQPage JSON-LD. */
 export const FAQ_GROUPS: { topic: string; items: { q: string; a: string }[] }[] = [
   {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Footer, Nav } from "@/components/chrome";
+import { BreadcrumbJsonLd } from "@/components/schema";
 import { FAQ_GROUPS, SITE_URL } from "@/lib/seo";
 
 const TITLE = "FAQ";
@@ -40,6 +41,7 @@ export default function FaqPage() {
   return (
     <div className="relative">
       <FaqJsonLd />
+      <BreadcrumbJsonLd name="FAQ" path="/faq" />
       <Nav />
 
       <main className="mx-auto w-full max-w-3xl px-6 pb-28 pt-16 sm:pt-24">
