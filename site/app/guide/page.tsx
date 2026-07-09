@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
-import { Footer, Nav } from "@/components/chrome";
 import { BreadcrumbJsonLd, JsonLdScript } from "@/components/schema";
+import { GuideShell } from "@/components/guide";
 import { GUIDE } from "@/lib/guide";
 import { OG_IMAGE, SITE_URL } from "@/lib/seo";
 import { asset } from "@/lib/asset";
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function GuideHub() {
   return (
-    <div className="relative">
+    <>
       <JsonLdScript
         data={{
           "@context": "https://schema.org",
@@ -41,16 +41,14 @@ export default function GuideHub() {
         }}
       />
       <BreadcrumbJsonLd trail={[{ name: "Guide", path: "/guide/" }]} />
-      <Nav />
-
-      <main className="mx-auto w-full max-w-[2000px] px-6 pb-28 pt-16 sm:px-12 sm:pt-24 lg:px-20">
-        <h1 className="font-display text-4xl font-semibold sm:text-6xl">The guide</h1>
+      <GuideShell active={null}>
+        <h1 className="font-display text-4xl font-semibold sm:text-5xl">The guide</h1>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
           Everything Handshake does, in reading order — from first install to a workspace
           that's genuinely yours. Fifteen minutes, cover to cover.
         </p>
 
-        <ol className="mt-14 max-w-3xl space-y-4">
+        <ol className="mt-12 max-w-3xl space-y-4">
           {GUIDE.map((s, i) => (
             <li key={s.slug}>
               <a
@@ -71,9 +69,7 @@ export default function GuideHub() {
             </li>
           ))}
         </ol>
-      </main>
-
-      <Footer />
-    </div>
+      </GuideShell>
+    </>
   );
 }

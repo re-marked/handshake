@@ -23,9 +23,65 @@ export function guideMetadata(slug: string): Metadata {
   };
 }
 
+/** The classic docs sidebar: a "Guide" label, Overview, then every section; the active page rose. */
+function GuideSidebar({ active }: { active: string | null }) {
+  const item = (href: string, label: string, on: boolean) => (
+    <a
+      href={asset(href)}
+      aria-current={on ? "page" : undefined}
+      className={`-ml-px block border-l py-1.5 pl-4 text-sm transition-colors ${
+        on
+          ? "border-primary font-medium text-primary"
+          : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
+      }`}
+    >
+      {label}
+    </a>
+  );
+  return (
+    <nav aria-label="Guide">
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/70">Guide</p>
+      <div className="mt-4 border-l border-border/60">
+        {item("/guide", "Overview", active === null)}
+        {GUIDE.map((s) => item(`/guide/${s.slug}`, s.title, active === s.slug))}
+      </div>
+    </nav>
+  );
+}
+
+/** The docs frame shared by the hub and every section: chrome + sticky sidebar + content column. */
+export function GuideShell({ active, children }: { active: string | null; children: React.ReactNode }) {
+  return (
+    <div className="relative">
+      <Nav />
+      <div className="mx-auto flex w-full max-w-[2000px] gap-12 px-6 sm:px-12 lg:px-20">
+        {/* sidebar — sticky under the nav on desktop */}
+        <aside className="hidden w-56 shrink-0 lg:block">
+          <div className="sticky top-24 pt-14">
+            <GuideSidebar active={active} />
+          </div>
+        </aside>
+        <main className="min-w-0 flex-1 pb-24 pt-10 sm:pt-14">
+          {/* mobile section picker */}
+          <details className="mb-8 rounded-xl border bg-card/30 lg:hidden">
+            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-muted-foreground">
+              Guide navigation
+            </summary>
+            <div className="px-4 pb-4">
+              <GuideSidebar active={active} />
+            </div>
+          </details>
+          {children}
+        </main>
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
 /**
- * Shared shell for a guide section: chrome, header, TechArticle + BreadcrumbList JSON-LD,
- * and prev/next section links derived from the GUIDE order.
+ * A guide section page: the docs frame + article header, TechArticle + BreadcrumbList JSON-LD,
+ * and prev/next links derived from the GUIDE order.
  */
 export function GuidePage({ slug, lead, children }: { slug: string; lead: string; children: React.ReactNode }) {
   const idx = GUIDE.findIndex((g) => g.slug === slug);
@@ -33,7 +89,7 @@ export function GuidePage({ slug, lead, children }: { slug: string; lead: string
   const prev = GUIDE[idx - 1];
   const next = GUIDE[idx + 1];
   return (
-    <div className="relative">
+    <>
       <JsonLdScript
         data={{
           "@context": "https://schema.org",
@@ -53,17 +109,8 @@ export function GuidePage({ slug, lead, children }: { slug: string; lead: string
           { name: section.title, path: `/guide/${slug}/` },
         ]}
       />
-      <Nav />
-
-      <main className="mx-auto w-full max-w-[2000px] px-6 pb-24 pt-14 sm:px-12 sm:pt-20 lg:px-20">
-        <p className="text-sm font-medium text-primary">
-          <a href={asset("/guide")} className="hover:underline">
-            Guide
-          </a>
-          <span className="mx-2 text-muted-foreground/50">/</span>
-          <span className="text-muted-foreground">{section.title}</span>
-        </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold sm:text-6xl">{section.title}</h1>
+      <GuideShell active={slug}>
+        <h1 className="font-display text-4xl font-semibold sm:text-5xl">{section.title}</h1>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">{lead}</p>
 
         <div className="mt-12 space-y-6">{children}</div>
@@ -97,10 +144,8 @@ export function GuidePage({ slug, lead, children }: { slug: string; lead: string
             <span className="flex-1" />
           )}
         </nav>
-      </main>
-
-      <Footer />
-    </div>
+      </GuideShell>
+    </>
   );
 }
 
