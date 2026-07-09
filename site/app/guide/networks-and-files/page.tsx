@@ -21,7 +21,9 @@ export default function Page() {
       <P>
         Every entity is one markdown file with YAML frontmatter — human-readable, greppable, yours:
       </P>
-      <VaultWindow />
+      <div className="max-w-3xl">
+        <VaultWindow />
+      </div>
       <P>
         <Code>people/</Code> holds a file per person, <Code>handshakes/</Code> one per connection,{" "}
         <Code>goals/</Code> and <Code>interactions/</Code> what they say, <Code>attachments/</Code>{" "}

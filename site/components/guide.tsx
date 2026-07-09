@@ -55,7 +55,7 @@ export function GuidePage({ slug, lead, children }: { slug: string; lead: string
       />
       <Nav />
 
-      <main className="mx-auto w-full max-w-3xl px-6 pb-24 pt-14 sm:pt-20">
+      <main className="mx-auto w-full max-w-[2000px] px-6 pb-24 pt-14 sm:px-12 sm:pt-20 lg:px-20">
         <p className="text-sm font-medium text-primary">
           <a href={asset("/guide")} className="hover:underline">
             Guide
@@ -63,13 +63,13 @@ export function GuidePage({ slug, lead, children }: { slug: string; lead: string
           <span className="mx-2 text-muted-foreground/50">/</span>
           <span className="text-muted-foreground">{section.title}</span>
         </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold sm:text-5xl">{section.title}</h1>
-        <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{lead}</p>
+        <h1 className="mt-3 font-display text-4xl font-semibold sm:text-6xl">{section.title}</h1>
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">{lead}</p>
 
         <div className="mt-12 space-y-6">{children}</div>
 
         {/* prev / next */}
-        <nav className="mt-16 flex items-stretch justify-between gap-4 border-t pt-8">
+        <nav className="mt-16 flex max-w-3xl items-stretch justify-between gap-4 border-t pt-8">
           {prev ? (
             <a
               href={asset(`/guide/${prev.slug}`)}
@@ -108,14 +108,14 @@ export function GuidePage({ slug, lead, children }: { slug: string; lead: string
 
 export function H2({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <h2 id={id} className="scroll-mt-20 pt-6 font-display text-2xl font-semibold">
+    <h2 id={id} className="max-w-3xl scroll-mt-20 pt-6 font-display text-2xl font-semibold">
       {children}
     </h2>
   );
 }
 
 export function P({ children }: { children: React.ReactNode }) {
-  return <p className="leading-relaxed text-muted-foreground">{children}</p>;
+  return <p className="max-w-3xl leading-relaxed text-muted-foreground">{children}</p>;
 }
 
 /** Emphasis within prose that should read in the foreground color. */
@@ -125,7 +125,7 @@ export function B({ children }: { children: React.ReactNode }) {
 
 export function Tip({ children }: { children: React.ReactNode }) {
   return (
-    <aside className="flex gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-[15px] leading-relaxed text-muted-foreground">
+    <aside className="flex max-w-3xl gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-[15px] leading-relaxed text-muted-foreground">
       <Lightbulb className="mt-0.5 size-4 shrink-0 text-primary" />
       <div>{children}</div>
     </aside>
@@ -148,7 +148,7 @@ export function Code({ children }: { children: React.ReactNode }) {
 
 export function Steps({ items }: { items: React.ReactNode[] }) {
   return (
-    <ol className="space-y-3">
+    <ol className="max-w-3xl space-y-3">
       {items.map((step, i) => (
         <li key={i} className="flex items-start gap-3">
           <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
@@ -163,7 +163,7 @@ export function Steps({ items }: { items: React.ReactNode[] }) {
 
 export function Shot({ src, alt, width, height }: { src: string; alt: string; width: number; height: number }) {
   return (
-    <figure className="my-2">
+    <figure className="my-2 max-w-5xl">
       <div className="overflow-hidden rounded-xl border shadow-lg">
         <Image src={asset(src)} alt={alt} width={width} height={height} className="w-full" />
       </div>
@@ -181,7 +181,7 @@ export function WarmthLegend() {
     { name: "Dormant", cls: "bg-muted-foreground/25" },
   ];
   return (
-    <div className="flex flex-wrap gap-x-6 gap-y-2 rounded-xl border bg-card/30 p-4">
+    <div className="flex max-w-3xl flex-wrap gap-x-6 gap-y-2 rounded-xl border bg-card/30 p-4">
       {ties.map((t) => (
         <span key={t.name} className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className={`h-0.5 w-8 rounded-full ${t.cls}`} />

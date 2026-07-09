@@ -43,16 +43,14 @@ export default function GuideHub() {
       <BreadcrumbJsonLd trail={[{ name: "Guide", path: "/guide/" }]} />
       <Nav />
 
-      <main className="mx-auto w-full max-w-3xl px-6 pb-28 pt-16 sm:pt-24">
-        <div className="text-center">
-          <h1 className="font-display text-4xl font-semibold sm:text-6xl">The guide</h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Everything Handshake does, in reading order — from first install to a workspace
-            that's genuinely yours. Fifteen minutes, cover to cover.
-          </p>
-        </div>
+      <main className="mx-auto w-full max-w-[2000px] px-6 pb-28 pt-16 sm:px-12 sm:pt-24 lg:px-20">
+        <h1 className="font-display text-4xl font-semibold sm:text-6xl">The guide</h1>
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+          Everything Handshake does, in reading order — from first install to a workspace
+          that's genuinely yours. Fifteen minutes, cover to cover.
+        </p>
 
-        <ol className="mt-14 space-y-4">
+        <ol className="mt-14 max-w-3xl space-y-4">
           {GUIDE.map((s, i) => (
             <li key={s.slug}>
               <a
