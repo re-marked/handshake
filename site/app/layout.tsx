@@ -33,6 +33,7 @@ export const metadata: Metadata = {
   creator: "re-marked",
   publisher: "re-marked",
   alternates: { canonical: SITE_URL },
+  verification: { google: "BAHZYqv1rf4dNNZ6HwnwBOCuFhX2DrsoD0s3vjWMLmo" },
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
