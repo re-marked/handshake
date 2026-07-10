@@ -1,4 +1,4 @@
-import { B, GuidePage, guideMetadata, H2, Kbd, P, Tip } from "@/components/guide";
+import { A, B, GuidePage, guideMetadata, H2, Kbd, P, Tip } from "@/components/guide";
 
 export const metadata = guideMetadata("time-machine");
 
@@ -23,7 +23,7 @@ export default function Page() {
 
       <H2 id="snapshots">Snapshots</H2>
       <P>
-        A <B>snapshot</B> is a named point-in-time of your entire network — every person, tie, goal,
+        A <B>snapshot</B> is a named point-in-time of your entire <A href="/guide/networks-and-files">network</A> — every person, tie, goal,
         and note. Out of the box Handshake takes them automatically: after your edits settle, when
         you switch networks, and when you close the app, rate-limited to a cadence you control
         (every 5 minutes by default). You can also take one deliberately any time — from Settings →

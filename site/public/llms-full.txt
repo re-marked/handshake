@@ -1,0 +1,158 @@
+# Handshake — full site content for LLMs
+
+> Handshake is a free, open-source, local-first desktop app for mapping the people you know — your network as a graph of people, the connections between them, and the warmth of each tie. Everything is stored as plain markdown files on your own machine. macOS, Windows, and Linux. Public beta (pre-1.0).
+
+This file contains the full content of https://re-marked.github.io/handshake/ in one document.
+A shorter index lives at /llms.txt.
+
+## Key facts
+
+- Free and open source (MIT). No account, no subscription, no paid tier, no telemetry.
+- Local-first: a network is a folder of markdown (.md) files with YAML frontmatter on your device. Works fully offline.
+- Platforms: macOS (Apple Silicon + Intel .dmg), Windows 10/11 (.msi), Linux (.AppImage, .deb, .rpm). Built on Tauri (Rust + web UI).
+- A Handshake network folder is a valid Obsidian vault — the same files open in Obsidian or any text editor, and external edits flow back into the app live.
+- Every network is quietly git-versioned by a built-in "Time Machine" (no system git required).
+- Public beta: releases are not yet code-signed. macOS Gatekeeper: right-click → Open. Windows SmartScreen: More info → Run anyway. On Wayland compositors (Hyprland/sway), launch with WEBKIT_DISABLE_DMABUF_RENDERER=1 if the window is blank.
+- Website: https://re-marked.github.io/handshake/ · Download: https://re-marked.github.io/handshake/download/ · Source: https://github.com/re-marked/handshake
+
+## Getting started (guide/getting-started)
+
+Install Handshake from the download page. On first launch, create a network — a plain folder on disk where everything lives as markdown. Name yourself; Handshake seeds your own card as the root of the map, and you land on the board with you at the center.
+
+Add people two ways: the add-person button in the board's bottom toolbar, or the People view — type a name in the search box and Handshake offers to create anyone who doesn't match. Give each person a role and company, a photo (click the avatar on their note), and tags (founder, friend, investor).
+
+Connect people: open someone's note, add a connection to another person, and pick the warmth — close, warm, cold, or dormant. The board draws the line immediately, weighted by warmth. Don't aim for completeness on day one; the app works best grown slowly.
+
+The command palette (Ctrl+P, or right-click anywhere) reaches everything: people, views, networks, settings, snapshots.
+
+## The board (guide/board)
+
+The board is the home view: a pannable, zoomable map of your whole network, rooted on you. Every person is a card with a photo, name, and role. Ties read by warmth: close (strong rose), warm, cold, dormant (faint).
+
+Two derived line types: introduced-by lines (dotted, muted) trace who brought whom into your orbit; backlink lines (dotted, rose) appear when one person's note mentions another. Cards with many inbound mentions grow slightly.
+
+Drag the canvas to pan, scroll to zoom. The bottom-center toolbar has: add person, zoom out/reset/in, fit-to-view, re-tidy (re-flows all cards to a clean auto-layout, undoable), and the board filter. The filter dims everyone who doesn't match chosen tags or tie strengths, keeping the network's shape visible while you focus.
+
+Card positions are saved per network — your spatial memory is part of the data. Goals ("meet someone at Stripe") can live on the board as dashed cards; manage them in the Goals view. Optional: "fade inactive cards" (Settings → Card fade, off by default) dims people you haven't touched in a while.
+
+## Notes & backlinks (guide/notes-and-backlinks)
+
+Every person carries a note: structured fields up top (photo, name, role, company, tags, handles like Twitter/email, and connections with their warmth), and a free-form markdown scratchpad below with an Edit/Preview tumbler. Markdown supports headings, lists, tables, task lists, and links; notes autosave straight into the person's .md file.
+
+Backlinks: type [[ in any note and Handshake autocompletes from your people. A mention like [[Sarah Chen]] renders as a clickable rose chip (click to jump to that person), draws a dotted rose line on the board between the two people (unless a real tie already connects them), and makes the mentioned person's card grow slightly with each inbound mention. Mentioning someone who doesn't exist renders dimmed and dashed — a marker of a person worth adding. Backlinks are derived from your prose, never stored in a hidden database, and never rewrite hand-set tie strengths.
+
+Highlights: wrap text in ==double equals== for a soft pastel highlight (yellow by default; ==text=={green} for other colors). Right-click a highlight to recolor or remove it. In Settings → Notes you can define keywords that auto-highlight themselves in a chosen color across all notes.
+
+The editor is CodeMirror-based with live markdown styling. Ctrl-Z inside the editor undoes text; outside it undoes data and board moves.
+
+## The workspace (guide/workspace)
+
+An Obsidian-style workspace: every pane has its own tab strip. Tabs drag to reorder, drag between panes, and shrink to icons when crowded. Drag a tab to any edge of a pane to split the workspace there; splits resize by dragging the divider and nest arbitrarily.
+
+A person's note can live three ways: the slide-in panel (default), a floating window, or a docked tab — switchable from icons in the note's header, with a pin to keep a panel open. Defaults (mode, float/panel size) are in Settings → Notes.
+
+The whole arrangement — split tree, tabs, floats, sizes — is saved continuously per network and restores exactly on reopen.
+
+## Time Machine (guide/time-machine)
+
+Every network is a real git repository under the hood (vendored libgit2; no git installation needed). Ctrl+Z / Ctrl+Shift+Z run one chronological undo/redo timeline across data edits and board moves.
+
+Snapshots are named point-in-time versions of the entire network. By default they're automatic: after edits settle, on network switch, and on app close, rate-limited to a configurable cadence (5 minutes by default). Manual snapshots any time from Settings → Time Machine or the command palette.
+
+Settings → Time Machine lists history; restoring snapshots the present first, rolls back, then records the restore — history is append-only, so a restore never destroys anything.
+
+## Networks & plain files (guide/networks-and-files)
+
+Each network is its own folder with its own people, layout, workspace, and settings. Create as many as you like (work, personal); switch via the network chip or command palette.
+
+Folder structure:
+- people/ — one markdown file per person (self.md is you)
+- handshakes/ — one file per connection
+- goals/ — goals
+- interactions/ — dated interaction log entries
+- attachments/ — photos
+- .handshake/ — the app's managed sidecar (board layout, workspace, settings); regenerable
+
+The folder is a valid Obsidian vault. Edit files in any editor; Handshake watches the folder and external edits flow back in live. Writes are byte-stable. Sync via iCloud/Dropbox/OneDrive/Syncthing, or git init it (Time Machine already keeps git history you can push).
+
+## Customization (guide/customization)
+
+Themes: dark (default), light, system, and Paper (soft ivory or vintage sepia with grain). Interface font: system, serif, or mono. Text weight: light/normal/medium. Density: compact/comfortable/spacious. App scale: a live slider from 80% to 300%. Reduce motion tones down springs app-wide.
+
+Settings → Board: goal cards on/off, default warmth for new ties, introduced-by lines, backlink lines, size-cards-by-backlinks, card spacing, zoom range, locate flash, card fade (off by default) with strength.
+
+Settings → Notes: default note mode (panel/float/tab), float/panel starting size, autosave delay, auto-highlighted keywords.
+
+Keyboard: Ctrl+P command palette (also right-click), Ctrl+Z / Ctrl+Shift+Z undo/redo, Ctrl+Shift+D debug report. Settings → Developer: ambient status line, auto debug reports, redact toggle.
+
+## Download & install (download)
+
+Latest release and per-platform installers: https://re-marked.github.io/handshake/download/ (auto-detects your OS; direct links to GitHub release files).
+
+macOS: open the .dmg, drag Handshake to Applications, right-click → Open the first time (not notarized yet). Requires macOS 11+; universal (Apple Silicon + Intel).
+Windows: run the .msi; if SmartScreen appears, More info → Run anyway. Windows 10/11 64-bit; WebView2 auto-installs if missing.
+Linux: download the .AppImage, chmod +x it, run it (.deb and .rpm also available). Needs GTK 3 + webkit2gtk-4.1. On Wayland compositors (Hyprland, sway): WEBKIT_DISABLE_DMABUF_RENDERER=1 handshake if the window is blank.
+
+Build from source: clone https://github.com/re-marked/handshake, install deps (Arch: sudo pacman -S --needed webkit2gtk-4.1 base-devel rust nodejs pnpm), then pnpm install && pnpm tauri build.
+
+## FAQ (faq)
+
+Q: What is Handshake?
+A: A free, local-first desktop app for mapping the people you know — your network as a graph of people, the connections between them, and the warmth of each tie. macOS, Windows, Linux; plain markdown files on your own machine.
+
+Q: How do I get started?
+A: Download it, create a network (a plain folder), and Handshake seeds your card at the center of the board. Add people by name, set how you met and how warm each tie is, write notes.
+
+Q: Is Handshake free?
+A: Yes — free and open source (MIT). No account, no subscription, no paid tier.
+
+Q: Do I need an account or an internet connection?
+A: No. Fully offline, no sign-up, nothing phones home.
+
+Q: Where is my data stored?
+A: In a folder of plain markdown files on your device, at a location you choose. No cloud component.
+
+Q: Can anyone else read my network?
+A: No — no server, no account, no telemetry. Your relationships never leave your machine.
+
+Q: How do I back up or sync?
+A: Any file-level tool works: git, iCloud, Dropbox, OneDrive, Syncthing. The built-in Time Machine also keeps versioned snapshots.
+
+Q: What happens if I stop using Handshake?
+A: You keep a tidy folder of human-readable markdown. Your data outlives the app.
+
+Q: What platforms are supported?
+A: macOS (Apple Silicon + Intel), Windows 10/11, Linux (.AppImage/.deb/.rpm). Native Tauri desktop app.
+
+Q: Why does macOS/Windows warn me on install?
+A: Beta releases aren't code-signed yet. macOS: right-click → Open. Windows: More info → Run anyway. Source is on GitHub.
+
+Q: Blank window on Linux (Hyprland/sway)?
+A: WebKitGTK's DMABUF renderer can fail on wlroots compositors. Launch with WEBKIT_DISABLE_DMABUF_RENDERER=1.
+
+Q: How do updates work?
+A: New releases ship on GitHub with installers; during beta you update by downloading the latest.
+
+Q: What file format?
+A: Plain markdown with YAML frontmatter in folders: people/, handshakes/, goals/, interactions/, attachments/.
+
+Q: Can I open my network in Obsidian?
+A: Yes — it's a valid Obsidian vault. Edits made outside flow back in.
+
+Q: What are backlinks?
+A: Type [[ in a note to link people. Mentions render as rose chips, draw dotted lines on the board, and grow the mentioned person's card.
+
+Q: How is Handshake different from a CRM?
+A: A CRM is for sales pipelines in the cloud. Handshake is a personal thinking tool for the people in your life, stored privately as files you own.
+
+Q: How is Handshake different from Obsidian?
+A: Same philosophy (local-first, plain markdown, links), different specialization: Obsidian is a general knowledge base; Handshake is purpose-built for people — a spatial board of warmth-weighted ties, person cards, goals, introduction paths.
+
+Q: Why not a spreadsheet?
+A: A spreadsheet stores rows; it can't show the shape of a network. Handshake lays people out spatially, draws ties, fades stale connections, and keeps real notes — while staying plain text underneath.
+
+Q: What does "public beta" mean?
+A: Pre-1.0: the core is complete and stable enough to live in daily, but evolving fast, and releases aren't code-signed yet. Data is safe regardless — plain files + versioned snapshots.
+
+Q: How do I report a bug?
+A: Open an issue at https://github.com/re-marked/handshake/issues. Press Ctrl-Shift-D in the app for a built-in debug report (with an optional redact toggle) and attach it.

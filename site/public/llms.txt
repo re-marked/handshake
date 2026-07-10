@@ -1,5 +1,7 @@
 # Handshake
 
+Full site content in one document: https://re-marked.github.io/handshake/llms-full.txt
+
 > Handshake is a free, local-first desktop app for mapping the people you know — your network as a graph of people, the connections between them, and the warmth of each tie. Everything is stored as plain markdown files on your own machine (macOS, Windows, Linux). No cloud, no account, no telemetry.
 
 Handshake is "Obsidian for your network": a calm, monochrome, rose-accented canvas over a folder of plain text that you own. It's free and open source.

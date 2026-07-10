@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FileText, Lock, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, FileText, Lock, SlidersHorizontal } from "lucide-react";
 import { VaultWindow } from "@/components/VaultWindow";
 import { Faq } from "@/components/Faq";
 import { CTA, Footer, Ghost, Github, Nav } from "@/components/chrome";
@@ -58,8 +58,11 @@ export default function Home() {
               the people in your life.
             </ValueProp>
             <ValueProp icon={FileText} title="Your memory should last.">
-              Open markdown underneath. Your network outlives the app, the company, and the hype — it&apos;s
-              just a folder of text.
+              Open markdown underneath. Your network outlives the app, the company, and the hype — it&apos;s{" "}
+              <a href={asset("/guide/networks-and-files")} className="text-primary underline-offset-4 hover:underline">
+                just a folder of text
+              </a>
+              .
             </ValueProp>
           </div>
         </section>
@@ -67,6 +70,7 @@ export default function Home() {
         {/* ── Links / backlinks ─────────────────────────────── */}
         <FeatureRow
           title="Write a name. Draw a line."
+          more={{ href: "/guide/notes-and-backlinks", label: "How notes & backlinks work" }}
           blurb="Type [[ in any note and it completes from your people. Mention someone and the board draws the connection — and their card grows with every mention. Your notes quietly become a map you can click straight through."
           reverse
         >
@@ -81,6 +85,7 @@ export default function Home() {
         {/* ── Two views ─────────────────────────────────────── */}
         <FeatureRow
           title="Spatial, or a tidy list."
+          more={{ href: "/guide/board", label: "Read the board guide" }}
           blurb="Think in space on the board; find fast in a sortable, searchable list. Order by name or by closeness, dial the density — same plain files underneath, switched in a keystroke."
         >
           <Shot
@@ -95,6 +100,7 @@ export default function Home() {
         <FeatureRow
           reverse
           title="Lay it out like you think."
+          more={{ href: "/guide/workspace", label: "How the workspace works" }}
           blurb="Tabs, resizable splits, and pop-out notes — a true Obsidian-style layout. Put the board beside your people and your goals beneath it, and it's right where you left it next time."
         >
           <Shot
@@ -108,6 +114,7 @@ export default function Home() {
         {/* ── Plain text ─────────────────────────────────────── */}
         <FeatureRow
           title="The vault is the database."
+          more={{ href: "/guide/networks-and-files", label: "Networks & plain files, explained" }}
           blurb="Every person, every handshake, every goal is just a markdown file with YAML frontmatter, in a folder you choose. No database, no proprietary format, no account, no telemetry."
         >
           <VaultWindow />
@@ -250,11 +257,14 @@ function Shot({
 function FeatureRow({
   title,
   blurb,
+  more,
   reverse,
   children,
 }: {
   title: string;
   blurb: string;
+  /** Optional in-content link to the relevant guide page (site-relative). */
+  more?: { href: string; label: string };
   reverse?: boolean;
   children: React.ReactNode;
 }) {
@@ -270,6 +280,14 @@ function FeatureRow({
             {title}
           </h2>
           <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">{blurb}</p>
+          {more && (
+            <a
+              href={asset(more.href)}
+              className="mt-5 inline-flex items-center gap-1.5 text-[15px] font-medium text-primary underline-offset-4 hover:underline"
+            >
+              {more.label} <ArrowRight className="size-4" />
+            </a>
+          )}
         </div>
         <div className={reverse ? "lg:order-1" : ""}>{children}</div>
       </div>

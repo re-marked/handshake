@@ -9,6 +9,10 @@ export interface GuideSection {
   blurb: string;
 }
 
+/** When the guide first shipped (datePublished) — bump `GUIDE_UPDATED` on content edits. */
+export const GUIDE_PUBLISHED = "2026-07-09";
+export const GUIDE_UPDATED = "2026-07-10";
+
 export const GUIDE: GuideSection[] = [
   {
     slug: "getting-started",

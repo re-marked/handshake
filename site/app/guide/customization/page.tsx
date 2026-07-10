@@ -1,4 +1,4 @@
-import { B, GuidePage, guideMetadata, H2, Kbd, P, Tip } from "@/components/guide";
+import { A, B, GuidePage, guideMetadata, H2, Kbd, P, Tip } from "@/components/guide";
 
 export const metadata = guideMetadata("customization");
 
@@ -23,7 +23,7 @@ export default function Page() {
 
       <H2 id="board-settings">Board</H2>
       <P>
-        Settings → Board controls what the map shows and how it breathes: goal cards on or off, the
+        <A href="/guide/board">Settings → Board</A> controls what the map shows and how it breathes: goal cards on or off, the
         default warmth for new ties, introduced-by lines, backlink lines, whether cards grow with
         inbound mentions, card spacing for the auto-layout, and how far the zoom will travel. The{" "}
         <B>card fade</B> section handles dimming inactive people — off by default, with a strength
@@ -32,7 +32,7 @@ export default function Page() {
 
       <H2 id="notes-settings">Notes</H2>
       <P>
-        Choose where notes open by default — slide-in panel, floating window, or tab — plus the
+        Choose where <A href="/guide/notes-and-backlinks">notes</A> open by default — slide-in panel, floating window, or tab — plus the
         starting size for floats and panels, the autosave delay, and your auto-highlighted{" "}
         <B>keywords</B> with their colors.
       </P>

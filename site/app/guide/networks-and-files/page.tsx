@@ -1,4 +1,4 @@
-import { B, Code, GuidePage, guideMetadata, H2, Kbd, P, Tip } from "@/components/guide";
+import { A, B, Code, GuidePage, guideMetadata, H2, Kbd, P, Tip } from "@/components/guide";
 import { VaultWindow } from "@/components/VaultWindow";
 
 export const metadata = guideMetadata("networks-and-files");
@@ -42,7 +42,7 @@ export default function Page() {
       <P>
         Handshake deliberately ships no cloud. Because a network is plain files, everything works:
         put the folder in iCloud, Dropbox, OneDrive, or Syncthing to sync it between machines;{" "}
-        <Code>git init</Code> it (or just use the built-in Time Machine, which is already git) for
+        <Code>git init</Code> it (or just use the built-in <A href="/guide/time-machine">Time Machine</A>, which is already git) for
         history you can push anywhere.
       </P>
 

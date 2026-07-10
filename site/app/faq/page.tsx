@@ -2,6 +2,17 @@ import type { Metadata } from "next";
 import { Footer, Nav } from "@/components/chrome";
 import { BreadcrumbJsonLd } from "@/components/schema";
 import { FAQ_GROUPS, OG_IMAGE, SITE_URL } from "@/lib/seo";
+import { asset } from "@/lib/asset";
+
+// Contextual "keep reading" target per FAQ topic — internal links search engines actually weight.
+const RELATED: Record<string, { href: string; label: string }> = {
+  "Getting started": { href: "/guide/getting-started", label: "the getting-started guide" },
+  "Privacy & your data": { href: "/guide/networks-and-files", label: "how networks & plain files work" },
+  "Platforms & installing": { href: "/download", label: "the download page" },
+  "Files & format": { href: "/guide/networks-and-files", label: "the plain-files guide" },
+  "Compared to other tools": { href: "/guide", label: "the full guide" },
+  "Beta": { href: "/download", label: "the latest release" },
+};
 
 const TITLE = "FAQ";
 const DESC =
@@ -67,6 +78,17 @@ export default function FaqPage() {
                   </div>
                 ))}
               </dl>
+              {RELATED[group.topic] && (
+                <p className="mt-6 text-sm text-muted-foreground">
+                  Keep reading:{" "}
+                  <a
+                    href={asset(RELATED[group.topic].href)}
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    {RELATED[group.topic].label}
+                  </a>
+                </p>
+              )}
             </section>
           ))}
         </div>

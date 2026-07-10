@@ -11,6 +11,7 @@ import {
   Terminal,
 } from "lucide-react";
 import { APP_VERSION, REPO } from "@/lib/seo";
+import { asset } from "@/lib/asset";
 
 // ── OS brand glyphs (lucide dropped brand icons) ──────────────────────────────
 function Apple({ className }: { className?: string }) {
@@ -283,6 +284,13 @@ pnpm tauri build`}</Code>
             draws the connection for you.
           </FirstRun>
         </ol>
+        <p className="mt-8 text-sm text-muted-foreground">
+          Want the full tour?{" "}
+          <a href={asset("/guide/getting-started")} className="text-primary underline-offset-4 hover:underline">
+            Read the getting-started guide
+          </a>{" "}
+          — fifteen minutes, cover to cover.
+        </p>
       </section>
     </main>
   );

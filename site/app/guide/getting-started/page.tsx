@@ -1,4 +1,4 @@
-import { B, GuidePage, guideMetadata, H2, Kbd, P, Shot, Steps, Tip } from "@/components/guide";
+import { A, B, GuidePage, guideMetadata, H2, Kbd, P, Shot, Steps, Tip } from "@/components/guide";
 import { asset } from "@/lib/asset";
 
 export const metadata = guideMetadata("getting-started");
@@ -56,7 +56,7 @@ export default function Page() {
       />
       <P>
         Give each person a role and company on their card, a photo if you like (click the avatar on
-        their note), and a tag or two — <B>founder</B>, <B>friend</B>, <B>investor</B> — whatever
+        their <A href="/guide/notes-and-backlinks">note</A>), and a tag or two — <B>founder</B>, <B>friend</B>, <B>investor</B> — whatever
         helps you think.
       </P>
       <Shot
@@ -79,7 +79,7 @@ export default function Page() {
 
       <H2 id="next">Where to go next</H2>
       <P>
-        The board is the heart of the app, so that&apos;s the next stop. And whenever you&apos;re
+        The <A href="/guide/board">board</A> is the heart of the app, so that&apos;s the next stop — then <A href="/guide/notes-and-backlinks">notes and backlinks</A>, where the map starts thinking with you. And whenever you&apos;re
         lost, press <Kbd>Ctrl</Kbd>+<Kbd>P</Kbd> — the command palette can reach everything:
         people, views, settings, snapshots.
       </P>

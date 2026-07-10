@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ArrowLeft, ArrowRight, Lightbulb } from "lucide-react";
 import { Footer, Nav } from "@/components/chrome";
 import { BreadcrumbJsonLd, JsonLdScript } from "@/components/schema";
-import { GUIDE } from "@/lib/guide";
+import { GUIDE, GUIDE_PUBLISHED, GUIDE_UPDATED } from "@/lib/guide";
 import { OG_IMAGE, SITE_URL } from "@/lib/seo";
 import { asset } from "@/lib/asset";
 
@@ -98,6 +98,8 @@ export function GuidePage({ slug, lead, children }: { slug: string; lead: string
           headline: `${section.title} — Handshake guide`,
           description: section.blurb,
           image: OG_IMAGE.url,
+          datePublished: GUIDE_PUBLISHED,
+          dateModified: GUIDE_UPDATED,
           author: { "@type": "Organization", name: "re-marked", url: "https://github.com/re-marked" },
           about: { "@type": "SoftwareApplication", name: "Handshake", "@id": `${SITE_URL}/#app` },
           isPartOf: { "@type": "WebSite", "@id": `${SITE_URL}/#website` },
@@ -111,6 +113,17 @@ export function GuidePage({ slug, lead, children }: { slug: string; lead: string
       />
       <GuideShell active={slug}>
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">{section.title}</h1>
+        <p className="mt-3 text-sm text-muted-foreground/70">
+          Updated{" "}
+          <time dateTime={GUIDE_UPDATED}>
+            {new Date(GUIDE_UPDATED + "T00:00:00Z").toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              timeZone: "UTC",
+            })}
+          </time>
+        </p>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">{lead}</p>
 
         <div className="mt-12 space-y-6">{children}</div>
@@ -166,6 +179,15 @@ export function P({ children }: { children: React.ReactNode }) {
 /** Emphasis within prose that should read in the foreground color. */
 export function B({ children }: { children: React.ReactNode }) {
   return <b className="font-medium text-foreground">{children}</b>;
+}
+
+/** An internal, site-relative link inside guide prose (basePath handled). */
+export function A({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a href={asset(href)} className="text-primary underline-offset-4 hover:underline">
+      {children}
+    </a>
+  );
 }
 
 export function Tip({ children }: { children: React.ReactNode }) {

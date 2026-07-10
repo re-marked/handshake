@@ -1,4 +1,4 @@
-import { B, Code, GuidePage, guideMetadata, H2, P, Shot, Tip } from "@/components/guide";
+import { A, B, Code, GuidePage, guideMetadata, H2, P, Shot, Tip } from "@/components/guide";
 
 export const metadata = guideMetadata("notes-and-backlinks");
 
@@ -34,7 +34,7 @@ export default function Page() {
       </P>
       <P>
         In the note, the mention renders as a <B>rose chip</B> you can click to jump straight to
-        Sarah. On the board, a <B>dotted rose line</B> appears between the two people (unless a real
+        Sarah. On <A href="/guide/board">the board</A>, a <B>dotted rose line</B> appears between the two people (unless a real
         tie already connects them). And Sarah&apos;s card <B>grows a little</B> with each inbound
         mention — the people your notes orbit become visually central.
       </P>
@@ -54,7 +54,7 @@ export default function Page() {
 
       <H2 id="keywords">Auto-highlighted keywords</H2>
       <P>
-        In Settings → Notes you can define <B>keywords</B> — words that highlight themselves in a
+        In <A href="/guide/customization">Settings → Notes</A> you can define <B>keywords</B> — words that highlight themselves in a
         chosen color wherever they appear across all notes. Handy for things you always want to spot:
         &quot;intro&quot;, &quot;follow up&quot;, a project name.
       </P>
