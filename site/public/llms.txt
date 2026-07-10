@@ -29,6 +29,17 @@ Handshake is "Obsidian for your network": a calm, monochrome, rose-accented canv
 - FAQ: https://re-marked.github.io/handshake/faq/
 - Source code: https://github.com/re-marked/handshake
 
+## Comparisons
+
+- What is a personal CRM (honest 2026 guide): https://re-marked.github.io/handshake/personal-crm/
+- vs Clay (Mesh): https://re-marked.github.io/handshake/vs/clay/
+- vs Dex: https://re-marked.github.io/handshake/vs/dex/
+- vs Monica: https://re-marked.github.io/handshake/vs/monica/
+- vs folk: https://re-marked.github.io/handshake/vs/folk/
+- vs Covve: https://re-marked.github.io/handshake/vs/covve/
+- vs Notion as a personal CRM: https://re-marked.github.io/handshake/vs/notion/
+- vs a spreadsheet: https://re-marked.github.io/handshake/vs/spreadsheet/
+
 ## Guide
 
 - Guide overview: https://re-marked.github.io/handshake/guide/

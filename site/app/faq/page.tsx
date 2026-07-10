@@ -10,7 +10,7 @@ const RELATED: Record<string, { href: string; label: string }> = {
   "Privacy & your data": { href: "/guide/networks-and-files", label: "how networks & plain files work" },
   "Platforms & installing": { href: "/download", label: "the download page" },
   "Files & format": { href: "/guide/networks-and-files", label: "the plain-files guide" },
-  "Compared to other tools": { href: "/guide", label: "the full guide" },
+  "Compared to other tools": { href: "/personal-crm", label: "the honest guide to personal CRMs" },
   "Beta": { href: "/download", label: "the latest release" },
 };
 

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 import { GUIDE, GUIDE_UPDATED } from "@/lib/guide";
+import { VS, VS_UPDATED } from "@/lib/vs";
 
 export const dynamic = "force-static";
 
@@ -38,6 +39,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...GUIDE.map((s) => ({
       url: `${SITE_URL}/guide/${s.slug}/`,
       lastModified: GUIDE_UPDATED,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    {
+      url: `${SITE_URL}/personal-crm/`,
+      lastModified: VS_UPDATED,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/vs/`,
+      lastModified: VS_UPDATED,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    ...VS.map((v) => ({
+      url: `${SITE_URL}/vs/${v.slug}/`,
+      lastModified: VS_UPDATED,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),

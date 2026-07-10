@@ -95,6 +95,9 @@ export function Footer() {
           <a href={asset("/faq")} className="transition-colors hover:text-foreground">
             FAQ
           </a>
+          <a href={asset("/personal-crm")} className="transition-colors hover:text-foreground">
+            Compare
+          </a>
         </div>
         <p className="mt-2 text-xs text-muted-foreground/60">
           A local-first desktop app · public beta · built in the open

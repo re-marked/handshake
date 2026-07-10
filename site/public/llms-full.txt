@@ -95,6 +95,19 @@ Linux: download the .AppImage, chmod +x it, run it (.deb and .rpm also available
 
 Build from source: clone https://github.com/re-marked/handshake, install deps (Arch: sudo pacman -S --needed webkit2gtk-4.1 base-devel rust nodejs pnpm), then pnpm install && pnpm tauri build.
 
+## Compared to other personal CRMs (personal-crm, vs/*)
+
+As of July 2026. Full honest comparisons (including where each competitor wins) at /personal-crm/ and /vs/.
+
+- Clay (rebranded to Mesh, me.sh, in 2024; unrelated to Clay.com): AI-powered cloud personal CRM that auto-builds and enriches your network from email/calendar/LinkedIn/X. Choose Mesh for zero-upkeep automation; choose Handshake for privacy (no service reads your accounts), plain-file ownership, the visual board, and $0.
+- Dex ($12–20/mo): cloud personal CRM centered on keep-in-touch reminders, LinkedIn sync, mobile apps. Choose Dex for automated cadences and phone capture; choose Handshake for free/open source, offline files, and the network map. Handshake has no automated reminders — the board fades stale ties instead.
+- Monica (open source, AGPL; self-hosted web app or hosted $9/mo): the philosophical sibling — privacy-first, great for personal-life details. Choose Monica for web access everywhere and self-hosting; choose Handshake for ownership without running a server, markdown files over a SQL database, and the spatial board.
+- folk ($20–40/user/mo): a lightweight team CRM (pipelines, sequences) often listed as a personal CRM; built for teams, not individuals.
+- Covve (mobile-only, Pro $12.99/mo): phone-first capture, card scanner, news alerts. Handshake is desktop-only during beta — if phone-first is your loop, Covve or Dex fit better.
+- Notion as a DIY personal CRM: flexible but self-maintained; a table can't show the network's shape. Handshake is purpose-built: warmth ties, introductions, the board, working in two minutes.
+- Spreadsheets: free and universal; break when relationships (who-knows-whom) and long notes matter. Handshake keeps plain-text portability and adds the graph.
+- Category cautionary tale: UpHabit pivoted away from personal CRM in 2022 and told users to migrate — relationship data should live in plain files that outlive any app.
+
 ## FAQ (faq)
 
 Q: What is Handshake?
