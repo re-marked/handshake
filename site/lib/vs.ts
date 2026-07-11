@@ -3,7 +3,7 @@
 // re-verify pricing when bumping VS_UPDATED.
 
 export const VS_PUBLISHED = "2026-07-10";
-export const VS_UPDATED = "2026-07-10";
+export const VS_UPDATED = "2026-07-11";
 
 export interface VsData {
   slug: string;
@@ -34,7 +34,7 @@ const US = {
   offline: "Fully offline — no account",
   format: "Already plain text; nothing to export",
   viz: "A spatial board of your whole network",
-  autosync: "None — deliberately manual",
+  autosync: "None — you decide who's on the map",
   openSource: "Yes (MIT)",
 };
 
@@ -50,10 +50,10 @@ export const VS: VsData[] = [
       "Looking for a Clay / Mesh personal CRM alternative? Handshake maps your network as plain markdown files on your own machine — free, open source, offline. An honest comparison.",
     h1: "Handshake vs Clay (Mesh)",
     intro:
-      "Mesh — the personal CRM formerly known as Clay at clay.earth — is an AI-powered cloud service that builds and enriches your contact list automatically from your email, calendar, LinkedIn, and X. Handshake is the opposite philosophy: a free, local-first desktop app where you map the people you know by hand, in plain markdown files you own.",
+      "Mesh — the personal CRM formerly known as Clay at clay.earth — is an AI-powered cloud service that builds and enriches your contact list automatically from your email, calendar, LinkedIn, and X. Handshake is the opposite philosophy: a free, local-first desktop app where your network is a deliberate map — the people who actually matter, in plain markdown files you own.",
     paras: [
       "Mesh's pitch is that the CRM maintains itself: connect your accounts and the people you interact with appear, enriched with photos, roles, and job-change updates pulled from the web, with an AI assistant on top. It's genuinely slick, and for someone who lives in email and calendar it removes almost all upkeep. (Note: Mesh is unrelated to Clay.com, a B2B sales-enrichment platform that shares the old name.)",
-      "The trade is structural, not a missing feature: for Mesh to maintain your network, a cloud service must read your communications. Handshake never asks, because nothing leaves your machine — the cost is that you curate your network yourself. Which trade is right depends entirely on what you want a personal CRM to be.",
+      "The trade is structural, not a missing feature: for Mesh to maintain your network, a cloud service must read your communications — and what it builds is a mirror of your inbox, not your network. Everyone who ever emailed you shows up; the people who matter are buried among the people who don't. Handshake inverts that: nothing leaves your machine, and the map holds exactly the people you decided belong on it. The question isn't which app has more features — it's whether you want a bigger list or a truer one.",
     ],
     table: [
       row("Price", "Free tier; paid subscription for unlimited contacts & enrichment (July 2026)", US.price),
@@ -85,6 +85,10 @@ export const VS: VsData[] = [
         body: "No cloud reads your email, calendar, or DMs — there is no cloud. Your relationship map never leaves your disk, which matters precisely because this is your most personal data.",
       },
       {
+        title: "A map, not a contact dump",
+        body: "Auto-built CRMs fill with everyone who ever emailed you — recruiters, receipts, one-off intros. A deliberate map holds only the people you chose to put on it, and that editorial line is exactly what makes it something you can think with rather than just search.",
+      },
+      {
         title: "You own the files",
         body: "Every person and note is a markdown file you can open in Obsidian, grep, back up, or keep for thirty years. Mesh's database is theirs; yours is a folder.",
       },
@@ -104,7 +108,7 @@ export const VS: VsData[] = [
       "You need it on your phone today",
     ],
     chooseUs: [
-      "You'd rather curate a smaller, honest map than sync a big automatic one",
+      "You want a map of your actual network, not a mirror of your inbox",
       "No service should be reading your inbox to know who your friends are",
       "You want to see your network spatially, not scroll it",
       "You want plain files that outlive any company — including us",
@@ -189,7 +193,7 @@ export const VS: VsData[] = [
       "You want free, open source, and no account",
       "You think in maps, not task lists",
       "Your relationship notes should live in files you control",
-      "You're fine writing things down yourself",
+      "You'd rather decide who's on the map than have an algorithm decide for you",
     ],
     faqs: [
       {

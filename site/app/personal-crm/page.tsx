@@ -209,9 +209,10 @@ export default function PersonalCrmPage() {
         <P>
           <B>1. Automatic or manual?</B> Tools like <A href="/vs/clay">Mesh (formerly Clay)</A> build
           your network from your email and calendar automatically — zero upkeep, but a cloud service
-          reads your communications. Manual tools (Handshake, <A href="/vs/monica">Monica</A>, a{" "}
-          <A href="/vs/spreadsheet">spreadsheet</A>) only know what you tell them — more honest, more
-          effort.
+          reads your communications. Deliberate tools (Handshake, <A href="/vs/monica">Monica</A>, a{" "}
+          <A href="/vs/spreadsheet">spreadsheet</A>) hold only what you put in them — which sounds
+          like work until you notice it&apos;s why the map stays meaningful: auto-built networks
+          mirror your inbox; deliberate ones mirror your life.
         </P>
         <P>
           <B>2. Cloud or local?</B> Your relationship map is arguably the most personal dataset you

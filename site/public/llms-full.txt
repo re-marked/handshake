@@ -99,7 +99,7 @@ Build from source: clone https://github.com/re-marked/handshake, install deps (A
 
 As of July 2026. Full honest comparisons (including where each competitor wins) at /personal-crm/ and /vs/.
 
-- Clay (rebranded to Mesh, me.sh, in 2024; unrelated to Clay.com): AI-powered cloud personal CRM that auto-builds and enriches your network from email/calendar/LinkedIn/X. Choose Mesh for zero-upkeep automation; choose Handshake for privacy (no service reads your accounts), plain-file ownership, the visual board, and $0.
+- Clay (rebranded to Mesh, me.sh, in 2024; unrelated to Clay.com): AI-powered cloud personal CRM that auto-builds and enriches your network from email/calendar/LinkedIn/X. Choose Mesh for zero-upkeep automation; choose Handshake for privacy (no service reads your accounts), deliberate curation (a map of your actual network, not a mirror of your inbox), plain-file ownership, the visual board, and $0.
 - Dex ($12–20/mo): cloud personal CRM centered on keep-in-touch reminders, LinkedIn sync, mobile apps. Choose Dex for automated cadences and phone capture; choose Handshake for free/open source, offline files, and the network map. Handshake has no automated reminders — the board fades stale ties instead.
 - Monica (open source, AGPL; self-hosted web app or hosted $9/mo): the philosophical sibling — privacy-first, great for personal-life details. Choose Monica for web access everywhere and self-hosting; choose Handshake for ownership without running a server, markdown files over a SQL database, and the spatial board.
 - folk ($20–40/user/mo): a lightweight team CRM (pipelines, sequences) often listed as a personal CRM; built for teams, not individuals.
