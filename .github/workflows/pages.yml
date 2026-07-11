@@ -9,6 +9,10 @@ on:
     paths:
       - "site/**"
       - ".github/workflows/pages.yml"
+  # Publishing an app release rebuilds the site, so /changelog and /feed.xml (both generated
+  # from the GitHub releases API at build time) pick the new release up automatically.
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -54,3 +58,22 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+      # Tell IndexNow-capable engines (Bing → Copilot/ChatGPT browsing) that our URLs changed, so
+      # re-crawls happen in minutes instead of weeks. The key file lives in site/public/; the
+      # keyLocation under /handshake/ scopes the key to exactly our URLs. Best-effort — never
+      # fails the deploy.
+      - name: Ping IndexNow
+        continue-on-error: true
+        run: |
+          sleep 20 # let the CDN start serving the fresh sitemap + key file
+          urls=$(curl -s https://re-marked.github.io/handshake/sitemap.xml | grep -oP '(?<=<loc>)[^<]+')
+          [ -z "$urls" ] && { echo "no sitemap URLs — skipping"; exit 0; }
+          json=$(printf '%s\n' $urls | jq -R . | jq -s '{
+            host: "re-marked.github.io",
+            key: "31cce94983b7ae642fe7dc12b476cc78",
+            keyLocation: "https://re-marked.github.io/handshake/31cce94983b7ae642fe7dc12b476cc78.txt",
+            urlList: .
+          }')
+          curl -s -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "$json" -o /dev/null -w "IndexNow HTTP %{http_code} for $(echo "$urls" | wc -l) URLs\n"

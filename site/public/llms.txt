@@ -27,6 +27,8 @@ Handshake is "Obsidian for your network": a calm, monochrome, rose-accented canv
 - Website: https://re-marked.github.io/handshake/
 - Download (macOS, Windows, Linux): https://re-marked.github.io/handshake/download/
 - FAQ: https://re-marked.github.io/handshake/faq/
+- Changelog: https://re-marked.github.io/handshake/changelog/
+- Releases feed (RSS): https://re-marked.github.io/handshake/feed.xml
 - Source code: https://github.com/re-marked/handshake
 
 ## Comparisons

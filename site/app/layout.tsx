@@ -32,7 +32,10 @@ export const metadata: Metadata = {
   authors: [{ name: "re-marked", url: "https://github.com/re-marked" }],
   creator: "re-marked",
   publisher: "re-marked",
-  alternates: { canonical: SITE_URL },
+  alternates: {
+    canonical: SITE_URL,
+    types: { "application/rss+xml": `${SITE_URL}/feed.xml` },
+  },
   verification: { google: "BAHZYqv1rf4dNNZ6HwnwBOCuFhX2DrsoD0s3vjWMLmo" },
   openGraph: {
     type: "website",

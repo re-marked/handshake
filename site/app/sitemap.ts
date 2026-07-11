@@ -43,6 +43,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     })),
     {
+      url: `${SITE_URL}/changelog/`,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    {
       url: `${SITE_URL}/personal-crm/`,
       lastModified: VS_UPDATED,
       changeFrequency: "monthly",

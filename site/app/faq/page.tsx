@@ -11,7 +11,7 @@ const RELATED: Record<string, { href: string; label: string }> = {
   "Platforms & installing": { href: "/download", label: "the download page" },
   "Files & format": { href: "/guide/networks-and-files", label: "the plain-files guide" },
   "Compared to other tools": { href: "/personal-crm", label: "the honest guide to personal CRMs" },
-  "Beta": { href: "/download", label: "the latest release" },
+  "Beta": { href: "/changelog", label: "the changelog" },
 };
 
 const TITLE = "FAQ";

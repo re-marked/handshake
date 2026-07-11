@@ -98,6 +98,9 @@ export function Footer() {
           <a href={asset("/personal-crm")} className="transition-colors hover:text-foreground">
             Compare
           </a>
+          <a href={asset("/changelog")} className="transition-colors hover:text-foreground">
+            Changelog
+          </a>
         </div>
         <p className="mt-2 text-xs text-muted-foreground/60">
           A local-first desktop app · public beta · built in the open
