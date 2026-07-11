@@ -29,3 +29,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Internal design docs — kept on disk for us, not published to the public repo.
+/SPEC.md
+/UX.md
+/SHELL.md
+/PROGRESS.md
