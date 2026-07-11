@@ -6,11 +6,11 @@ import { SITE_URL, SITE_NAME, DESCRIPTION, OG_IMAGE } from "@/lib/seo";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const TITLE = "Handshake — Know who you know";
+const TITLE = "Handshake – Know who you know";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: TITLE, template: "%s — Handshake" },
+  title: { default: TITLE, template: "%s – Handshake" },
   description: DESCRIPTION,
   applicationName: SITE_NAME,
   generator: "Next.js",

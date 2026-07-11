@@ -11,11 +11,11 @@ import { asset } from "@/lib/asset";
 export function guideMetadata(slug: string): Metadata {
   const s = GUIDE.find((g) => g.slug === slug)!;
   return {
-    title: `${s.title} — Guide`,
+    title: `${s.title} – Guide`,
     description: s.blurb,
     alternates: { canonical: `${SITE_URL}/guide/${slug}` },
     openGraph: {
-      title: `${s.title} — Guide`,
+      title: `${s.title} – Guide`,
       description: s.blurb,
       url: `${SITE_URL}/guide/${slug}`,
       images: [OG_IMAGE],
@@ -55,7 +55,7 @@ export function GuideShell({ active, children }: { active: string | null; childr
     <div className="relative">
       <Nav />
       <div className="mx-auto flex w-full max-w-[2000px] gap-12 px-6 sm:px-12 lg:px-20">
-        {/* sidebar — sticky under the nav on desktop */}
+        {/* sidebar – sticky under the nav on desktop */}
         <aside className="hidden w-56 shrink-0 lg:block">
           <div className="sticky top-24 pt-14">
             <GuideSidebar active={active} />
@@ -95,7 +95,7 @@ export function GuidePage({ slug, lead, children }: { slug: string; lead: string
           "@context": "https://schema.org",
           "@type": "TechArticle",
           "@id": `${SITE_URL}/guide/${slug}#article`,
-          headline: `${section.title} — Handshake guide`,
+          headline: `${section.title} – Handshake guide`,
           description: section.blurb,
           image: OG_IMAGE.url,
           datePublished: GUIDE_PUBLISHED,
@@ -239,7 +239,7 @@ export function Shot({ src, alt, width, height }: { src: string; alt: string; wi
   );
 }
 
-/** The warmth legend — the four tie strengths as they read on the board. */
+/** The warmth legend – the four tie strengths as they read on the board. */
 export function WarmthLegend() {
   const ties = [
     { name: "Close", cls: "bg-primary" },

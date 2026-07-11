@@ -9,7 +9,7 @@ import { OG_IMAGE, REPO, SITE_URL } from "@/lib/seo";
 import { asset } from "@/lib/asset";
 
 const DESC =
-  "Every Handshake release, newest first — what shipped, what got fixed, and where the public beta is heading. Rebuilt automatically on every release.";
+  "Every Handshake release, newest first – what shipped, what got fixed, and where the public beta is heading. Rebuilt automatically on every release.";
 
 export const metadata: Metadata = {
   title: "Changelog",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
 };
 
-// Release notes are markdown — style them to match the site's prose.
+// Release notes are markdown – style them to match the site's prose.
 const NOTES =
   "mt-4 max-w-3xl text-[15px] leading-relaxed text-muted-foreground " +
   "[&_h2]:mt-5 [&_h2]:mb-1.5 [&_h2]:font-display [&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-foreground " +
@@ -58,7 +58,7 @@ export default async function ChangelogPage() {
       <main className="mx-auto w-full max-w-[2000px] px-6 pb-24 pt-14 sm:px-12 sm:pt-20 lg:px-20">
         <h1 className="font-display text-4xl font-semibold sm:text-6xl">Changelog</h1>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Every release, newest first. The beta moves fast — subscribe via{" "}
+          Every release, newest first. The beta moves fast – subscribe via{" "}
           <a href={asset("/feed.xml")} className="text-primary underline-offset-4 hover:underline">
             RSS
           </a>{" "}
@@ -71,7 +71,7 @@ export default async function ChangelogPage() {
 
         {releases.length === 0 ? (
           <p className="mt-14 max-w-2xl leading-relaxed text-muted-foreground">
-            Couldn&apos;t load releases right now — see{" "}
+            Couldn&apos;t load releases right now – see{" "}
             <a href={`${REPO}/releases`} className="text-primary underline-offset-4 hover:underline">
               the releases page on GitHub
             </a>

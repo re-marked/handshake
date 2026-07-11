@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { REPO } from "@/lib/seo";
 import { asset } from "@/lib/asset";
 
-/** Inline GitHub mark — lucide 1.x dropped its brand icons. */
+/** Inline GitHub mark – lucide 1.x dropped its brand icons. */
 export function Github({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>

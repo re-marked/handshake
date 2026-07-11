@@ -14,7 +14,7 @@ const TREE: { name: string; kind: "folder" | "file"; active?: boolean }[] = [
 ];
 
 /** A faux editor window for the "it's just plain files" section: a file tree on the left, one of the
- *  person markdown files open on the right — frontmatter up top, a note with a `[[backlink]]` below. */
+ *  person markdown files open on the right – frontmatter up top, a note with a `[[backlink]]` below. */
 export function VaultWindow() {
   return (
     <div className="overflow-hidden rounded-xl border bg-card/50 font-mono shadow-2xl ring-1 ring-black/5">
@@ -55,7 +55,7 @@ export function VaultWindow() {
           <Field k="tags" v="[cofounder, ceo]" />
           <Dim>---</Dim>
           <p className="mt-4 text-foreground/80">
-            The CEO, and the reason this works. We split it clean — she runs the room, I run product +
+            The CEO, and the reason this works. We split it clean – she runs the room, I run product +
             eng with{" "}
             <span className="rounded bg-primary/10 px-1 py-0.5 font-medium text-primary">
               [[Kevin Zhao]]

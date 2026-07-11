@@ -1,4 +1,4 @@
-// Build-time fetch of the app's GitHub releases — shared by /changelog and /feed.xml. Runs during
+// Build-time fetch of the app's GitHub releases – shared by /changelog and /feed.xml. Runs during
 // `next build` (static export), so the live site always reflects releases as of its last deploy;
 // pages.yml also triggers on `release: published`, so shipping a release rebuilds the site.
 
@@ -41,7 +41,7 @@ export async function getReleases(): Promise<Release[]> {
         htmlUrl: r.html_url,
       }));
   } catch {
-    // Offline local build etc. — the page renders a graceful fallback.
+    // Offline local build etc. – the page renders a graceful fallback.
     return [];
   }
 }

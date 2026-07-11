@@ -7,7 +7,7 @@ function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/** RSS 2.0 feed of releases — generated at build time, so it updates with every deploy
+/** RSS 2.0 feed of releases – generated at build time, so it updates with every deploy
  *  (and every release, since publishing one triggers a site rebuild). */
 export async function GET() {
   const releases = await getReleases();

@@ -5,12 +5,12 @@ import { VS_PUBLISHED, VS_UPDATED } from "@/lib/vs";
 import { OG_IMAGE, SITE_URL } from "@/lib/seo";
 import { asset } from "@/lib/asset";
 
-const TITLE = "How to map your personal network — an honest guide (2026)";
+const TITLE = "How to map your personal network – an honest guide (2026)";
 const DESC =
-  "Relationship mapping, without the flowchart. What it means to map your personal network, the four kinds of tools people reach for — knowledge graphs like TheBrain, analyst tools like Kumu, diagram editors, note graphs — and where a purpose-built, local-first people map fits.";
+  "Relationship mapping, without the flowchart. What it means to map your personal network, the four kinds of tools people reach for – knowledge graphs like TheBrain, analyst tools like Kumu, diagram editors, note graphs – and where a purpose-built, local-first people map fits.";
 
 export const metadata: Metadata = {
-  title: { absolute: `${TITLE} — Handshake` },
+  title: { absolute: `${TITLE} – Handshake` },
   description: DESC,
   alternates: { canonical: `${SITE_URL}/map-your-network` },
   openGraph: {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 const FAQS = [
   {
     q: "What does it mean to map your personal network?",
-    a: "Mapping your personal network means laying out the people you know as a visual graph — each person a node, each relationship a connection — so you can see the shape of your world: who connects to whom, which ties are strong, and where the gaps are. It turns a mental address book into something you can actually look at and think with.",
+    a: "Mapping your personal network means laying out the people you know as a visual graph – each person a node, each relationship a connection – so you can see the shape of your world: who connects to whom, which ties are strong, and where the gaps are. It turns a mental address book into something you can actually look at and think with.",
   },
   {
     q: "What is the best tool to map relationships between people?",
@@ -32,11 +32,11 @@ const FAQS = [
   },
   {
     q: "Can I map my network without a flowchart or diagram tool?",
-    a: "Yes — and you usually should. Diagram editors like diagrams.net make you draw and re-draw boxes by hand, and they hold no data about the people. A purpose-built tool like Handshake keeps the people as real records (with notes, roles, and tie strength) and draws the map for you, so it stays live instead of becoming a stale picture.",
+    a: "Yes – and you usually should. Diagram editors like diagrams.net make you draw and re-draw boxes by hand, and they hold no data about the people. A purpose-built tool like Handshake keeps the people as real records (with notes, roles, and tie strength) and draws the map for you, so it stays live instead of becoming a stale picture.",
   },
   {
     q: "Is there a free relationship mapping app?",
-    a: "Handshake is free and open source, storing your network as plain markdown files on your machine. TheBrain has a free tier, Kumu is free for public projects, and diagrams.net is free — but among these, Handshake is the one designed specifically for mapping personal relationships privately.",
+    a: "Handshake is free and open source, storing your network as plain markdown files on your machine. TheBrain has a free tier, Kumu is free for public projects, and diagrams.net is free – but among these, Handshake is the one designed specifically for mapping personal relationships privately.",
   },
 ];
 
@@ -176,8 +176,8 @@ export default function MapYourNetworkPage() {
           </time>
         </p>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Mapping your personal network means laying out the people you know as a visual graph — each
-          person a node, each relationship a line — so you can finally <B>see</B> the shape of your
+          Mapping your personal network means laying out the people you know as a visual graph – each
+          person a node, each relationship a line – so you can finally <B>see</B> the shape of your
           world: who connects to whom, which ties are strong, who introduced you to whom, and where
           the quiet gaps are. This is a guide to doing that honestly, without ending up in a
           flowchart tool.
@@ -193,33 +193,33 @@ export default function MapYourNetworkPage() {
         </P>
         <P>
           The trap is reaching for the wrong kind of tool. Ask the internet how to map your network
-          and you&apos;ll be pointed at flowchart editors and mind-mappers — tools that make you{" "}
+          and you&apos;ll be pointed at flowchart editors and mind-mappers – tools that make you{" "}
           <B>draw</B> a picture that&apos;s stale the moment you close it. The better question is
           which kind of tool actually fits the job.
         </P>
 
         <H2 id="approaches">Four kinds of tools people reach for</H2>
         <P>
-          <B>1. Freehand diagram editors</B> — <A href="/vs/thebrain">draw.io / diagrams.net</A> and
+          <B>1. Freehand diagram editors</B> – <A href="/vs/thebrain">draw.io / diagrams.net</A> and
           friends. You place boxes and draw arrows by hand. Fine for a one-off picture on a slide;
           useless as a living map, because the tool holds no data about the people and every change
           is manual redrawing.
         </P>
         <P>
-          <B>2. Mind-mappers</B> — XMind, MindNode, and the like. Built for branching ideas out from a
+          <B>2. Mind-mappers</B> – XMind, MindNode, and the like. Built for branching ideas out from a
           center, not for the messy, many-to-many web of real relationships. A network isn&apos;t a
           tree.
         </P>
         <P>
-          <B>3. General knowledge graphs</B> — <A href="/vs/thebrain">TheBrain</A>, Obsidian&apos;s
+          <B>3. General knowledge graphs</B> – <A href="/vs/thebrain">TheBrain</A>, Obsidian&apos;s
           graph view. Powerful and genuinely local, but every node is generic: a person, a file, and
           an idea are the same kind of object, joined by unlabeled links. You can build a people map
           in them, but you have to design it yourself, and it can&apos;t express warmth, introductions,
           or a face.
         </P>
         <P>
-          <B>4. Analyst tools</B> — Kumu and other social-network-analysis platforms. Superb for
-          research-grade work (centrality metrics, community detection) on public, cloud-hosted maps —
+          <B>4. Analyst tools</B> – Kumu and other social-network-analysis platforms. Superb for
+          research-grade work (centrality metrics, community detection) on public, cloud-hosted maps –
           overkill, and the wrong privacy model, for quietly mapping your own life.
         </P>
 
@@ -262,14 +262,14 @@ export default function MapYourNetworkPage() {
         <P>
           Handshake is the tool for the specific case the others generalize past: <B>a private map of
           the people you know</B>. It&apos;s a free, open-source desktop app (macOS, Windows, Linux)
-          that puts you at the center of a spatial board and fans your network out around you — each
+          that puts you at the center of a spatial board and fans your network out around you – each
           person a card with a face, each relationship a line whose weight is the <B>warmth</B> of the
           tie. It draws introduction chains, links people as you mention them in notes, and lets you
           pin goals near the people who can help. And because it&apos;s all <B>plain markdown files on
           your machine</B>, the map is yours the way a folder of documents is yours.
         </P>
         <P>
-          It is not a general second brain — if you want ideas, files, and people tangled in one
+          It is not a general second brain – if you want ideas, files, and people tangled in one
           graph, <A href="/vs/thebrain">TheBrain</A> is the honest pick. It&apos;s not a research
           platform, and it has no mobile app yet. What it is: the one tool on this page that treats
           your network <B>as a network of people</B>, and hands you the map in two minutes instead of

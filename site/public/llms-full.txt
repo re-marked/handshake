@@ -1,6 +1,6 @@
-# Handshake — full site content for LLMs
+# Handshake – full site content for LLMs
 
-> Handshake is a free, open-source, local-first desktop app for mapping the people you know — your network as a graph of people, the connections between them, and the warmth of each tie. Everything is stored as plain markdown files on your own machine. macOS, Windows, and Linux. Public beta (pre-1.0).
+> Handshake is a free, open-source, local-first desktop app for mapping the people you know – your network as a graph of people, the connections between them, and the warmth of each tie. Everything is stored as plain markdown files on your own machine. macOS, Windows, and Linux. Public beta (pre-1.0).
 
 This file contains the full content of https://re-marked.github.io/handshake/ in one document.
 A shorter index lives at /llms.txt.
@@ -10,18 +10,18 @@ A shorter index lives at /llms.txt.
 - Free and open source (MIT). No account, no subscription, no paid tier, no telemetry.
 - Local-first: a network is a folder of markdown (.md) files with YAML frontmatter on your device. Works fully offline.
 - Platforms: macOS (Apple Silicon + Intel .dmg), Windows 10/11 (.msi), Linux (.AppImage, .deb, .rpm). Built on Tauri (Rust + web UI).
-- A Handshake network folder is a valid Obsidian vault — the same files open in Obsidian or any text editor, and external edits flow back into the app live.
+- A Handshake network folder is a valid Obsidian vault – the same files open in Obsidian or any text editor, and external edits flow back into the app live.
 - Every network is quietly git-versioned by a built-in "Time Machine" (no system git required).
 - Public beta: releases are not yet code-signed. macOS Gatekeeper: right-click → Open. Windows SmartScreen: More info → Run anyway. On Wayland compositors (Hyprland/sway), launch with WEBKIT_DISABLE_DMABUF_RENDERER=1 if the window is blank.
 - Website: https://re-marked.github.io/handshake/ · Download: https://re-marked.github.io/handshake/download/ · Source: https://github.com/re-marked/handshake
 
 ## Getting started (guide/getting-started)
 
-Install Handshake from the download page. On first launch, create a network — a plain folder on disk where everything lives as markdown. Name yourself; Handshake seeds your own card as the root of the map, and you land on the board with you at the center.
+Install Handshake from the download page. On first launch, create a network – a plain folder on disk where everything lives as markdown. Name yourself; Handshake seeds your own card as the root of the map, and you land on the board with you at the center.
 
-Add people two ways: the add-person button in the board's bottom toolbar, or the People view — type a name in the search box and Handshake offers to create anyone who doesn't match. Give each person a role and company, a photo (click the avatar on their note), and tags (founder, friend, investor).
+Add people two ways: the add-person button in the board's bottom toolbar, or the People view – type a name in the search box and Handshake offers to create anyone who doesn't match. Give each person a role and company, a photo (click the avatar on their note), and tags (founder, friend, investor).
 
-Connect people: open someone's note, add a connection to another person, and pick the warmth — close, warm, cold, or dormant. The board draws the line immediately, weighted by warmth. Don't aim for completeness on day one; the app works best grown slowly.
+Connect people: open someone's note, add a connection to another person, and pick the warmth – close, warm, cold, or dormant. The board draws the line immediately, weighted by warmth. Don't aim for completeness on day one; the app works best grown slowly.
 
 The command palette (Ctrl+P, or right-click anywhere) reaches everything: people, views, networks, settings, snapshots.
 
@@ -33,13 +33,13 @@ Two derived line types: introduced-by lines (dotted, muted) trace who brought wh
 
 Drag the canvas to pan, scroll to zoom. The bottom-center toolbar has: add person, zoom out/reset/in, fit-to-view, re-tidy (re-flows all cards to a clean auto-layout, undoable), and the board filter. The filter dims everyone who doesn't match chosen tags or tie strengths, keeping the network's shape visible while you focus.
 
-Card positions are saved per network — your spatial memory is part of the data. Goals ("meet someone at Stripe") can live on the board as dashed cards; manage them in the Goals view. Optional: "fade inactive cards" (Settings → Card fade, off by default) dims people you haven't touched in a while.
+Card positions are saved per network – your spatial memory is part of the data. Goals ("meet someone at Stripe") can live on the board as dashed cards; manage them in the Goals view. Optional: "fade inactive cards" (Settings → Card fade, off by default) dims people you haven't touched in a while.
 
 ## Notes & backlinks (guide/notes-and-backlinks)
 
 Every person carries a note: structured fields up top (photo, name, role, company, tags, handles like Twitter/email, and connections with their warmth), and a free-form markdown scratchpad below with an Edit/Preview tumbler. Markdown supports headings, lists, tables, task lists, and links; notes autosave straight into the person's .md file.
 
-Backlinks: type [[ in any note and Handshake autocompletes from your people. A mention like [[Sarah Chen]] renders as a clickable rose chip (click to jump to that person), draws a dotted rose line on the board between the two people (unless a real tie already connects them), and makes the mentioned person's card grow slightly with each inbound mention. Mentioning someone who doesn't exist renders dimmed and dashed — a marker of a person worth adding. Backlinks are derived from your prose, never stored in a hidden database, and never rewrite hand-set tie strengths.
+Backlinks: type [[ in any note and Handshake autocompletes from your people. A mention like [[Sarah Chen]] renders as a clickable rose chip (click to jump to that person), draws a dotted rose line on the board between the two people (unless a real tie already connects them), and makes the mentioned person's card grow slightly with each inbound mention. Mentioning someone who doesn't exist renders dimmed and dashed – a marker of a person worth adding. Backlinks are derived from your prose, never stored in a hidden database, and never rewrite hand-set tie strengths.
 
 Highlights: wrap text in ==double equals== for a soft pastel highlight (yellow by default; ==text=={green} for other colors). Right-click a highlight to recolor or remove it. In Settings → Notes you can define keywords that auto-highlight themselves in a chosen color across all notes.
 
@@ -49,9 +49,9 @@ The editor is CodeMirror-based with live markdown styling. Ctrl-Z inside the edi
 
 An Obsidian-style workspace: every pane has its own tab strip. Tabs drag to reorder, drag between panes, and shrink to icons when crowded. Drag a tab to any edge of a pane to split the workspace there; splits resize by dragging the divider and nest arbitrarily.
 
-A person's note can live three ways: the slide-in panel (default), a floating window, or a docked tab — switchable from icons in the note's header, with a pin to keep a panel open. Defaults (mode, float/panel size) are in Settings → Notes.
+A person's note can live three ways: the slide-in panel (default), a floating window, or a docked tab – switchable from icons in the note's header, with a pin to keep a panel open. Defaults (mode, float/panel size) are in Settings → Notes.
 
-The whole arrangement — split tree, tabs, floats, sizes — is saved continuously per network and restores exactly on reopen.
+The whole arrangement – split tree, tabs, floats, sizes – is saved continuously per network and restores exactly on reopen.
 
 ## Time Machine (guide/time-machine)
 
@@ -59,19 +59,19 @@ Every network is a real git repository under the hood (vendored libgit2; no git 
 
 Snapshots are named point-in-time versions of the entire network. By default they're automatic: after edits settle, on network switch, and on app close, rate-limited to a configurable cadence (5 minutes by default). Manual snapshots any time from Settings → Time Machine or the command palette.
 
-Settings → Time Machine lists history; restoring snapshots the present first, rolls back, then records the restore — history is append-only, so a restore never destroys anything.
+Settings → Time Machine lists history; restoring snapshots the present first, rolls back, then records the restore – history is append-only, so a restore never destroys anything.
 
 ## Networks & plain files (guide/networks-and-files)
 
 Each network is its own folder with its own people, layout, workspace, and settings. Create as many as you like (work, personal); switch via the network chip or command palette.
 
 Folder structure:
-- people/ — one markdown file per person (self.md is you)
-- handshakes/ — one file per connection
-- goals/ — goals
-- interactions/ — dated interaction log entries
-- attachments/ — photos
-- .handshake/ — the app's managed sidecar (board layout, workspace, settings); regenerable
+- people/ – one markdown file per person (self.md is you)
+- handshakes/ – one file per connection
+- goals/ – goals
+- interactions/ – dated interaction log entries
+- attachments/ – photos
+- .handshake/ – the app's managed sidecar (board layout, workspace, settings); regenerable
 
 The folder is a valid Obsidian vault. Edit files in any editor; Handshake watches the folder and external edits flow back in live. Writes are byte-stable. Sync via iCloud/Dropbox/OneDrive/Syncthing, or git init it (Time Machine already keeps git history you can push).
 
@@ -100,25 +100,25 @@ Build from source: clone https://github.com/re-marked/handshake, install deps (A
 As of July 2026. Full honest comparisons (including where each competitor wins) at /personal-crm/, /map-your-network/, and /vs/. Note: "personal CRM" (remembering/keeping up with people) and "relationship/network mapping" (visualizing how people connect) are two query lanes Handshake sits in; the /map-your-network/ guide covers the mapping lane and its tools (TheBrain, Kumu, diagrams.net, Obsidian graph view, mind-mappers).
 
 - Clay (rebranded to Mesh, me.sh, in 2024; unrelated to Clay.com): AI-powered cloud personal CRM that auto-builds and enriches your network from email/calendar/LinkedIn/X. Choose Mesh for zero-upkeep automation; choose Handshake for privacy (no service reads your accounts), deliberate curation (a map of your actual network, not a mirror of your inbox), plain-file ownership, the visual board, and $0.
-- Dex ($12–20/mo): cloud personal CRM centered on keep-in-touch reminders, LinkedIn sync, mobile apps. Choose Dex for automated cadences and phone capture; choose Handshake for free/open source, offline files, and the network map. Handshake has no automated reminders — the board fades stale ties instead.
-- Monica (open source, AGPL; self-hosted web app or hosted $9/mo): the philosophical sibling — privacy-first, great for personal-life details. Choose Monica for web access everywhere and self-hosting; choose Handshake for ownership without running a server, markdown files over a SQL database, and the spatial board.
-- TheBrain (free tier; Pro $180/yr, lifetime $299): a 25-year-old general "digital memory" — a local, cross-platform graph where any note, file, web page, or email is a connected "Thought." Genuinely free and local, but generic: no concept of tie warmth, introductions, or person cards, and data lives in a proprietary .brain database rather than plain files. Choose TheBrain to map ideas+files+people together in one mature graph with mobile and AI; choose Handshake when the thing you want to map is specifically the people you know — warmth-weighted ties, introductions, faces — in plain markdown you own.
+- Dex ($12–20/mo): cloud personal CRM centered on keep-in-touch reminders, LinkedIn sync, mobile apps. Choose Dex for automated cadences and phone capture; choose Handshake for free/open source, offline files, and the network map. Handshake has no automated reminders – the board fades stale ties instead.
+- Monica (open source, AGPL; self-hosted web app or hosted $9/mo): the philosophical sibling – privacy-first, great for personal-life details. Choose Monica for web access everywhere and self-hosting; choose Handshake for ownership without running a server, markdown files over a SQL database, and the spatial board.
+- TheBrain (free tier; Pro $180/yr, lifetime $299): a 25-year-old general "digital memory" – a local, cross-platform graph where any note, file, web page, or email is a connected "Thought." Genuinely free and local, but generic: no concept of tie warmth, introductions, or person cards, and data lives in a proprietary .brain database rather than plain files. Choose TheBrain to map ideas+files+people together in one mature graph with mobile and AI; choose Handshake when the thing you want to map is specifically the people you know – warmth-weighted ties, introductions, faces – in plain markdown you own.
 - folk ($20–40/user/mo): a lightweight team CRM (pipelines, sequences) often listed as a personal CRM; built for teams, not individuals.
-- Covve (mobile-only, Pro $12.99/mo): phone-first capture, card scanner, news alerts. Handshake is desktop-only during beta — if phone-first is your loop, Covve or Dex fit better.
+- Covve (mobile-only, Pro $12.99/mo): phone-first capture, card scanner, news alerts. Handshake is desktop-only during beta – if phone-first is your loop, Covve or Dex fit better.
 - Notion as a DIY personal CRM: flexible but self-maintained; a table can't show the network's shape. Handshake is purpose-built: warmth ties, introductions, the board, working in two minutes.
 - Spreadsheets: free and universal; break when relationships (who-knows-whom) and long notes matter. Handshake keeps plain-text portability and adds the graph.
-- Category cautionary tale: UpHabit pivoted away from personal CRM in 2022 and told users to migrate — relationship data should live in plain files that outlive any app.
+- Category cautionary tale: UpHabit pivoted away from personal CRM in 2022 and told users to migrate – relationship data should live in plain files that outlive any app.
 
 ## FAQ (faq)
 
 Q: What is Handshake?
-A: A free, local-first desktop app for mapping the people you know — your network as a graph of people, the connections between them, and the warmth of each tie. macOS, Windows, Linux; plain markdown files on your own machine.
+A: A free, local-first desktop app for mapping the people you know – your network as a graph of people, the connections between them, and the warmth of each tie. macOS, Windows, Linux; plain markdown files on your own machine.
 
 Q: How do I get started?
 A: Download it, create a network (a plain folder), and Handshake seeds your card at the center of the board. Add people by name, set how you met and how warm each tie is, write notes.
 
 Q: Is Handshake free?
-A: Yes — free and open source (MIT). No account, no subscription, no paid tier.
+A: Yes – free and open source (MIT). No account, no subscription, no paid tier.
 
 Q: Do I need an account or an internet connection?
 A: No. Fully offline, no sign-up, nothing phones home.
@@ -127,7 +127,7 @@ Q: Where is my data stored?
 A: In a folder of plain markdown files on your device, at a location you choose. No cloud component.
 
 Q: Can anyone else read my network?
-A: No — no server, no account, no telemetry. Your relationships never leave your machine.
+A: No – no server, no account, no telemetry. Your relationships never leave your machine.
 
 Q: How do I back up or sync?
 A: Any file-level tool works: git, iCloud, Dropbox, OneDrive, Syncthing. The built-in Time Machine also keeps versioned snapshots.
@@ -151,7 +151,7 @@ Q: What file format?
 A: Plain markdown with YAML frontmatter in folders: people/, handshakes/, goals/, interactions/, attachments/.
 
 Q: Can I open my network in Obsidian?
-A: Yes — it's a valid Obsidian vault. Edits made outside flow back in.
+A: Yes – it's a valid Obsidian vault. Edits made outside flow back in.
 
 Q: What are backlinks?
 A: Type [[ in a note to link people. Mentions render as rose chips, draw dotted lines on the board, and grow the mentioned person's card.
@@ -160,13 +160,13 @@ Q: How is Handshake different from a CRM?
 A: A CRM is for sales pipelines in the cloud. Handshake is a personal thinking tool for the people in your life, stored privately as files you own.
 
 Q: How is Handshake different from Obsidian?
-A: Same philosophy (local-first, plain markdown, links), different specialization: Obsidian is a general knowledge base; Handshake is purpose-built for people — a spatial board of warmth-weighted ties, person cards, goals, introduction paths.
+A: Same philosophy (local-first, plain markdown, links), different specialization: Obsidian is a general knowledge base; Handshake is purpose-built for people – a spatial board of warmth-weighted ties, person cards, goals, introduction paths.
 
 Q: Why not a spreadsheet?
-A: A spreadsheet stores rows; it can't show the shape of a network. Handshake lays people out spatially, draws ties, fades stale connections, and keeps real notes — while staying plain text underneath.
+A: A spreadsheet stores rows; it can't show the shape of a network. Handshake lays people out spatially, draws ties, fades stale connections, and keeps real notes – while staying plain text underneath.
 
 Q: What does "public beta" mean?
-A: Pre-1.0: the core is complete and stable enough to live in daily, but evolving fast, and releases aren't code-signed yet. Data is safe regardless — plain files + versioned snapshots.
+A: Pre-1.0: the core is complete and stable enough to live in daily, but evolving fast, and releases aren't code-signed yet. Data is safe regardless – plain files + versioned snapshots.
 
 Q: How do I report a bug?
 A: Open an issue at https://github.com/re-marked/handshake/issues. Press Ctrl-Shift-D in the app for a built-in debug report (with an optional redact toggle) and attach it.

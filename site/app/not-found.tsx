@@ -27,7 +27,7 @@ export default function NotFound() {
 
         <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
           You followed a link to a page that isn&apos;t in the network. In Handshake, mentioning
-          someone who doesn&apos;t exist yet renders exactly like this — dimmed, dashed, waiting to
+          someone who doesn&apos;t exist yet renders exactly like this – dimmed, dashed, waiting to
           be created. This page, however, will remain a stranger.
         </p>
 

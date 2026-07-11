@@ -119,7 +119,7 @@ export function Download() {
         </span>
         <h1 className="font-display text-4xl font-semibold sm:text-6xl">Download Handshake</h1>
         <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-          Free, open source, and entirely on your machine. {version} is the latest release — Handshake
+          Free, open source, and entirely on your machine. {version} is the latest release – Handshake
           is in public beta (pre-1.0), moving fast toward a stable 1.0.
         </p>
       </div>
@@ -234,7 +234,7 @@ export function Download() {
         {os === "linux" && (
           <Detail icon={Terminal} title="Build it from source">
             <p className="mb-3">
-              A native Tauri app — Rust backend, web frontend. On Arch, for example:
+              A native Tauri app – Rust backend, web frontend. On Arch, for example:
             </p>
             <Code block>{`git clone ${REPO}
 cd handshake
@@ -268,19 +268,19 @@ pnpm tauri build`}</Code>
         </div>
         <ol className="mt-6 space-y-4">
           <FirstRun n={1}>
-            <b className="text-foreground">Create a network</b> and name it — “Personal,” “Work,” whatever
+            <b className="text-foreground">Create a network</b> and name it – “Personal,” “Work,” whatever
             you’re mapping. It’s a plain folder of markdown files you choose.
           </FirstRun>
           <FirstRun n={2}>
-            Handshake seeds <b className="text-foreground">your own card</b> at the center of the board —
+            Handshake seeds <b className="text-foreground">your own card</b> at the center of the board –
             that’s you, the root everything connects back to.
           </FirstRun>
           <FirstRun n={3}>
-            <b className="text-foreground">Add people</b> — type a name in the People view or right on the
+            <b className="text-foreground">Add people</b> – type a name in the People view or right on the
             board. Set how you met and how warm the tie is.
           </FirstRun>
           <FirstRun n={4}>
-            Open anyone’s note and write. Type <Code>[[Name]]</Code> to link people together — the board
+            Open anyone’s note and write. Type <Code>[[Name]]</Code> to link people together – the board
             draws the connection for you.
           </FirstRun>
         </ol>
@@ -289,7 +289,7 @@ pnpm tauri build`}</Code>
           <a href={asset("/guide/getting-started")} className="text-primary underline-offset-4 hover:underline">
             Read the getting-started guide
           </a>{" "}
-          — fifteen minutes, cover to cover.
+          – fifteen minutes, cover to cover.
         </p>
       </section>
     </main>
@@ -297,7 +297,7 @@ pnpm tauri build`}</Code>
 }
 
 const REQUIREMENTS: Record<OS, string> = {
-  mac: "macOS 11 Big Sur or later. Universal — runs on Apple Silicon and Intel.",
+  mac: "macOS 11 Big Sur or later. Universal – runs on Apple Silicon and Intel.",
   windows: "Windows 10 or 11, 64-bit. The WebView2 runtime installs automatically if it’s missing.",
   linux: "A modern 64-bit Linux with GTK 3 and webkit2gtk-4.1. Wayland and X11 both work.",
 };

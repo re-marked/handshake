@@ -1,4 +1,4 @@
-// The guide's table of contents — one entry per section page. Drives the /guide hub, the nav
+// The guide's table of contents – one entry per section page. Drives the /guide hub, the nav
 // prev/next links, each page's metadata, and the sitemap. Order here = reading order.
 
 export interface GuideSection {
@@ -9,7 +9,7 @@ export interface GuideSection {
   blurb: string;
 }
 
-/** When the guide first shipped (datePublished) — bump `GUIDE_UPDATED` on content edits. */
+/** When the guide first shipped (datePublished) – bump `GUIDE_UPDATED` on content edits. */
 export const GUIDE_PUBLISHED = "2026-07-09";
 export const GUIDE_UPDATED = "2026-07-10";
 
@@ -22,7 +22,7 @@ export const GUIDE: GuideSection[] = [
   {
     slug: "board",
     title: "The board",
-    blurb: "The heart of Handshake — a pannable, zoomable map of your network, rooted on you.",
+    blurb: "The heart of Handshake – a pannable, zoomable map of your network, rooted on you.",
   },
   {
     slug: "notes-and-backlinks",
@@ -32,7 +32,7 @@ export const GUIDE: GuideSection[] = [
   {
     slug: "workspace",
     title: "The workspace",
-    blurb: "Tabs, resizable splits, and floating notes — an Obsidian-style layout that's saved as you go.",
+    blurb: "Tabs, resizable splits, and floating notes – an Obsidian-style layout that's saved as you go.",
   },
   {
     slug: "time-machine",

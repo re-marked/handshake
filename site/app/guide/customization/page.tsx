@@ -6,17 +6,17 @@ export default function Page() {
   return (
     <GuidePage
       slug="customization"
-      lead="Handshake is monochrome plus one rose accent — but inside that frame, nearly everything is a dial. Settings live behind the gear in the left rail (or the command palette), and every choice is saved per network."
+      lead="Handshake is monochrome plus one rose accent – but inside that frame, nearly everything is a dial. Settings live behind the gear in the left rail (or the command palette), and every choice is saved per network."
     >
       <H2 id="appearance">Appearance</H2>
       <P>
         Four themes: <B>dark</B> (the default), <B>light</B>, <B>system</B> (follows your OS), and a
-        hand-tuned <B>Paper</B> theme in two flavors — soft ivory, or a vintage sepia with a touch of
+        hand-tuned <B>Paper</B> theme in two flavors – soft ivory, or a vintage sepia with a touch of
         grain. Pick the interface font (system, serif, or mono), the text weight, and the density of
         list views.
       </P>
       <P>
-        <B>App scale</B> is a real slider from 80% to 300% — the whole interface zooms live as you
+        <B>App scale</B> is a real slider from 80% to 300% – the whole interface zooms live as you
         drag. And if motion isn&apos;t your thing, <B>reduce motion</B> tones the springs down
         app-wide.
       </P>
@@ -26,13 +26,13 @@ export default function Page() {
         <A href="/guide/board">Settings → Board</A> controls what the map shows and how it breathes: goal cards on or off, the
         default warmth for new ties, introduced-by lines, backlink lines, whether cards grow with
         inbound mentions, card spacing for the auto-layout, and how far the zoom will travel. The{" "}
-        <B>card fade</B> section handles dimming inactive people — off by default, with a strength
+        <B>card fade</B> section handles dimming inactive people – off by default, with a strength
         dial when you want it.
       </P>
 
       <H2 id="notes-settings">Notes</H2>
       <P>
-        Choose where <A href="/guide/notes-and-backlinks">notes</A> open by default — slide-in panel, floating window, or tab — plus the
+        Choose where <A href="/guide/notes-and-backlinks">notes</A> open by default – slide-in panel, floating window, or tab – plus the
         starting size for floats and panels, the autosave delay, and your auto-highlighted{" "}
         <B>keywords</B> with their colors.
       </P>
@@ -48,7 +48,7 @@ export default function Page() {
       <H2 id="developer">Developer</H2>
       <P>
         A small honest corner: an ambient status line, automatic debug reports on errors, and a{" "}
-        <B>redact</B> toggle that masks your vault path and platform in those reports — useful when
+        <B>redact</B> toggle that masks your vault path and platform in those reports – useful when
         you&apos;re sharing one in a bug report.
       </P>
 

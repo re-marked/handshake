@@ -111,7 +111,7 @@ export function VsPage({ data }: { data: VsData }) {
           ))}
         </div>
 
-        {/* ── the table — high on the page, snippet & AI-extraction bait ── */}
+        {/* ── the table – high on the page, snippet & AI-extraction bait ── */}
         <h2 className="mt-14 font-display text-2xl font-semibold">At a glance</h2>
         <div className="mt-6 max-w-4xl overflow-x-auto rounded-xl border">
           <table className="w-full min-w-[600px] text-[15px]">
@@ -134,7 +134,7 @@ export function VsPage({ data }: { data: VsData }) {
           </table>
         </div>
         <p className="mt-3 max-w-4xl text-sm text-muted-foreground/60">
-          Competitor details checked July 2026 — check their site for current pricing.
+          Competitor details checked July 2026 – check their site for current pricing.
         </p>
 
         <h2 className="mt-14 font-display text-2xl font-semibold">Where {data.short} wins</h2>
@@ -170,7 +170,7 @@ export function VsPage({ data }: { data: VsData }) {
           <h2 className="font-display text-2xl font-semibold">Try the local-first way</h2>
           <p className="mt-2 max-w-xl leading-relaxed text-muted-foreground">
             Handshake is free, open source, and takes about two minutes to meet your network. If it&apos;s
-            not for you, your notes are plain markdown — nothing lost.
+            not for you, your notes are plain markdown – nothing lost.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <CTA href={asset("/download")}>Download Handshake</CTA>

@@ -18,7 +18,7 @@ export default function Home() {
           Know who you know.
         </h1>
         <p className="mx-auto mt-7 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-          A desktop app for mapping the people you know — who they are, how you met, and how everyone&apos;s
+          A desktop app for mapping the people you know – who they are, how you met, and how everyone&apos;s
           connected. Local-first, and yours in plain text.
         </p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -30,12 +30,12 @@ export default function Home() {
         <p className="mt-4 text-sm text-muted-foreground">Free &amp; open · macOS, Windows &amp; Linux</p>
       </section>
 
-      {/* the board with a person's note slid in — fades into the page at the bottom */}
+      {/* the board with a person's note slid in – fades into the page at the bottom */}
       <div className="mx-auto mt-16 w-full max-w-[2000px] px-6 sm:px-12 lg:px-20">
         <div className="relative">
           <Image
             src={asset("/screenshot-hero.webp")}
-            alt="The Handshake board — a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
+            alt="The Handshake board – a founder's network connected by warmth-weighted ties, with a person's note slid in on the right"
             width={1999}
             height={1074}
             priority
@@ -51,14 +51,14 @@ export default function Home() {
           <div className="grid gap-10 sm:grid-cols-3">
             <ValueProp icon={Lock} title="Your network is yours.">
               Everyone you know, stored as plain files on your machine. No cloud, no account, no one
-              reading your relationships — not even us.
+              reading your relationships – not even us.
             </ValueProp>
             <ValueProp icon={SlidersHorizontal} title="Your way of seeing is yours.">
               Themes, density, layout, the warmth of every tie. Bend Handshake to fit how you think about
               the people in your life.
             </ValueProp>
             <ValueProp icon={FileText} title="Your memory should last.">
-              Open markdown underneath. Your network outlives the app, the company, and the hype — it&apos;s{" "}
+              Open markdown underneath. Your network outlives the app, the company, and the hype – it&apos;s{" "}
               <a href={asset("/guide/networks-and-files")} className="text-primary underline-offset-4 hover:underline">
                 just a folder of text
               </a>
@@ -71,12 +71,12 @@ export default function Home() {
         <FeatureRow
           title="Write a name. Draw a line."
           more={{ href: "/guide/notes-and-backlinks", label: "How notes & backlinks work" }}
-          blurb="Type [[ in any note and it completes from your people. Mention someone and the board draws the connection — and their card grows with every mention. Your notes quietly become a map you can click straight through."
+          blurb="Type [[ in any note and it completes from your people. Mention someone and the board draws the connection – and their card grows with every mention. Your notes quietly become a map you can click straight through."
           reverse
         >
           <Shot
             src="/screenshot-note.webp"
-            alt="A person's note open in the workspace — connections and a note where [[Chip Sterling]] and [[Kevin Zhao]] render as rose backlink chips"
+            alt="A person's note open in the workspace – connections and a note where [[Chip Sterling]] and [[Kevin Zhao]] render as rose backlink chips"
             width={1999}
             height={1185}
           />
@@ -86,11 +86,11 @@ export default function Home() {
         <FeatureRow
           title="Spatial, or a tidy list."
           more={{ href: "/guide/board", label: "Read the board guide" }}
-          blurb="Think in space on the board; find fast in a sortable, searchable list. Order by name or by closeness, dial the density — same plain files underneath, switched in a keystroke."
+          blurb="Think in space on the board; find fast in a sortable, searchable list. Order by name or by closeness, dial the density – same plain files underneath, switched in a keystroke."
         >
           <Shot
             src="/screenshot-people.webp"
-            alt="The People view — a searchable, sortable list of everyone in the network with roles, tags, and warmth dots"
+            alt="The People view – a searchable, sortable list of everyone in the network with roles, tags, and warmth dots"
             width={1998}
             height={1179}
           />
@@ -101,11 +101,11 @@ export default function Home() {
           reverse
           title="Lay it out like you think."
           more={{ href: "/guide/workspace", label: "How the workspace works" }}
-          blurb="Tabs, resizable splits, and pop-out notes — a true Obsidian-style layout. Put the board beside your people and your goals beneath it, and it's right where you left it next time."
+          blurb="Tabs, resizable splits, and pop-out notes – a true Obsidian-style layout. Put the board beside your people and your goals beneath it, and it's right where you left it next time."
         >
           <Shot
             src="/screenshot-split.webp"
-            alt="A split workspace — a goals list with a floating note on the left, the board on the right"
+            alt="A split workspace – a goals list with a floating note on the left, the board on the right"
             width={1999}
             height={1181}
           />
@@ -120,11 +120,11 @@ export default function Home() {
           <VaultWindow />
         </FeatureRow>
 
-        {/* ── FAQ — prompt-aligned Q&A (mirrored 1:1 in the FAQPage JSON-LD), with a scroll-spy that
+        {/* ── FAQ – prompt-aligned Q&A (mirrored 1:1 in the FAQPage JSON-LD), with a scroll-spy that
               lights only the centered row's icon. Client component for the scroll state. ── */}
         <Faq />
 
-        {/* ── Download CTA — the heading sits at the center of a literal orbit ── */}
+        {/* ── Download CTA – the heading sits at the center of a literal orbit ── */}
         <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden py-24 sm:min-h-[680px] lg:min-h-[820px]">
           <Orbit />
           <div className="relative z-10 mx-auto max-w-lg px-4 text-center">
@@ -153,7 +153,7 @@ export default function Home() {
 /* ── building blocks ─────────────────────────────────────── */
 
 /**
- * Triple JSON-LD stack — SoftwareApplication + Organization + WebSite + FAQPage — combined in one
+ * Triple JSON-LD stack – SoftwareApplication + Organization + WebSite + FAQPage – combined in one
  * @graph. This is what AI answer engines (ChatGPT, Perplexity, Google AI Overviews) parse to ground
  * and cite the page; the FAQ entries mirror the visible Q&A section exactly (shared source of truth).
  */
@@ -251,7 +251,7 @@ function Shot({
 /**
  * A side-by-side feature: a BIG title + body that stays *sticky* while its screenshot scrolls past,
  * alternating sides via `reverse`. The text column pins under the nav and releases at the next
- * section — all native CSS `position: sticky`, so the motion is perfectly smooth. The image column
+ * section – all native CSS `position: sticky`, so the motion is perfectly smooth. The image column
  * is the wider of the two so there's real scroll distance for the title to ride through.
  */
 function FeatureRow({
@@ -298,7 +298,7 @@ function FeatureRow({
 /**
  * Three concentric rings, each carrying one rose ball that rides a continuously-rotating wrapper
  * around the shared center (where the CTA copy sits). Uneven speeds + one counter-rotation so the
- * balls never sync; staggered start angles via negative delay. No glow, no center — minimal: just
+ * balls never sync; staggered start angles via negative delay. No glow, no center – minimal: just
  * monochrome rings and the rose accent in motion. Scales down on mobile; respects reduced-motion.
  */
 function Orbit() {

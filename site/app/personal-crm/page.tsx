@@ -7,10 +7,10 @@ import { asset } from "@/lib/asset";
 
 const TITLE = "What is a personal CRM? An honest guide (2026)";
 const DESC =
-  "What a personal CRM actually is, who needs one, and an honest map of the 2026 landscape — Clay (Mesh), Dex, Monica, folk, Covve, Notion templates, spreadsheets, and local-first Handshake.";
+  "What a personal CRM actually is, who needs one, and an honest map of the 2026 landscape – Clay (Mesh), Dex, Monica, folk, Covve, Notion templates, spreadsheets, and local-first Handshake.";
 
 export const metadata: Metadata = {
-  title: { absolute: `${TITLE} — Handshake` },
+  title: { absolute: `${TITLE} – Handshake` },
   description: DESC,
   alternates: { canonical: `${SITE_URL}/personal-crm` },
   openGraph: {
@@ -24,11 +24,11 @@ export const metadata: Metadata = {
 const FAQS = [
   {
     q: "What is a personal CRM?",
-    a: "A personal CRM is an app for remembering the people in your life — who they are, how you met, what you talked about, and who connects to whom. It applies the 'customer relationship' idea to friendships and professional relationships instead of sales pipelines.",
+    a: "A personal CRM is an app for remembering the people in your life – who they are, how you met, what you talked about, and who connects to whom. It applies the 'customer relationship' idea to friendships and professional relationships instead of sales pipelines.",
   },
   {
     q: "Do I actually need a personal CRM?",
-    a: "If your circle fits comfortably in your head, no. The tool earns its keep past roughly a hundred people — when you start forgetting how you met someone, losing touch by accident, or failing to see that two people you know should meet each other.",
+    a: "If your circle fits comfortably in your head, no. The tool earns its keep past roughly a hundred people – when you start forgetting how you met someone, losing touch by accident, or failing to see that two people you know should meet each other.",
   },
   {
     q: "What is the best free personal CRM?",
@@ -36,7 +36,7 @@ const FAQS = [
   },
   {
     q: "What is the most private personal CRM?",
-    a: "The most private architecture is local-first: your relationship map never leaves your device. Handshake works this way — no account, no cloud, plain files. Self-hosted Monica is the other strong option, keeping data on a server you control.",
+    a: "The most private architecture is local-first: your relationship map never leaves your device. Handshake works this way – no account, no cloud, plain files. Self-hosted Monica is the other strong option, keeping data on a server you control.",
   },
 ];
 
@@ -184,7 +184,7 @@ export default function PersonalCrmPage() {
           </time>
         </p>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          A personal CRM is an app for remembering the people in your life — who they are, how you
+          A personal CRM is an app for remembering the people in your life – who they are, how you
           met, what you talked about, and who connects to whom. It borrows the “customer relationship
           management” idea from sales and points it at something warmer: friendships, colleagues,
           mentors, the person you met once who you&apos;ll want to find again in three years.
@@ -192,15 +192,15 @@ export default function PersonalCrmPage() {
 
         <H2 id="why">Why people want one</H2>
         <P>
-          Human memory is good at faces and terrible at bookkeeping. Past a certain point — Dunbar
-          put it around 150 relationships — you start forgetting how you met people, losing touch
+          Human memory is good at faces and terrible at bookkeeping. Past a certain point – Dunbar
+          put it around 150 relationships – you start forgetting how you met people, losing touch
           entirely by accident, and missing the obvious introductions sitting in your own network.
           A personal CRM is external memory for exactly that: <B>not more contacts, better recall of
           the ones you have</B>.
         </P>
         <P>
           The category has a dirty secret, though: most personal CRMs get abandoned within weeks.
-          The graveyard is real — UpHabit, once a popular personal CRM, pivoted to sales tooling in
+          The graveyard is real – UpHabit, once a popular personal CRM, pivoted to sales tooling in
           2022 and told its personal users to migrate elsewhere. Which is why the second question
           matters as much as the first: <B>if the app dies, what happens to your map?</B>
         </P>
@@ -208,9 +208,9 @@ export default function PersonalCrmPage() {
         <H2 id="axes">The four questions that actually separate the tools</H2>
         <P>
           <B>1. Automatic or manual?</B> Tools like <A href="/vs/clay">Mesh (formerly Clay)</A> build
-          your network from your email and calendar automatically — zero upkeep, but a cloud service
+          your network from your email and calendar automatically – zero upkeep, but a cloud service
           reads your communications. Deliberate tools (Handshake, <A href="/vs/monica">Monica</A>, a{" "}
-          <A href="/vs/spreadsheet">spreadsheet</A>) hold only what you put in them — which sounds
+          <A href="/vs/spreadsheet">spreadsheet</A>) hold only what you put in them – which sounds
           like work until you notice it&apos;s why the map stays meaningful: auto-built networks
           mirror your inbox; deliberate ones mirror your life.
         </P>
@@ -262,7 +262,7 @@ export default function PersonalCrmPage() {
           </table>
         </div>
         <p className="mt-3 max-w-4xl text-sm text-muted-foreground/60">
-          Every tool name links to a full, honest comparison — including where that tool beats
+          Every tool name links to a full, honest comparison – including where that tool beats
           Handshake. Details checked July 2026.
         </p>
 
@@ -270,7 +270,7 @@ export default function PersonalCrmPage() {
         <P>
           Handshake is the local-first answer: a free, open-source desktop app (macOS, Windows,
           Linux) that stores your network as <B>plain markdown files on your own machine</B> and
-          shows it as a spatial board — people as cards, ties weighted by warmth, introduction
+          shows it as a spatial board – people as cards, ties weighted by warmth, introduction
           chains and note-mentions drawn as lines. It&apos;s “Obsidian for your network,” and a
           Handshake folder literally opens as an Obsidian vault.
         </P>
@@ -279,8 +279,8 @@ export default function PersonalCrmPage() {
           <B>no mobile app</B> during the beta, <B>no auto-sync</B> from email or LinkedIn (by
           design), and no team features. If you want a self-maintaining network, choose{" "}
           <A href="/vs/clay">Mesh</A>; if you want scheduled reminders, choose{" "}
-          <A href="/vs/dex">Dex</A>. If you want to <B>see and own</B> your network — the map, in
-          files that outlive every company on this page — that&apos;s the exact thing Handshake was
+          <A href="/vs/dex">Dex</A>. If you want to <B>see and own</B> your network – the map, in
+          files that outlive every company on this page – that&apos;s the exact thing Handshake was
           built for. (If the <B>seeing</B> part is what draws you, the sibling guide is{" "}
           <A href="/map-your-network">how to map your personal network</A>.)
         </P>
@@ -298,7 +298,7 @@ export default function PersonalCrmPage() {
         <div className="mt-16 max-w-4xl rounded-2xl border bg-card/40 p-8">
           <h2 className="font-display text-2xl font-semibold">See your network, tonight</h2>
           <p className="mt-2 max-w-xl leading-relaxed text-muted-foreground">
-            Free, open source, two minutes to your first map. And if it&apos;s not for you — it&apos;s
+            Free, open source, two minutes to your first map. And if it&apos;s not for you – it&apos;s
             plain markdown; take it anywhere.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">

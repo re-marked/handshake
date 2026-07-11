@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const data = vsBySlug(slug);
   if (!data) return {};
   return {
-    // metaTitles already carry the brand — bypass the "%s — Handshake" template.
+    // metaTitles already carry the brand – bypass the "%s – Handshake" template.
     title: { absolute: data.metaTitle },
     description: data.metaDesc,
     alternates: { canonical: `${SITE_URL}/vs/${slug}` },

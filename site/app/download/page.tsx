@@ -6,21 +6,21 @@ import { INSTALL_STEPS_TEXT, OG_IMAGE, SITE_URL } from "@/lib/seo";
 
 const TITLE = "Download";
 const DESC =
-  "Download Handshake for macOS, Windows, or Linux — free, open source, and local-first. Install steps, system requirements, and troubleshooting for each platform.";
+  "Download Handshake for macOS, Windows, or Linux – free, open source, and local-first. Install steps, system requirements, and troubleshooting for each platform.";
 
 export const metadata: Metadata = {
   title: TITLE,
   description: DESC,
   alternates: { canonical: `${SITE_URL}/download` },
   openGraph: {
-    title: "Download Handshake — macOS, Windows, Linux",
+    title: "Download Handshake – macOS, Windows, Linux",
     description: DESC,
     url: `${SITE_URL}/download`,
     images: [OG_IMAGE],
   },
 };
 
-/** One HowTo per platform — what AI engines cite for "how do I install Handshake on X". */
+/** One HowTo per platform – what AI engines cite for "how do I install Handshake on X". */
 function HowToJsonLd() {
   return (
     <JsonLdScript

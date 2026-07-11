@@ -4,7 +4,7 @@ import { BreadcrumbJsonLd } from "@/components/schema";
 import { FAQ_GROUPS, OG_IMAGE, SITE_URL } from "@/lib/seo";
 import { asset } from "@/lib/asset";
 
-// Contextual "keep reading" target per FAQ topic — internal links search engines actually weight.
+// Contextual "keep reading" target per FAQ topic – internal links search engines actually weight.
 const RELATED: Record<string, { href: string; label: string }> = {
   "Getting started": { href: "/guide/getting-started", label: "the getting-started guide" },
   "Privacy & your data": { href: "/guide/networks-and-files", label: "how networks & plain files work" },
@@ -16,7 +16,7 @@ const RELATED: Record<string, { href: string; label: string }> = {
 
 const TITLE = "FAQ";
 const DESC =
-  "Everything about Handshake — the free, local-first app for mapping the people you know. Getting started, privacy, platforms, file format, how it compares to a CRM or Obsidian, and the beta.";
+  "Everything about Handshake – the free, local-first app for mapping the people you know. Getting started, privacy, platforms, file format, how it compares to a CRM or Obsidian, and the beta.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   },
 };
 
-/** The full FAQPage JSON-LD — every question on this page, flattened from the grouped source. */
+/** The full FAQPage JSON-LD – every question on this page, flattened from the grouped source. */
 function FaqJsonLd() {
   const graph = {
     "@context": "https://schema.org",
@@ -60,7 +60,7 @@ export default function FaqPage() {
         <div className="text-center">
           <h1 className="font-display text-4xl font-semibold sm:text-6xl">Questions &amp; answers</h1>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Everything about Handshake — how it works, where your data lives, and how it compares.
+            Everything about Handshake – how it works, where your data lives, and how it compares.
           </p>
         </div>
 

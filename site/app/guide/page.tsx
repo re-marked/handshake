@@ -7,7 +7,7 @@ import { OG_IMAGE, SITE_URL } from "@/lib/seo";
 import { asset } from "@/lib/asset";
 
 const DESC =
-  "The Handshake guide — how to map the people you know with a local-first desktop app. Getting started, the board, notes and backlinks, the workspace, Time Machine, plain files, and customization.";
+  "The Handshake guide – how to map the people you know with a local-first desktop app. Getting started, the board, notes and backlinks, the workspace, Time Machine, plain files, and customization.";
 
 export const metadata: Metadata = {
   title: "Guide",
@@ -35,7 +35,7 @@ export default function GuideHub() {
           hasPart: GUIDE.map((s) => ({
             "@type": "TechArticle",
             "@id": `${SITE_URL}/guide/${s.slug}#article`,
-            headline: `${s.title} — Handshake guide`,
+            headline: `${s.title} – Handshake guide`,
             url: `${SITE_URL}/guide/${s.slug}/`,
           })),
         }}
@@ -44,7 +44,7 @@ export default function GuideHub() {
       <GuideShell active={null}>
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">The guide</h1>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Everything Handshake does, in reading order — from first install to a workspace
+          Everything Handshake does, in reading order – from first install to a workspace
           that's genuinely yours. Fifteen minutes, cover to cover.
         </p>
 

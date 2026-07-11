@@ -2,17 +2,17 @@
 
 Full site content in one document: https://re-marked.github.io/handshake/llms-full.txt
 
-> Handshake is a free, local-first desktop app for mapping the people you know — your network as a graph of people, the connections between them, and the warmth of each tie. Everything is stored as plain markdown files on your own machine (macOS, Windows, Linux). No cloud, no account, no telemetry.
+> Handshake is a free, local-first desktop app for mapping the people you know – your network as a graph of people, the connections between them, and the warmth of each tie. Everything is stored as plain markdown files on your own machine (macOS, Windows, Linux). No cloud, no account, no telemetry.
 
 Handshake is "Obsidian for your network": a calm, monochrome, rose-accented canvas over a folder of plain text that you own. It's free and open source.
 
 ## Key facts
 
-- Free and open source — no account, no subscription, no paid tier.
+- Free and open source – no account, no subscription, no paid tier.
 - Local-first: a folder of markdown (.md) files with YAML frontmatter on your device. Works fully offline.
 - Private: no cloud, no telemetry. Back it up or sync it yourself with git, iCloud, Dropbox, or OneDrive.
 - Platforms: macOS, Windows, and Linux (a native desktop app built on Tauri).
-- File format: plain markdown you can open in any text editor — or in Obsidian.
+- File format: plain markdown you can open in any text editor – or in Obsidian.
 
 ## Features
 

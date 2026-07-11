@@ -7,7 +7,7 @@ export default function Page() {
   return (
     <GuidePage
       slug="networks-and-files"
-      lead="A network is just a folder of markdown files on your disk — that's the whole trick. This page covers keeping separate worlds separate, what's actually in the folder, and how to sync or back it up."
+      lead="A network is just a folder of markdown files on your disk – that's the whole trick. This page covers keeping separate worlds separate, what's actually in the folder, and how to sync or back it up."
     >
       <H2 id="networks">Multiple networks</H2>
       <P>
@@ -19,7 +19,7 @@ export default function Page() {
 
       <H2 id="files">What&apos;s in the folder</H2>
       <P>
-        Every entity is one markdown file with YAML frontmatter — human-readable, greppable, yours:
+        Every entity is one markdown file with YAML frontmatter – human-readable, greppable, yours:
       </P>
       <div className="max-w-3xl">
         <VaultWindow />
@@ -27,13 +27,13 @@ export default function Page() {
       <P>
         <Code>people/</Code> holds a file per person, <Code>handshakes/</Code> one per connection,{" "}
         <Code>goals/</Code> and <Code>interactions/</Code> what they say, <Code>attachments/</Code>{" "}
-        the photos. The <Code>.handshake/</Code> folder is the app&apos;s managed sidecar — board
-        positions, workspace layout, settings — and can always be regenerated.
+        the photos. The <Code>.handshake/</Code> folder is the app&apos;s managed sidecar – board
+        positions, workspace layout, settings – and can always be regenerated.
       </P>
 
       <H2 id="editing-outside">Edit files outside the app</H2>
       <P>
-        The folder is a valid <B>Obsidian vault</B> — open it there, or in any text editor, and
+        The folder is a valid <B>Obsidian vault</B> – open it there, or in any text editor, and
         change whatever you like. Handshake watches the folder: external edits flow back into the app
         live. Writes go the other way byte-stably, so your files never churn under version control.
       </P>
