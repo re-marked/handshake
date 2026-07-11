@@ -293,6 +293,87 @@ export const VS: VsData[] = [
     ],
   },
   {
+    slug: "thebrain",
+    name: "TheBrain",
+    short: "TheBrain",
+    metaTitle: "TheBrain alternative for mapping people — Handshake, plain-file & people-first",
+    metaDesc:
+      "TheBrain vs Handshake: a general knowledge graph for any idea, file, or note versus a tool built specifically for mapping the people you know — in plain markdown you own. An honest comparison.",
+    h1: "Handshake vs TheBrain",
+    intro:
+      "TheBrain is a 25-year-old “digital memory” — a general graph where any note, file, web page, or email becomes a connected Thought, free to start with Pro cloud sync and AI at $180/year (July 2026). Handshake is far narrower on purpose: a free, open-source desktop app that maps one thing — the people you know — as plain markdown files you own.",
+    paras: [
+      "TheBrain is genuinely impressive, and unusually aligned with Handshake on the things that matter most: it&apos;s free to use, your Brain lives on your own machine, and it runs on Windows, macOS, and Linux. If you want a single visual graph for everything in your head — projects, documents, ideas, and people all tangled together — TheBrain has a quarter-century head start and does it beautifully.",
+      "The difference is focus, and it runs deep. In TheBrain every node is a generic “Thought”; a person, a PDF, and a passing idea are the same kind of object, connected by unlabeled links. Handshake only knows people — so it can do what a general graph can&apos;t: weight a tie by warmth, trace who introduced you to whom, grow a card as your notes mention someone, show a face on every node. One is a map of your mind; the other is a map of your relationships, and being about only people is exactly what lets it feel like people.",
+    ],
+    table: [
+      row("Price", "Free tier (no file attachments); Pro $180/yr, lifetime $299 (July 2026)", US.price),
+      row("What it maps", "Anything — notes, files, web pages, emails, ideas", "People and how you're connected to them"),
+      row("Where your data lives", "On your device (a .brain database); cloud sync on Pro", US.data),
+      row("Data format", "Proprietary .brain database", US.format),
+      row("Relationship model", "Generic Thoughts joined by unlabeled links", "Warmth-weighted ties, introductions, backlinks"),
+      row("Platforms", "Windows, macOS, Linux; web/iOS/Android on Pro", US.platforms),
+      row("Open source", "No", US.openSource),
+    ],
+    theyWin: [
+      {
+        title: "It maps everything, not just people",
+        body: "Projects, documents, web clippings, whole trains of thought — all in one graph. If you want a single second brain for your entire life, that generality is the whole point, and Handshake deliberately won't do it.",
+      },
+      {
+        title: "A quarter-century of depth",
+        body: "TheBrain has been refined since the late 1990s: unlimited Thoughts, mobile apps, AI, huge file attachments, battle-tested sync. Handshake is a young public beta.",
+      },
+      {
+        title: "Everywhere, with AI",
+        body: "Pro adds web, iOS, and Android sync plus Thought-Sync AI. Handshake is desktop-only during the beta and has no AI by design.",
+      },
+    ],
+    weWin: [
+      {
+        title: "Built for people, not Thoughts",
+        body: "A network isn't a pile of generic nodes. Handshake models the things that make relationships legible — warmth on every tie, who introduced whom, faces on cards, goals pinned near the people who can help — none of which a general graph expresses.",
+      },
+      {
+        title: "Plain files, not a database",
+        body: "Your Brain is a proprietary .brain database you read through TheBrain. A Handshake network is a folder of markdown you can open in Obsidian, grep, and read in thirty years without any app at all.",
+      },
+      {
+        title: "Free and open source, fully",
+        body: "TheBrain's free tier drops file attachments, AI, and sync, and lapsing Pro reverts you to it. Handshake is MIT-licensed with every feature included, forever — nothing to revert to.",
+      },
+      {
+        title: "Focus is a feature",
+        body: "TheBrain can hold your network, but you have to design that yourself among everything else. Handshake opens already knowing what a person, a tie, and an introduction are — a network map in two minutes, not a schema you maintain.",
+      },
+    ],
+    chooseThem: [
+      "You're mapping your whole mind — ideas, files, and people together",
+      "You want one mature graph for everything, with mobile and AI",
+      "Generic, flexible nodes suit you better than a fixed people model",
+    ],
+    chooseUs: [
+      "The thing you actually want to map is the people you know",
+      "You want warmth, introductions, and faces — not unlabeled Thoughts",
+      "Your relationship notes should be plain markdown you own, not a .brain database",
+      "Free and open source, with nothing behind a subscription",
+    ],
+    faqs: [
+      {
+        q: "Is TheBrain free?",
+        a: "TheBrain has a free tier (unlimited Thoughts and links, basic sync, but no file attachments); Pro cloud service with sync and AI is $180/year and a lifetime license is $299 (July 2026). Handshake is entirely free and open source.",
+      },
+      {
+        q: "Can TheBrain map people and relationships?",
+        a: "Yes — anything can be a Thought, so you can absolutely build a people graph in it. What it lacks is a relationship model: there's no built-in notion of tie warmth, introductions, or person cards. Handshake models those natively because people are all it does.",
+      },
+      {
+        q: "Which should I use for a personal network specifically?",
+        a: "If people are one part of a bigger second brain full of ideas and files, TheBrain's generality wins. If the thing you want is specifically a map of the people you know — in plain files, that feels like people — that's exactly what Handshake is built for.",
+      },
+    ],
+  },
+  {
     slug: "folk",
     name: "folk",
     short: "folk",

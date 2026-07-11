@@ -54,6 +54,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${SITE_URL}/map-your-network/`,
+      lastModified: VS_UPDATED,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: `${SITE_URL}/vs/`,
       lastModified: VS_UPDATED,
       changeFrequency: "monthly",

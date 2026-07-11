@@ -281,7 +281,8 @@ export default function PersonalCrmPage() {
           <A href="/vs/clay">Mesh</A>; if you want scheduled reminders, choose{" "}
           <A href="/vs/dex">Dex</A>. If you want to <B>see and own</B> your network — the map, in
           files that outlive every company on this page — that&apos;s the exact thing Handshake was
-          built for.
+          built for. (If the <B>seeing</B> part is what draws you, the sibling guide is{" "}
+          <A href="/map-your-network">how to map your personal network</A>.)
         </P>
 
         <H2 id="faq">Questions</H2>

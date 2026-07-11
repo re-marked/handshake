@@ -34,9 +34,11 @@ Handshake is "Obsidian for your network": a calm, monochrome, rose-accented canv
 ## Comparisons
 
 - What is a personal CRM (honest 2026 guide): https://re-marked.github.io/handshake/personal-crm/
+- How to map your personal network (relationship-mapping guide): https://re-marked.github.io/handshake/map-your-network/
 - vs Clay (Mesh): https://re-marked.github.io/handshake/vs/clay/
 - vs Dex: https://re-marked.github.io/handshake/vs/dex/
 - vs Monica: https://re-marked.github.io/handshake/vs/monica/
+- vs TheBrain: https://re-marked.github.io/handshake/vs/thebrain/
 - vs folk: https://re-marked.github.io/handshake/vs/folk/
 - vs Covve: https://re-marked.github.io/handshake/vs/covve/
 - vs Notion as a personal CRM: https://re-marked.github.io/handshake/vs/notion/
