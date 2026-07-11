@@ -6,7 +6,7 @@
 
 **Obsidian for your network.**
 
-Turn the people in your orbit into a graph you can actually think with —
+Turn the people in your orbit into a graph you can actually think with –
 plain markdown underneath, a calm rose-on-monochrome canvas on top.
 
 <sub>A local-first desktop app · 100% on your machine · 0% in the cloud</sub>
@@ -20,7 +20,7 @@ plain markdown underneath, a calm rose-on-monochrome canvas on top.
 
 <br>
 
-<img src="site/public/screenshot-hero.png" alt="The Handshake board — a network of people connected by warmth-weighted ties" width="840" />
+<img src="site/public/screenshot-hero.png" alt="The Handshake board – a network of people connected by warmth-weighted ties" width="840" />
 
 </div>
 
@@ -28,13 +28,13 @@ plain markdown underneath, a calm rose-on-monochrome canvas on top.
 
 ## The idea
 
-Most relationship tools are CRMs that feel like spreadsheets — or "AI for your network"
+Most relationship tools are CRMs that feel like spreadsheets – or "AI for your network"
 apps that quietly read your inbox. Handshake is neither.
 
 It's a **personal crime-board for your online orbit**: everyone you talk to across DMs,
 email, Twitter, Discord, and Zoom, laid out as a clean graph rooted on **you** and webbed
-together by ties whose warmth you can read at a glance. Pin a goal — *"meet someone at
-Stripe"* — and the board traces a path through the people you already know to the person
+together by ties whose warmth you can read at a glance. Pin a goal – *"meet someone at
+Stripe"* – and the board traces a path through the people you already know to the person
 you want to reach.
 
 It's a tool for remembering that the best introductions are usually one or two handshakes away.
@@ -43,12 +43,12 @@ It's a tool for remembering that the best introductions are usually one or two h
 
 **[Get Handshake for macOS, Windows, or Linux →](https://re-marked.github.io/handshake/download/)**
 
-Every release ships native installers — a `.dmg` for macOS (Apple Silicon + Intel), a
+Every release ships native installers – a `.dmg` for macOS (Apple Silicon + Intel), a
 `.msi` for Windows, and `.AppImage` / `.deb` / `.rpm` for Linux. Grab yours from the
 [download page](https://re-marked.github.io/handshake/download/) or straight from
 [GitHub Releases](https://github.com/re-marked/handshake/releases/latest).
 
-> **Heads up — it's not code-signed yet.** On first launch, macOS (Gatekeeper) and Windows
+> **Heads up – it's not code-signed yet.** On first launch, macOS (Gatekeeper) and Windows
 > (SmartScreen) may warn about an unidentified developer: right-click → **Open** on macOS, or
 > **More info → Run anyway** on Windows. On a Wayland compositor (Hyprland, sway), if the
 > window comes up blank, launch it with `WEBKIT_DISABLE_DMABUF_RENDERER=1`.
@@ -68,34 +68,34 @@ prose where it helps you think.
 
 ## The feel
 
-Handshake is built to be **calm, exact, trustworthy, and fast** — a tool you reach for,
+Handshake is built to be **calm, exact, trustworthy, and fast** – a tool you reach for,
 not a toy you admire.
 
 - **Monochrome, plus one accent.** The whole surface is a single near-neutral gray, with
-  exactly one color doing real work: a deep, dusty **rose**. Rose means *connection* — the
+  exactly one color doing real work: a deep, dusty **rose**. Rose means *connection* – the
   self node, the focused control, the path that lights up when the app answers "who do I
   know who can reach X?" Nothing else competes for your eye.
 - **Dark-first**, with light, system, and a hand-tuned *Paper Vintage* theme.
-- **Motion with weight.** Springs, not fades — notes slide in, cards settle, the found path
+- **Motion with weight.** Springs, not fades – notes slide in, cards settle, the found path
   pulses. Motion is a first-class delight here, never decoration.
 - **Keyboard-first.** A command palette is the spine of the app; the mouse is for the graph.
 
 ## What's inside
 
-**The board — the hero.** A pannable, zoomable card-tree of your whole network, rooted on
+**The board – the hero.** A pannable, zoomable card-tree of your whole network, rooted on
 you. Each card carries a face, a name, and a role; the ties between them are weighted by
-warmth — close, warm, cold, dormant. Drag a card and its whole branch follows.
+warmth – close, warm, cold, dormant. Drag a card and its whole branch follows.
 
-**Notes — the Obsidian soul.** Click anyone and their note slides in: structured fields up
+**Notes – the Obsidian soul.** Click anyone and their note slides in: structured fields up
 top, a free-form markdown scratchpad below, rendered live with tables, task lists, and
 links. The deeper thinking about a person lives here.
 
 **A real workspace.** Tabs, resizable splits, and pop-out floating notes in a true
-Obsidian-style layout. Put a note beside the board, drag a tab into its own pane — and the
+Obsidian-style layout. Put a note beside the board, drag a tab into its own pane – and the
 whole arrangement is right where you left it next time.
 
 **Networks.** Keep separate worlds separate. Work and personal each get their own vault,
-their own layout, their own settings — switch between them in a keystroke.
+their own layout, their own settings – switch between them in a keystroke.
 
 **Goals and people.** Pin aspirations as cards on the board or work them in a dedicated
 view; tick one off and it grows into a real, connected person. A dense, searchable people
@@ -106,16 +106,16 @@ Dial in density, motion, and theme to taste.
 
 ## Under the hood
 
-For the curious — a little of how it's put together:
+For the curious – a little of how it's put together:
 
 - **Tauri 2** for the shell: a native webview rather than a bundled browser, so it's a tiny
   app that starts instantly.
-- **Thin Rust, fat TypeScript.** Rust does only the careful disk work — reading the vault,
+- **Thin Rust, fat TypeScript.** Rust does only the careful disk work – reading the vault,
   writing files atomically, noticing edits made outside the app. Everything that *is*
-  Handshake — the data model, the graph, the rules — lives in one TypeScript brain called
+  Handshake – the data model, the graph, the rules – lives in one TypeScript brain called
   **Switchboard**: a pure engine that doesn't know a screen or a filesystem exists.
 - **One way in.** Every change flows through a single funnel, so undo, validation, and
-  byte-stable file writes are each solved once, in one place — and edits you make in
+  byte-stable file writes are each solved once, in one place – and edits you make in
   Obsidian flow right back in.
 - **React 19, Tailwind, and shadcn** for the interface; **motion** for the life in it.
 
@@ -138,7 +138,7 @@ own.
 
 ## License
 
-[MIT](LICENSE) — free to use, fork, and build on.
+[MIT](LICENSE) – free to use, fork, and build on.
 
 <div align="center">
 
