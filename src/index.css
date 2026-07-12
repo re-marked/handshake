@@ -42,9 +42,10 @@
 }
 
 .dark {
-  /* Dark theme — the default face. Soft warm charcoal (not near-black) + a dimmed,
-   * off-white foreground, with a faint pastel warmth in the neutrals — easier on the eyes. */
-  --background: oklch(0.24 0.009 75);
+  /* Dark theme — the default face. Deep warm charcoal (not near-black) + a dimmed,
+   * off-white foreground, with a faint pastel warmth in the neutrals — easier on the eyes.
+   * Kept in sync with the landing's --background (site/app/globals.css). */
+  --background: oklch(0.17 0.008 75);
   --foreground: oklch(0.90 0.005 75);
   --card: oklch(0.275 0.009 75);
   --card-foreground: oklch(0.90 0.005 75);
