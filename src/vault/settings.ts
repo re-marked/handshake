@@ -41,7 +41,7 @@ export const FLOAT_H_MAX = 1200;
 export const CADENCE_MIN = 1;
 export const CADENCE_MAX = 1440; // 1 day
 // Overall UI zoom, as a percentage of the base root font size. 100 = default.
-export const APP_SCALE_MIN = 80;
+export const APP_SCALE_MIN = 50;
 export const APP_SCALE_MAX = 300;
 export const APP_SCALE_STEP = 5;
 

@@ -16,7 +16,7 @@ export default function Page() {
         list views.
       </P>
       <P>
-        <B>App scale</B> is a real slider from 80% to 300% – the whole interface zooms live as you
+        <B>App scale</B> is a real slider from 50% to 300% – the whole interface zooms live as you
         drag. And if motion isn&apos;t your thing, <B>reduce motion</B> tones the springs down
         app-wide.
       </P>
