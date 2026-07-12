@@ -134,7 +134,7 @@ function AppearanceSection() {
           />
         </Row>
       )}
-      <Row label="App scale" description="Zoom the whole interface up or down, from 80% to 300%.">
+      <Row label="App scale" description="Zoom the whole interface up or down, from 50% to 300%.">
         <div className="flex items-center gap-3">
           <Slider
             value={[s.appScale]}
