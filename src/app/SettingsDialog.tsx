@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import {
+  ArrowUpCircle,
   Bug,
   Camera,
   Contrast,
@@ -38,6 +39,7 @@ import { estimateGrowth } from "@/lib/timeMachineStats";
 import { notify } from "@/app/toast";
 import { LastSnapshot } from "@/app/LastSnapshot";
 import { appVersion, buildLine } from "@/lib/buildInfo";
+import { checkForUpdates } from "@/update/updater";
 import { buildReport, writeReport } from "@/app/debug";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -763,12 +765,30 @@ function DeveloperSection() {
 }
 
 function AboutSection() {
+  const [checking, setChecking] = useState(false);
   return (
     <div className="space-y-2 text-sm text-muted-foreground">
       <p className="text-base font-medium text-foreground">Handshake {appVersion()}</p>
       <p>Obsidian for your network — a local-first map of the people you know.</p>
       <p>Your data is a folder of Markdown files on your machine.</p>
       <p className="pt-1 font-mono text-xs text-muted-foreground/80">{buildLine()}</p>
+      <div className="pt-2">
+        <button
+          onClick={async () => {
+            setChecking(true);
+            try {
+              await checkForUpdates(true);
+            } finally {
+              setChecking(false);
+            }
+          }}
+          disabled={checking}
+          className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-60"
+        >
+          <ArrowUpCircle className="size-3.5" />
+          {checking ? "Checking…" : "Check for updates"}
+        </button>
+      </div>
       <div className="pt-1">
         <LastSnapshot />
       </div>

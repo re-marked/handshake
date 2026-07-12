@@ -377,11 +377,32 @@ fn classify_change(records: &HashMap<PathBuf, WriteRecord>, root: &Path, path: &
     Some(VaultChange { relpath, kind: kind.to_string(), text })
 }
 
+/// Whether this install can self-update via the Tauri updater ("auto" — macOS, Windows, or a Linux
+/// AppImage) or must fall back to a "download the new version" nudge ("manual" — Linux .deb/.rpm,
+/// which the updater can't replace in place). An AppImage sets the $APPIMAGE env var at runtime.
+#[tauri::command]
+fn update_kind() -> &'static str {
+    #[cfg(target_os = "linux")]
+    {
+        if std::env::var_os("APPIMAGE").is_some() {
+            "auto"
+        } else {
+            "manual"
+        }
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        "auto"
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(Ledger::default())
         .manage(WatcherHolder::default())
         .invoke_handler(tauri::generate_handler![
@@ -408,7 +429,8 @@ pub fn run() {
             git::tm_restore,
             git::tm_status,
             git::tm_size,
-            git::tm_stats
+            git::tm_stats,
+            update_kind
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
