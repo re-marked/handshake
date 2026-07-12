@@ -17,7 +17,7 @@ const STRENGTHS: Strength[] = ["close", "warm", "cold", "dormant"];
 const NONE = "__none__";
 
 /**
- * The settings for one connection (handshake) — the *contents* of a menu, shared by the
+ * The settings for one connection (handshake) – the *contents* of a menu, shared by the
  * note's Connections list and the board's link lines. Drop it inside a DropdownMenuContent.
  * Strength re-weights the link; "Introduced by" drives board parenting; Unlink cuts the tie.
  */

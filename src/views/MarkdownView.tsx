@@ -17,7 +17,7 @@ import { HighlightPalette } from "@/views/HighlightPalette";
 import { remarkBacklinks, type BacklinkResolver } from "@/views/remarkBacklinks";
 import { useApp } from "@/app/store";
 
-/** Links open in the system browser — except `[[backlinks]]` (href `#backlink:<id>`), which
+/** Links open in the system browser – except `[[backlinks]]` (href `#backlink:<id>`), which
  *  navigate to that person inside the app instead of leaving the webview. */
 function Link({ href, children }: { href?: string; children?: React.ReactNode }) {
   if (href?.startsWith("#backlink:")) {
@@ -49,7 +49,7 @@ function Link({ href, children }: { href?: string; children?: React.ReactNode })
   );
 }
 
-/** Remote images are NOT auto-loaded — a remote `<img>` would fetch on preview and leak that the
+/** Remote images are NOT auto-loaded – a remote `<img>` would fetch on preview and leak that the
  *  local-first note was opened (tracking pixels). Render a click-to-open link; local/data render. */
 function Img({ src, alt }: { src?: string; alt?: string }) {
   if (src && /^https?:\/\//i.test(src)) {
@@ -72,7 +72,7 @@ function Img({ src, alt }: { src?: string; alt?: string }) {
 
 type Recolor = { start: number; end: number; current: HlColor; x: number; y: number };
 
-// Opinionated, theme-aware markdown styling — all in one place, easy to tune. Inherits the note
+// Opinionated, theme-aware markdown styling – all in one place, easy to tune. Inherits the note
 // font/weight from the body; the rose-tinted blockquote + accent links tie it to the brand.
 const PROSE = cn(
   "text-[15px] leading-relaxed text-foreground/90",
@@ -103,7 +103,7 @@ const PROSE = cn(
 
 /**
  * Renders a markdown string as styled prose (GFM + `==highlights==`). When `onChange` is supplied,
- * highlights become clickable — click one to recolor it from a soft pastel palette; the change is
+ * highlights become clickable – click one to recolor it from a soft pastel palette; the change is
  * written straight back into the markdown source.
  */
 export function MarkdownView({
@@ -166,7 +166,7 @@ export function MarkdownView({
   return (
     <div className={cn(PROSE, className)}>
       <Markdown
-        // Parametrized plugins MUST be passed as [plugin, options] tuples — unified calls the
+        // Parametrized plugins MUST be passed as [plugin, options] tuples – unified calls the
         // attacher to get the transformer. Pre-calling them (remarkBacklinks(...)) passes a
         // transformer where an attacher is expected, so unified runs it with no tree → visit(undefined).
         remarkPlugins={[

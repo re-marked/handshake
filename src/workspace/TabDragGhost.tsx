@@ -9,7 +9,7 @@ import { dragX, dragY } from "@/workspace/tabDragMotion";
 const FOLLOW = { stiffness: 520, damping: 34, mass: 0.55 } as const;
 
 /**
- * The lifted copy of the tab you're dragging — it springs along behind the cursor and settles
+ * The lifted copy of the tab you're dragging – it springs along behind the cursor and settles
  * (scale + fade) on drop. Rendered once at the app root, shown only while a tab drag is active.
  */
 export function TabDragGhost() {

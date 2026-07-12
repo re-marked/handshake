@@ -54,7 +54,7 @@ function captureAnya(sb: Switchboard): { diff: Diff; personId: string; interacti
   };
 }
 
-describe("applyDiff — capture", () => {
+describe("applyDiff – capture", () => {
   it("applies a multi-mutation diff with intra-diff references", () => {
     const sb = base();
     const { diff, personId, interactionId } = captureAnya(sb);
@@ -89,7 +89,7 @@ describe("applyDiff — capture", () => {
   });
 });
 
-describe("applyDiff — undo (inverse)", () => {
+describe("applyDiff – undo (inverse)", () => {
   it("inverse of a capture restores the original state exactly", () => {
     const sb = base();
     const before = entitiesOf(sb);
@@ -121,7 +121,7 @@ describe("applyDiff — undo (inverse)", () => {
   });
 });
 
-describe("applyDiff — validation & atomicity", () => {
+describe("applyDiff – validation & atomicity", () => {
   it("rejects a handshake to an unknown person, writing nothing", () => {
     const sb = base();
     const handshake: Handshake = {

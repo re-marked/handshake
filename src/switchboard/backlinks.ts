@@ -1,4 +1,4 @@
-// Backlinks: `[[Person Name]]` references written in a note body. They are DERIVED, never stored —
+// Backlinks: `[[Person Name]]` references written in a note body. They are DERIVED, never stored –
 // scanned out of bodies at build time (like introduced-by edges from `establishedVia`), so they
 // cost no schema, no extra files, and update on every commit. This module is the shared, pure
 // resolver used by the engine (build.ts), the renderer (remarkBacklinks), and the editor.
@@ -22,7 +22,7 @@ export function buildNameIndex(people: ReadonlyMap<string, Person>): Map<string,
 /**
  * Resolve a `[[ref]]`'s inner text to a person id: by display name first, then by slug
  * (so `[[Sarah Chen]]` finds the `sarah-chen` file even if the display name was edited).
- * Returns null when nothing matches — an "unresolved" link.
+ * Returns null when nothing matches – an "unresolved" link.
  */
 export function resolvePersonRef(
   text: string,

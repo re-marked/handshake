@@ -24,8 +24,8 @@ function EmptyLeaf() {
 }
 
 /**
- * A tabbed pane. All tabs stay mounted (hidden when inactive) so heavy views — the board
- * especially — keep their state across tab switches. An empty leaf (every tab closed) shows
+ * A tabbed pane. All tabs stay mounted (hidden when inactive) so heavy views – the board
+ * especially – keep their state across tab switches. An empty leaf (every tab closed) shows
  * the "weird place" state. `data-leaf-id` lets the tab-drag hit-test find this pane; a drop
  * overlay highlights the zone (move / split) while a tab is dragged over it.
  */

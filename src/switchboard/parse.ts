@@ -11,7 +11,7 @@ import type {
 
 // We split frontmatter by hand and parse it with js-yaml directly. We deliberately
 // do NOT use gray-matter: it `require('fs')`s and uses Node's `Buffer`, neither of
-// which exists in the WebView2 runtime — so it silently fails to parse anything in
+// which exists in the WebView2 runtime – so it silently fails to parse anything in
 // the real app (all entities vanish). js-yaml is browser-safe. JSON_SCHEMA also
 // kills the YAML footguns: no auto-dates, no "Norway problem" (no→false), no octal.
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---[ \t]*\r?\n?([\s\S]*)$/;

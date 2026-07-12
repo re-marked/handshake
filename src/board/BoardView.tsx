@@ -28,7 +28,7 @@ const FADE_SCALE: Record<FadeStrength, number> = { subtle: 0.5, medium: 1, stron
 // Board feel knobs (0.8.3 customization): how spread out cards are, how far you can zoom, and how
 // long a located card flashes. Spacing scales both the auto-layout gap and the new-card spawn search.
 const SPACING_FACTOR: Record<CardSpacing, number> = { compact: 0.78, comfortable: 1, spacious: 1.3 };
-// Card grows with inbound `[[mentions]]` (#16) — gentle + capped so the board stays legible.
+// Card grows with inbound `[[mentions]]` (#16) – gentle + capped so the board stays legible.
 const CARD_SCALE_MAX = 1.35;
 const cardSizeScale = (backlinkCount: number): number => 1 + Math.min(backlinkCount, 5) * 0.07;
 const ZOOM_LIMITS: Record<ZoomRange, [number, number]> = { standard: [0.2, 4], wide: [0.05, 8] };
@@ -43,14 +43,14 @@ function seedPositions(model: BoardModel, layout: Layout): Map<string, Pos> {
 }
 
 /**
- * The board — a clean digital corkboard. Cards stay where placed (no physics); dragging
+ * The board – a clean digital corkboard. Cards stay where placed (no physics); dragging
  * a card rigidly moves its whole subtree. Positions, pan, and zoom persist to layout.json.
  */
 export function BoardView({ boardId }: { boardId: string }) {
   const switchboard = useApp((s) => s.switchboard);
   const photos = useApp((s) => s.photos);
   const layout = useApp((s) => s.layout);
-  // This board's own session, captured at mount — so layout writes always land in THIS vault even
+  // This board's own session, captured at mount – so layout writes always land in THIS vault even
   // mid-switch (the store's current session may already point at the network being opened) (#25).
   const sessionRef = useRef(useApp.getState().session);
   const deletingId = useApp((s) => s.deletingId);
@@ -120,7 +120,7 @@ export function BoardView({ boardId }: { boardId: string }) {
   const [justCreated, setJustCreated] = useState<string | null>(null);
   const composeBusy = useRef(false);
   // True while the photo picker is open, so the name input's blur doesn't materialize/cancel the
-  // ghost (clicking the photo + opening the OS dialog both blur the input — see #28).
+  // ghost (clicking the photo + opening the OS dialog both blur the input – see #28).
   const pickingPhoto = useRef(false);
   // A connection's settings menu, opened by clicking its line (anchored at the click point).
   const [lineMenu, setLineMenu] = useState<{ id: string; x: number; y: number } | null>(null);
@@ -271,7 +271,7 @@ export function BoardView({ boardId }: { boardId: string }) {
   }
 
   function onPointerDown(e: React.PointerEvent) {
-    if (e.button !== 0) return; // left button only — right-click is reserved for the command palette
+    if (e.button !== 0) return; // left button only – right-click is reserved for the command palette
     const cardEl = (e.target as HTMLElement).closest<HTMLElement>("[data-card-id]");
     containerRef.current?.setPointerCapture(e.pointerId);
     if (cardEl?.dataset.cardId) {
@@ -389,7 +389,7 @@ export function BoardView({ boardId }: { boardId: string }) {
           },
         ]);
       } else {
-        // Repositioned in open space — record before/after for undo (exact via the total delta).
+        // Repositioned in open space – record before/after for undo (exact via the total delta).
         const wdx = (e.clientX - d.downX) / zoom;
         const wdy = (e.clientY - d.downY) / zoom;
         const before: BoardPatch = {};
@@ -490,7 +490,7 @@ export function BoardView({ boardId }: { boardId: string }) {
     const W = 186 * grow; // card is ~144 wide; leave a clear gutter
     const H = 236 * grow; // ~196 tall + gutter
     const free = (p: Pos) => !occupied.some((q) => Math.abs(q.x - p.x) < W && Math.abs(q.y - p.y) < H);
-    // Spawn radius scales with the card-spacing setting — new cards land closer (compact) or
+    // Spawn radius scales with the card-spacing setting – new cards land closer (compact) or
     // farther (spacious) from their source.
     for (let r = 240 * spacing; r <= 720 * spacing; r += 80 * spacing) {
       for (let k = 0; k <= 8; k++) {
@@ -614,9 +614,9 @@ export function BoardView({ boardId }: { boardId: string }) {
         className="absolute left-0 top-0 origin-top-left"
         style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
       >
-        {/* A 1×1 SVG at the world origin with overflow visible — links draw at world coords and
+        {/* A 1×1 SVG at the world origin with overflow visible – links draw at world coords and
             paint outside its box. (A giant fixed-size SVG rasterizes a huge GPU layer; two boards
-            at once blew past the layer limit and one board's links silently vanished — issue #3.) */}
+            at once blew past the layer limit and one board's links silently vanished – issue #3.) */}
         <svg className="pointer-events-none absolute left-0 top-0 overflow-visible" width={1} height={1}>
           {model.links
             .filter((link) => (showIntroducedBy || !link.introducedBy) && (showBacklinks || !link.backlink))
@@ -714,7 +714,7 @@ export function BoardView({ boardId }: { boardId: string }) {
               {card.isGoal ? (
                 <button
                   type="button"
-                  aria-label={`Mark ${card.name} met — add as a connection`}
+                  aria-label={`Mark ${card.name} met – add as a connection`}
                   title="Mark met → add as a connection"
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
@@ -778,7 +778,7 @@ export function BoardView({ boardId }: { boardId: string }) {
                     }
                   }}
                   onBlur={() => {
-                    if (pickingPhoto.current) return; // photo picker stole focus — keep the ghost
+                    if (pickingPhoto.current) return; // photo picker stole focus – keep the ghost
                     if (composeName.trim()) void materialize();
                     else cancelCompose();
                   }}
@@ -822,7 +822,7 @@ export function BoardView({ boardId }: { boardId: string }) {
   );
 }
 
-/** The always-on board controls — a floating pill at the bottom-centre (create · zoom · layout · filter). */
+/** The always-on board controls – a floating pill at the bottom-centre (create · zoom · layout · filter). */
 function BoardToolbar({
   zoom,
   onNew,
@@ -1006,7 +1006,7 @@ function LinkLine({
   b: Pos;
   onOpen: (e: { clientX: number; clientY: number }) => void;
 }) {
-  // Introduced-by edges have no handshake behind them — a faint dotted line, not clickable.
+  // Introduced-by edges have no handshake behind them – a faint dotted line, not clickable.
   if (link.introducedBy) {
     return (
       <line
@@ -1024,7 +1024,7 @@ function LinkLine({
       />
     );
   }
-  // Backlink edges (a `[[mention]]`, no tie behind it) — same dotted treatment, but rose-tinted so
+  // Backlink edges (a `[[mention]]`, no tie behind it) – same dotted treatment, but rose-tinted so
   // it reads apart from the muted introduced-by lines. Not clickable.
   if (link.backlink) {
     return (

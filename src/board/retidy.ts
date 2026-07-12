@@ -1,4 +1,4 @@
-// A tiny registry so non-board UI (the command palette) can trigger a board's "re-tidy" — snapping
+// A tiny registry so non-board UI (the command palette) can trigger a board's "re-tidy" – snapping
 // every card back to the automatic radial layout, recorded as one undoable move. Mirrors the board
 // applier registry in undo.ts: a mounted BoardView registers its handler; callers look it up by id.
 

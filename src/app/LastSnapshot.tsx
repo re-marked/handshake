@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * A tiny, always-visible Time Machine status line. Shows the last snapshot (date + full commit
- * hash), or "no snapshots yet" / "off", or a clear error if the engine failed — a quick way to
+ * hash), or "no snapshots yet" / "off", or a clear error if the engine failed – a quick way to
  * confirm the Time Machine is actually working. Rendered in the board corner + About + settings.
  */
 export function LastSnapshot({ className }: { className?: string }) {

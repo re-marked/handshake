@@ -85,7 +85,7 @@ function useGlobalUndo() {
   }, []);
 }
 
-/** Take a best-effort Time Machine snapshot when the window is closing — bounded so close never hangs. */
+/** Take a best-effort Time Machine snapshot when the window is closing – bounded so close never hangs. */
 function useSnapshotOnClose() {
   useEffect(() => {
     let unlisten: (() => void) | undefined;

@@ -63,7 +63,7 @@ export function newId(): string {
 
 /**
  * Identity of a View for dedupe + React keys. Singletons (board/people/goals/
- * search/settings) collapse to their type — at most one app-wide; only distinct
+ * search/settings) collapse to their type – at most one app-wide; only distinct
  * persons coexist. Stable across reorder/move so editor drafts survive.
  */
 export function viewKey(v: View): string {

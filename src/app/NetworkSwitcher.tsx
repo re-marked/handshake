@@ -18,7 +18,7 @@ import { pickFolder, vaultName } from "@/vault/appState";
 export function NetworkSwitcher() {
   const vaultPath = useApp((s) => s.vaultPath);
   const recents = useApp((s) => s.recents);
-  const current = vaultPath ? vaultName(vaultPath) : "—";
+  const current = vaultPath ? vaultName(vaultPath) : "–";
 
   async function openExisting() {
     const path = await pickFolder("Open a network folder");

@@ -50,9 +50,9 @@ import {
 type Status = "idle" | "no-vault" | "loading" | "ready" | "error";
 
 /**
- * The app store — the backbone the whole shell reads from. Holds the live vault state +
+ * The app store – the backbone the whole shell reads from. Holds the live vault state +
  * the open person note, and routes writes through the one VaultSession. (The generic
- * workspace — tabs/splits/Views — lands in later layers; see SHELL.md.)
+ * workspace – tabs/splits/Views – lands in later layers; see SHELL.md.)
  */
 interface AppState {
   status: Status;
@@ -63,7 +63,7 @@ interface AppState {
   layout: Layout;
   /** The person whose note slides in (top-right), or null when closed. */
   openPersonId: string | null;
-  /** A person mid-deletion — the board plays its exit before the data is removed. */
+  /** A person mid-deletion – the board plays its exit before the data is removed. */
   deletingId: string | null;
   /** Whether the command palette (Ctrl-P) is open. */
   commandOpen: boolean;
@@ -90,7 +90,7 @@ interface AppState {
   vaultPath: string | null;
   /** Recently-opened vault paths, most-recent first (persisted in the OS app-config dir). */
   recents: string[];
-  /** True while tearing down one vault and loading another — boards skip persisting then. */
+  /** True while tearing down one vault and loading another – boards skip persisting then. */
   switching: boolean;
 
   /** Boot: open the last network (or `seed`/dev fallback), else show the front door. */
@@ -103,12 +103,12 @@ interface AppState {
   /** Drop a path from recents (e.g. it no longer exists). */
   forgetVault: (path: string) => void;
   /** Route a diff through the funnel, persist it, and swap in the new state. The board
-   *  updates in place — no reload — because applyDiff hands back the derived next state. */
+   *  updates in place – no reload – because applyDiff hands back the derived next state. */
   commit: (diff: Diff, opts?: { record?: boolean }) => Promise<ApplyResult>;
   saveLayout: (layout: Layout) => void;
   /** Refresh `lastSnapshot` from the repo HEAD (after snapshots / restore / vault load). */
   refreshLastSnapshot: () => void;
-  /** Reveal a person in the remembered note mode — or focus them if already shown
+  /** Reveal a person in the remembered note mode – or focus them if already shown
    *  somewhere. `toggle` lets the board's tap-again close the slide-in panel. */
   revealPerson: (id: string, opts?: { toggle?: boolean }) => void;
   /** Open a person in the slide-in panel (primitive; callers usually want revealPerson). */
@@ -142,13 +142,13 @@ interface AppState {
   setTabDragOver: (over: { leafId: string; side: DropSide; index?: number } | null) => void;
   /** End a tab drag (cancelled / dropped on nothing). */
   endTabDrag: () => void;
-  /** Drop the dragged tab onto a leaf — `center` moves it in (at `index` on a strip); edge splits. */
+  /** Drop the dragged tab onto a leaf – `center` moves it in (at `index` on a strip); edge splits. */
   dropTab: (destLeafId: string, side: DropSide, index?: number) => void;
   /** Focus (or open) the home board in the active leaf. */
   focusBoard: () => void;
   /** Update a split's pane sizes (fractions). */
   resizeSplit: (splitId: string, sizes: number[]) => void;
-  /** Pop a view out into a floating window — or focus it if it's already floating. */
+  /** Pop a view out into a floating window – or focus it if it's already floating. */
   addFloat: (view: View) => void;
   /** Close a floating window. */
   closeFloat: (id: string) => void;
@@ -158,7 +158,7 @@ interface AppState {
   resizeFloat: (id: string, w: number, h: number) => void;
   /** Raise a floating window above the others. */
   focusFloat: (id: string) => void;
-  /** Move a person's note between modes (panel ⇄ float ⇄ tab) — a move, not a copy. */
+  /** Move a person's note between modes (panel ⇄ float ⇄ tab) – a move, not a copy. */
   setNoteMode: (id: string, mode: NoteMode) => void;
   /** Remember which mode new notes open in (persisted in the workspace). */
   setNoteDefault: (mode: NoteMode) => void;
@@ -231,11 +231,11 @@ export const useApp = create<AppState>()((set, get) => ({
       // When OPENING (not creating): a stale recent (folder deleted/moved) or an arbitrary folder
       // that isn't ours would otherwise "load" as a blank ready network, since read_vault treats
       // missing/empty folders as empty. So verify the folder exists AND looks like a real vault.
-      // Creation deliberately skips both — it's seeding a brand-new (possibly not-yet-created) folder.
+      // Creation deliberately skips both – it's seeding a brand-new (possibly not-yet-created) folder.
       if (!opts?.create) {
         if (!(await vaultExists(path))) throw new Error(`${vaultName(path)} no longer exists`);
         if (!(await isVault(path)))
-          throw new Error(`${vaultName(path)} isn't a Handshake vault — no owner card found`);
+          throw new Error(`${vaultName(path)} isn't a Handshake vault – no owner card found`);
       }
       const [switchboard, layout, workspace, settings] = await Promise.all([
         session.load(),
@@ -243,7 +243,7 @@ export const useApp = create<AppState>()((set, get) => ({
         session.loadWorkspace(),
         session.loadSettings(),
       ]);
-      if (get().vaultPath !== path) return; // a newer switch superseded this one — don't clobber it
+      if (get().vaultPath !== path) return; // a newer switch superseded this one – don't clobber it
       clearBoardCache(); // old board layouts belong to the previous network
       set({ switchboard, layout, workspace, settings, status: "ready", switching: false });
 
@@ -252,7 +252,7 @@ export const useApp = create<AppState>()((set, get) => ({
         void session
           .tmInit()
           .then(() => get().refreshLastSnapshot())
-          .catch((e) => set({ tmError: `couldn't open the repo — ${e}` }));
+          .catch((e) => set({ tmError: `couldn't open the repo – ${e}` }));
       }
       scheduler.seedFromSettings(); // seed the auto-snapshot rate-limiter from this network
       logEvent("vault", `loaded ${vaultName(path)} (${switchboard.people.size} people)`);
@@ -268,7 +268,7 @@ export const useApp = create<AppState>()((set, get) => ({
             }
           }),
       );
-      if (get().vaultPath !== path) return; // switched again while photos loaded — keep the new vault's
+      if (get().vaultPath !== path) return; // switched again while photos loaded – keep the new vault's
       set({ photos: new Map(resolved.filter((e): e is readonly [string, string] => e !== null)) });
 
       // Remember it (most-recent first, deduped) and persist.
@@ -278,7 +278,7 @@ export const useApp = create<AppState>()((set, get) => ({
     } catch (e) {
       clearBoardCache();
       get().forgetVault(path);
-      set({ switching: false, status: "no-vault", error: `Couldn't open ${vaultName(path)} — ${String(e)}` });
+      set({ switching: false, status: "no-vault", error: `Couldn't open ${vaultName(path)} – ${String(e)}` });
     }
   },
 
@@ -322,7 +322,7 @@ export const useApp = create<AppState>()((set, get) => ({
     const result = await session.commit(diff);
     if (result.ok) {
       set({ switchboard: result.next });
-      // Record for undo + show a pill — unless this commit IS an undo/redo replay.
+      // Record for undo + show a pill – unless this commit IS an undo/redo replay.
       if (opts?.record !== false) {
         undo.recordData(result.inverse, diff);
         toastForDiff(diff, result.inverse);
@@ -333,7 +333,7 @@ export const useApp = create<AppState>()((set, get) => ({
     return result;
   },
 
-  // Persist only — don't store the live layout back into state (would re-seed mid-drag).
+  // Persist only – don't store the live layout back into state (would re-seed mid-drag).
   saveLayout(layout) {
     void get().session?.saveLayout(layout).catch(() => {});
   },
@@ -579,7 +579,7 @@ export const useApp = create<AppState>()((set, get) => ({
 
   setNoteMode(id, mode) {
     const view: View = { type: "person", id };
-    // Detach from every container first — a person lives in exactly one place.
+    // Detach from every container first – a person lives in exactly one place.
     set((s) => ({
       openPersonId: s.openPersonId === id ? null : s.openPersonId,
       workspace: detachView(s.workspace, `person:${id}`),
@@ -601,7 +601,7 @@ export const useApp = create<AppState>()((set, get) => ({
     const right: Leaf = { kind: "leaf", id: newId(), tabs: [board], activeIndex: 0 };
     const root: Split = { kind: "split", id: newId(), dir: "row", children: [left, right], sizes: [0.42, 0.58] };
     // A "snap to this layout" action: it replaces the tiling with note | board (other open
-    // views are dropped — there's no global bar to keep them). The note moves into the left
+    // views are dropped – there's no global bar to keep them). The note moves into the left
     // pane, so detach it from the panel/floats.
     set((s) => ({
       openPersonId: s.openPersonId === id ? null : s.openPersonId,

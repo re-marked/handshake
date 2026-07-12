@@ -1,6 +1,6 @@
 // Ephemeral system-style notifications for special actions (undo/redo, snapshots, saves, new
 // cards…). Cards with a title, optional body, a timestamp, and a close button. Not a logging
-// system — brief, useful confirmations. A leaf module (zustand only), so anything can notify().
+// system – brief, useful confirmations. A leaf module (zustand only), so anything can notify().
 
 import { create } from "zustand";
 import type { ComponentType } from "react";

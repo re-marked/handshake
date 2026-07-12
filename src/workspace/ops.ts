@@ -33,7 +33,7 @@ export function mapLeaf(node: Node, id: string, fn: (leaf: Leaf) => Leaf): Node 
   return { ...node, children: node.children.map((c) => mapLeaf(c, id, fn)) };
 }
 
-/** Append a tab and activate it — or, if its key is already present, just focus it. */
+/** Append a tab and activate it – or, if its key is already present, just focus it. */
 export function insertTab(leaf: Leaf, view: View): Leaf {
   const key = viewKey(view);
   const existing = leaf.tabs.findIndex((v) => viewKey(v) === key);
@@ -136,8 +136,8 @@ export function collapseEmpty(node: Node): Node {
 }
 
 /**
- * Remove a view from everywhere it lives — its tab in the tree (collapsing an emptied
- * leaf) and any float — and repair `activeLeafId` if its leaf went away. The slide-in
+ * Remove a view from everywhere it lives – its tab in the tree (collapsing an emptied
+ * leaf) and any float – and repair `activeLeafId` if its leaf went away. The slide-in
  * panel (openPersonId) lives outside Workspace, so the store clears that separately.
  */
 export function detachView(ws: Workspace, key: string): Workspace {
@@ -154,7 +154,7 @@ export function detachView(ws: Workspace, key: string): Workspace {
 export type DropSide = "left" | "right" | "top" | "bottom" | "center";
 
 /**
- * Drag a tab (`key`, from `srcLeafId`) onto `destLeafId`. `center` moves it into that leaf — at a
+ * Drag a tab (`key`, from `srcLeafId`) onto `destLeafId`. `center` moves it into that leaf – at a
  * specific `index` when dropped on a tab strip (so it reorders / lands where you point), else
  * appended; an edge splits the leaf with the tab in a new pane on that side. Removing it from the
  * source collapses an emptied leaf. No-ops that would do nothing useful return the workspace as-is.

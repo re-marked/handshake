@@ -16,7 +16,7 @@ import { joinPath, pickFolder, sanitizeFolderName, vaultName } from "@/vault/app
 /**
  * Create a new network: name it, name yourself, pick where it lives. By default the app makes a
  * dedicated folder (named after the network) inside the location you choose and sets everything
- * up — you can override to use the chosen folder directly. We seed your "self" card so the board
+ * up – you can override to use the chosen folder directly. We seed your "self" card so the board
  * has its root. Driven by the store's `newNetworkOpen` flag.
  */
 export function NewNetworkDialog() {

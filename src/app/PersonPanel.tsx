@@ -24,7 +24,7 @@ const ENTER = { type: "spring", stiffness: 520, damping: 38 } as const;
 const EXIT = { duration: 0.12, ease: "easeIn" } as const;
 
 /**
- * The person note — a card that slides in from the top-right when you tap a polaroid and
+ * The person note – a card that slides in from the top-right when you tap a polaroid and
  * slides out when you tap it again (or Esc). Non-modal: the board stays interactive.
  * Switching to a different person slides the current note out, then the new one in
  * (AnimatePresence mode="wait", keyed by person id). The header carries a type-to-confirm
@@ -37,7 +37,7 @@ export function PersonPanel() {
   const panelSize = useApp((s) => s.settings.panelSize);
 
   // Live size while dragging the grip; falls back to the saved default. Resizing the panel
-  // updates the default (settings.panelSize) on release — it remembers what you drag it to.
+  // updates the default (settings.panelSize) on release – it remembers what you drag it to.
   const [drag, setDrag] = useState<{ w: number; h: number } | null>(null);
   const size = drag ?? panelSize;
   // Drag origin + the live size (kept in the ref so the commit on release is never stale).

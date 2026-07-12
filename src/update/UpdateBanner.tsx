@@ -37,7 +37,7 @@ export function UpdateBanner() {
                   />
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {state.pct}% — the app will restart when it&apos;s ready.
+                  {state.pct}% – the app will restart when it&apos;s ready.
                 </p>
               </div>
             ) : (
@@ -57,7 +57,7 @@ export function UpdateBanner() {
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {state.mode === "auto"
-                    ? "Install it now — Handshake will restart into the new version."
+                    ? "Install it now – Handshake will restart into the new version."
                     : "A new version is ready to download for your Linux package."}
                 </p>
                 <div className="mt-3 flex gap-2">

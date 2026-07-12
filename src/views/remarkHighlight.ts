@@ -8,10 +8,10 @@ const PALETTE = new Set<string>(HL_COLORS);
 
 // ==text== (default) or ==text=={green} (colored). Non-greedy, single-line; the optional {color}
 // must sit flush against the closing ==. Unknown color names fall back to the default style.
-// A factory (not a shared const) so each scanner gets its own lastIndex — no cross-call races.
+// A factory (not a shared const) so each scanner gets its own lastIndex – no cross-call races.
 export const highlightRegex = (): RegExp => /==(?!=)([^\n]+?)==(?:\{([a-z]+)\})?/g;
 
-/** Resolve a raw `{color}` capture to a palette color (yellow — the default — when absent/unknown). */
+/** Resolve a raw `{color}` capture to a palette color (yellow – the default – when absent/unknown). */
 export function normalizeHlColor(raw: string | undefined): HlColor {
   return raw && PALETTE.has(raw) ? (raw as HlColor) : "yellow";
 }

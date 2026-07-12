@@ -4,7 +4,7 @@ import type { VaultSession } from "@/vault/session";
 /**
  * Pick an image from disk and copy it into the vault's attachments/ folder under `baseName`.
  * Returns the vault-relative path + a data URL for immediate display, or null if cancelled.
- * Does NOT commit the person — the caller decides where the relpath goes.
+ * Does NOT commit the person – the caller decides where the relpath goes.
  */
 export async function importPhoto(
   session: VaultSession,

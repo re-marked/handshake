@@ -19,10 +19,10 @@ import type { SaveDelay } from "@/vault/settings";
 // The fields the note edits; the commit patch is diffed over exactly these.
 const EDITABLE = ["name", "affiliations", "tags", "handles", "body"] as const;
 
-// Autosave debounce presets — how long after the last keystroke an edit commits.
+// Autosave debounce presets – how long after the last keystroke an edit commits.
 const SAVE_DELAY_MS: Record<SaveDelay, number> = { instant: 150, normal: 400, relaxed: 1000 };
 
-// Inline editable text — looks like prose until you focus it. `text-ellipsis` makes an overflowing
+// Inline editable text – looks like prose until you focus it. `text-ellipsis` makes an overflowing
 // value trail off ("co-found…") while blurred instead of hard-clipping mid-word; it scrolls
 // normally once focused for editing.
 const inline =
@@ -96,7 +96,7 @@ function usePersonEditor(id: string) {
   return { draft, setDraft };
 }
 
-/** The person note — one always-editable surface (no view/edit mode). */
+/** The person note – one always-editable surface (no view/edit mode). */
 export function PersonView({ id }: { id: string }) {
   const { draft, setDraft } = usePersonEditor(id);
   const photo = useApp((s) => s.photos.get(id));
@@ -215,7 +215,7 @@ export function PersonView({ id }: { id: string }) {
             <Plus /> role
           </Button>
         </div>
-        {/* Per-note actions — an icon toolbar; future note tools / local settings slot in here. */}
+        {/* Per-note actions – an icon toolbar; future note tools / local settings slot in here. */}
         <div className="flex shrink-0 items-center gap-0.5 text-muted-foreground">
           <Button
             variant="ghost"
@@ -313,7 +313,7 @@ export function PersonView({ id }: { id: string }) {
       <Separator />
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium text-muted-foreground">Notes</span>
-        {/* The note's read/write tumbler — labelled + iconned, sat right above the field. */}
+        {/* The note's read/write tumbler – labelled + iconned, sat right above the field. */}
         <ToggleGroup
           type="single"
           value={mode}
@@ -347,14 +347,14 @@ export function PersonView({ id }: { id: string }) {
           onClick={() => setMode("edit")}
           className="cursor-text text-left text-[15px] text-muted-foreground/60 italic"
         >
-          Nothing here yet — switch to Edit to write.
+          Nothing here yet – switch to Edit to write.
         </button>
       )}
     </div>
   );
 }
 
-/** One row in the note's Connections list — click it for the tie's settings. */
+/** One row in the note's Connections list – click it for the tie's settings. */
 function ConnectionRow({ handshake, name }: { handshake: Handshake; name: string }) {
   return (
     <DropdownMenu>

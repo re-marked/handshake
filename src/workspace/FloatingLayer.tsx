@@ -7,7 +7,7 @@ import { FloatingWindow } from "@/workspace/FloatingWindow";
  * Holds the floating note windows. An overlay over the board area: transparent to pointer
  * events itself (the board stays interactive), with the windows re-enabling them. Windows are
  * z-ordered by their stored `z` and painted in a band below the slide-in panel (z-40). The
- * layer clips them to the board area, so floats are in-app only — never lost off-screen.
+ * layer clips them to the board area, so floats are in-app only – never lost off-screen.
  */
 export function FloatingLayer() {
   const floats = useApp((s) => s.workspace.floats);

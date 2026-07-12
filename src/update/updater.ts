@@ -1,7 +1,7 @@
 // Update checking. Two paths, keyed by how this build was installed (Rust `update_kind`):
-//   • "auto"   — macOS, Windows, or a Linux AppImage → the Tauri updater downloads a signed
+//   • "auto"   – macOS, Windows, or a Linux AppImage → the Tauri updater downloads a signed
 //                bundle and relaunches in place. Seamless.
-//   • "manual" — a Linux .deb/.rpm, which the updater can't replace → we just compare versions
+//   • "manual" – a Linux .deb/.rpm, which the updater can't replace → we just compare versions
 //                against the latest GitHub release and nudge the user to the download page.
 // Everything is best-effort: a failed silent check never surfaces; only an explicit "Check for
 // updates" reports "up to date" or an error.
@@ -32,7 +32,7 @@ export const useUpdate = create<{ state: UpdateState; dismissed: boolean }>(() =
 // The live Update handle can't live in the store (it carries methods), so keep it module-local.
 let pending: Update | null = null;
 
-/** Numeric semver-ish compare of "1.2.3" / "v1.2.3" — true when `remote` is strictly newer. */
+/** Numeric semver-ish compare of "1.2.3" / "v1.2.3" – true when `remote` is strictly newer. */
 function isNewer(remote: string, local: string): boolean {
   const parse = (v: string) => v.replace(/^v/, "").split(".").map((n) => parseInt(n, 10) || 0);
   const r = parse(remote);
@@ -81,7 +81,7 @@ export async function checkForUpdates(manual = false): Promise<void> {
     }
   } catch (err) {
     if (manual) notify("Couldn't check for updates", { body: String(err), tone: "muted" });
-    // Silent on the background check — no network is a normal state for a local-first app.
+    // Silent on the background check – no network is a normal state for a local-first app.
   }
 }
 

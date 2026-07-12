@@ -1,7 +1,7 @@
 import { Target, User } from "lucide-react";
 
 /**
- * A target goal on the board — a faint, dashed polaroid with a person silhouette (someone
+ * A target goal on the board – a faint, dashed polaroid with a person silhouette (someone
  * you want to meet but haven't), tagged as a goal in the caption. A dashed tie to you is
  * drawn by the board. Ticking it promotes it into a real connected person.
  */

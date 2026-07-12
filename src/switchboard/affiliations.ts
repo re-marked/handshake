@@ -33,7 +33,7 @@ export function pruneAffiliations(affs: Affiliation[]): Affiliation[] {
     .filter((a) => a.role || a.company);
 }
 
-/** Every role + company across all affiliations — for search/filter keyword sets. */
+/** Every role + company across all affiliations – for search/filter keyword sets. */
 export function affiliationTerms(affs: Affiliation[]): string[] {
   return affs.flatMap((a) => [a.role, a.company]).filter((x): x is string => !!x);
 }

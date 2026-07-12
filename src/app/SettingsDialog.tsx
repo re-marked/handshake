@@ -439,7 +439,7 @@ function NetworksSection() {
   }
   return (
     <>
-      <Row label="Current network" description={vaultPath ?? "—"}>
+      <Row label="Current network" description={vaultPath ?? "–"}>
         <Button
           variant="outline"
           size="sm"
@@ -487,7 +487,7 @@ function TimeMachineSection() {
       setStats(st2);
       setHeadId(st.headId);
     } catch {
-      // not a repo yet / disabled — leave the panel empty
+      // not a repo yet / disabled – leave the panel empty
     }
   }, [session]);
 
@@ -530,7 +530,7 @@ function TimeMachineSection() {
       const short = snap.id.slice(0, 7);
       await session.tmSnapshot(`Before restore to ${short}`); // never lose the present
       await session.tmRestore(snap.id);
-      await session.tmSnapshot(`Restored to ${short}`); // append-only — the restore is itself undoable
+      await session.tmSnapshot(`Restored to ${short}`); // append-only – the restore is itself undoable
       await useApp.getState().switchVault(vaultPath); // full reload: rebuild switchboard + board
       await refresh();
       setNote(`Restored to ${relativeTime(snap.time)} snapshot.`);
@@ -549,7 +549,7 @@ function TimeMachineSection() {
     <>
       <Row
         label="Time Machine"
-        description="Version this network with git — snapshot its history and roll back anytime."
+        description="Version this network with git – snapshot its history and roll back anytime."
       >
         <Switch
           checked={tm.enabled}
@@ -579,7 +579,7 @@ function TimeMachineSection() {
           {tm.mode === "auto" && (
             <Row
               label="Snapshot every"
-              description="Shortest gap between automatic snapshots while you work (1 min – 1 day). Frequent is good — snapshots are tiny, and dense history makes richer visuals."
+              description="Shortest gap between automatic snapshots while you work (1 min – 1 day). Frequent is good – snapshots are tiny, and dense history makes richer visuals."
             >
               <div className="flex items-center gap-2">
                 <Input
@@ -615,7 +615,7 @@ function TimeMachineSection() {
               description={
                 est.ready
                   ? `You write ≈${formatBytes(est.writtenPerActiveDay)} of notes per active day (${est.activeDays} active day${est.activeDays === 1 ? "" : "s"} so far). At a snapshot every ${formatCadence(tm.cadenceMin)}, your history would grow ≈${formatBytes(est.perMonth)}/month.`
-                  : "Keep using it — a personalised growth estimate appears once you have a few days of history."
+                  : "Keep using it – a personalised growth estimate appears once you have a few days of history."
               }
             >
               <span className="whitespace-nowrap text-xs text-muted-foreground">
@@ -624,7 +624,7 @@ function TimeMachineSection() {
             </Row>
           )}
 
-          {/* History — newest first; restore rolls back (snapshotting the present first). */}
+          {/* History – newest first; restore rolls back (snapshotting the present first). */}
           <div className="border-b border-border/60 py-3.5">
             <div className="text-sm font-medium">History</div>
             {confirming && (
@@ -688,7 +688,7 @@ function TimeMachineSection() {
 
           {/* Reserved for the next release: a visual timeline + growth stats. */}
           <div className="mt-3.5 rounded-md border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground/70">
-            Timeline &amp; growth insights — coming soon.
+            Timeline &amp; growth insights – coming soon.
           </div>
         </>
       )}
@@ -722,7 +722,7 @@ function DeveloperSection() {
   return (
     <>
       <p className="-mt-1 pb-2 text-xs leading-relaxed text-muted-foreground">
-        Debugging tools — including a state report that Claude can read to help diagnose issues without
+        Debugging tools – including a state report that Claude can read to help diagnose issues without
         seeing the app. All off by default.
       </p>
       <Row label="Snapshot status line" description="Show the ambient 'last snapshot' line in the board corner.">
@@ -769,7 +769,7 @@ function AboutSection() {
   return (
     <div className="space-y-2 text-sm text-muted-foreground">
       <p className="text-base font-medium text-foreground">Handshake {appVersion()}</p>
-      <p>Obsidian for your network — a local-first map of the people you know.</p>
+      <p>Obsidian for your network – a local-first map of the people you know.</p>
       <p>Your data is a folder of Markdown files on your machine.</p>
       <p className="pt-1 font-mono text-xs text-muted-foreground/80">{buildLine()}</p>
       <div className="pt-2">

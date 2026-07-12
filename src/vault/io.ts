@@ -38,7 +38,7 @@ export interface TmStats {
   firstTime: number; // unix seconds (0 if none)
   lastTime: number;
   activeDays: number; // distinct days with a snapshot
-  addedBytes: number; // total added-line bytes across all snapshots — "content written"
+  addedBytes: number; // total added-line bytes across all snapshots – "content written"
   dataBytes: number;
   gitBytes: number;
 }

@@ -27,7 +27,7 @@ export type CardSpacing = "compact" | "comfortable" | "spacious";
 export type ZoomRange = "standard" | "wide";
 /** How long a located card stays highlighted after you jump to it. */
 export type FlashDuration = "brief" | "normal" | "long";
-/** Note autosave debounce — how long after you stop typing before the edit commits. */
+/** Note autosave debounce – how long after you stop typing before the edit commits. */
 export type SaveDelay = "instant" | "normal" | "relaxed";
 /** A pixel size (used for the default float + the slide-in panel). */
 export interface FloatSize {
@@ -80,7 +80,7 @@ export interface Settings {
   textWeight: TextWeight;
   /** Row density for list views (People). */
   density: Density;
-  /** Tone down motion (springs/transitions) — respects framer's MotionConfig. */
+  /** Tone down motion (springs/transitions) – respects framer's MotionConfig. */
   reduceMotion: boolean;
   /** Which mode a person's note opens in by default (panel / float / tab). */
   noteDefault: NoteMode;
@@ -140,7 +140,7 @@ export const DEFAULT_SETTINGS: Settings = {
   cardSpacing: "comfortable",
   zoomRange: "wide",
   locateFlash: "normal",
-  // Frequent by default — snapshots are tiny, and dense history makes the best visuals over time.
+  // Frequent by default – snapshots are tiny, and dense history makes the best visuals over time.
   timeMachine: { enabled: true, mode: "auto", cadenceMin: 5, lastSnapshotAt: 0 },
   dev: { showStatusLine: false, autoReportOnError: false, redact: false },
   highlightKeywords: [],

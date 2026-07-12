@@ -18,7 +18,7 @@ beforeEach(() => {
   commit.mockClear();
 });
 
-describe("undo stack — data", () => {
+describe("undo stack – data", () => {
   it("records a data action and exposes it on the past stack", () => {
     undo.recordData(create("a"), del("a")); // undo=create, redo=delete
     expect(undo.__test.state().past).toHaveLength(1);
@@ -54,7 +54,7 @@ describe("undo stack — data", () => {
   });
 });
 
-describe("undo stack — board", () => {
+describe("undo stack – board", () => {
   it("records only a real move and replays before/after through the registered applier", async () => {
     const applied: BoardPatch[] = [];
     undo.registerBoard("main", (patch) => applied.push(patch));
@@ -73,7 +73,7 @@ describe("undo stack — board", () => {
   });
 });
 
-describe("undo stack — interleaved", () => {
+describe("undo stack – interleaved", () => {
   it("undoes in strict reverse chronological order across data + board", async () => {
     const applied: BoardPatch[] = [];
     undo.registerBoard("main", (patch) => applied.push(patch));

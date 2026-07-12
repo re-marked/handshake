@@ -14,8 +14,8 @@ import { useApp } from "@/app/store";
 import { newId, type View } from "@/workspace/model";
 
 /**
- * Open any view (or a person) freestyle — as a new tab (`+`) or beside the leaf (`split`).
- * Board is excluded from split (it's a singleton — only one board, ever).
+ * Open any view (or a person) freestyle – as a new tab (`+`) or beside the leaf (`split`).
+ * Board is excluded from split (it's a singleton – only one board, ever).
  */
 export function TabLauncher({ leafId, mode = "tab" }: { leafId: string; mode?: "tab" | "split" }) {
   const [open, setOpen] = useState(false);

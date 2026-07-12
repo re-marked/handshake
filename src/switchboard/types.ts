@@ -6,7 +6,7 @@ export type KnownChannel =
   | "twitter" | "linkedin" | "email" | "telegram"
   | "discord" | "github" | "zoom" | "irl";
 
-/** Known channels, but open — the vault may use others. */
+/** Known channels, but open – the vault may use others. */
 export type Channel = KnownChannel | (string & {});
 
 export type Strength = "close" | "warm" | "cold" | "dormant";
@@ -24,7 +24,7 @@ export type PartialDate = string;
 
 export type EntityKind = "person" | "handshake" | "goal" | "interaction";
 
-/** One position a person holds — a role at a company. Either field may stand alone. */
+/** One position a person holds – a role at a company. Either field may stand alone. */
 export interface Affiliation {
   role?: string;
   company?: string;
@@ -59,7 +59,7 @@ export interface HandshakeOrigin {
 
 export interface Handshake {
   kind: "handshake";
-  /** Canonical "alice__bob" (slugs sorted) — one file per pair. */
+  /** Canonical "alice__bob" (slugs sorted) – one file per pair. */
   id: string;
   people: [string, string];
   strength: Strength;
@@ -104,7 +104,7 @@ export interface Interaction {
 
 export type Entity = Person | Handshake | Goal | Interaction;
 
-/** A problem found while reading the vault. Never fatal — surfaced, not thrown. */
+/** A problem found while reading the vault. Never fatal – surfaced, not thrown. */
 export interface VaultProblem {
   relpath: string;
   severity: "error" | "warning";

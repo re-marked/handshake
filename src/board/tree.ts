@@ -12,11 +12,11 @@ export interface BoardCard {
   isSelf: boolean;
   photo?: string; // relpath into attachments/ (loaded once the asset protocol is wired)
   affiliations: Affiliation[];
-  /** The person's tags — for the inline board filter (#16). */
+  /** The person's tags – for the inline board filter (#16). */
   tags: string[];
   /** 0..1 recency → card opacity (staleness). */
   freshness: number;
-  /** How many other people's notes `[[mention]]` this person — drives card size (#16). */
+  /** How many other people's notes `[[mention]]` this person – drives card size (#16). */
   backlinkCount: number;
   /** A target goal riding on the board (faint dashed card); id is `goal:<goalId>`. */
   isGoal?: boolean;
@@ -29,10 +29,10 @@ export interface BoardLink {
   strength: Strength;
   /** true if this handshake is the parent↔child hierarchy edge (drives movement). */
   treeEdge: boolean;
-  /** A parent↔child "introduced by" relationship with no direct handshake — a faint dotted line so
+  /** A parent↔child "introduced by" relationship with no direct handshake – a faint dotted line so
    *  the board shows what drives the drag-as-tree behavior (matches the YAML introducer). */
   introducedBy?: boolean;
-  /** A `[[mention]]` in a note with no handshake/introducer edge behind it — a faint rose dotted line (#16). */
+  /** A `[[mention]]` in a note with no handshake/introducer edge behind it – a faint rose dotted line (#16). */
   backlink?: boolean;
 }
 

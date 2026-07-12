@@ -1,7 +1,7 @@
 import type { Strength } from "@/switchboard";
 
 /**
- * Tie warmth as one hue — our rose — vivid (close) fading to dusty mauve-grey (dormant).
+ * Tie warmth as one hue – our rose – vivid (close) fading to dusty mauve-grey (dormant).
  * Strength reads from intensity, not a second color. Shared by the board links and the
  * People list's tie dot.
  */

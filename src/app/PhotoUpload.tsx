@@ -2,7 +2,7 @@ import { Camera, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * A clickable photo slot — shows the photo (or a silhouette), with a camera overlay on hover so
+ * A clickable photo slot – shows the photo (or a silhouette), with a camera overlay on hover so
  * it reads as settable. Used in the person note (alongside an explicit button) and the new-card flow.
  */
 export function PhotoUpload({

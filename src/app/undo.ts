@@ -1,7 +1,7 @@
 // One chronological undo/redo timeline spanning two kinds of action:
-//   • data   — any commit() to the switchboard; we keep the inverse Diff (already computed by
+//   • data   – any commit() to the switchboard; we keep the inverse Diff (already computed by
 //               applyDiff) to undo, and the forward Diff to redo.
-//   • board   — a card repositioning on the board; we keep before/after position maps.
+//   • board   – a card repositioning on the board; we keep before/after position maps.
 // In-memory + per-network (cleared on vault switch); git snapshots are the durable history.
 // Ctrl-Z is gated (see isEditableTarget) so it never steals undo from the note editor / inputs.
 
@@ -99,7 +99,7 @@ export function stackDepths(): { undo: number; redo: number } {
   return { undo: past.length, redo: future.length };
 }
 
-/** Drop all history (called on vault switch — undo is per-network). */
+/** Drop all history (called on vault switch – undo is per-network). */
 export function clear() {
   past = [];
   future = [];

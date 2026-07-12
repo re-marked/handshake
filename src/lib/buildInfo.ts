@@ -5,7 +5,7 @@ export function appVersion(): string {
   return __BUILD_INFO__.version;
 }
 
-/** "v0.7.1 · a1b2c3d · built Jun 1, 2026, 5:27 PM" — exact tag if HEAD is on one, else the version. */
+/** "v0.7.1 · a1b2c3d · built Jun 1, 2026, 5:27 PM" – exact tag if HEAD is on one, else the version. */
 export function buildLine(): string {
   const b = __BUILD_INFO__;
   let built = b.time;

@@ -25,7 +25,7 @@ export const SWATCH: Record<HlColor, string> = {
 export type PaletteTarget = { x: number; y: number; current: HlColor };
 
 /**
- * The recolor palette — a small popover of pastel swatches + a remove button, anchored at a point
+ * The recolor palette – a small popover of pastel swatches + a remove button, anchored at a point
  * and opening below it (so it never covers the highlighted text). Shared by the rendered preview
  * (MarkdownView) and the CodeMirror editor (NoteEditor); each owns the splice the pick triggers.
  */

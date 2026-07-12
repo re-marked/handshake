@@ -17,7 +17,7 @@ function neighbors(sb: Switchboard, id: string): string[] {
   return [...(sb.adjacency.get(id) ?? new Set<string>())].sort();
 }
 
-describe("buildSwitchboard — fixture vault", () => {
+describe("buildSwitchboard – fixture vault", () => {
   const sb = buildSwitchboard(loadFixtureVault());
 
   it("loads every entity into its store", () => {
@@ -45,9 +45,9 @@ describe("buildSwitchboard — fixture vault", () => {
     expect(lastInteractionDate(sb, "self")).toBeUndefined(); // no interaction tags self yet
   });
 
-  it("is clean — and a dangling goal target is NOT a problem", () => {
+  it("is clean – and a dangling goal target is NOT a problem", () => {
     expect(sb.problems).toEqual([]);
-    expect(sb.goals.get("meet-naval")?.target).toBe("naval-ravikant"); // not in vault — intentionally fine
+    expect(sb.goals.get("meet-naval")?.target).toBe("naval-ravikant"); // not in vault – intentionally fine
   });
 
   it("parses with no Node Buffer present (WebView2 has no Node globals)", () => {
@@ -62,7 +62,7 @@ describe("buildSwitchboard — fixture vault", () => {
   });
 });
 
-describe("buildSwitchboard — resilience", () => {
+describe("buildSwitchboard – resilience", () => {
   it("an empty vault yields empty state and no problems", () => {
     const sb = buildSwitchboard([]);
     expect(sb.people.size).toBe(0);
@@ -90,7 +90,7 @@ describe("buildSwitchboard — resilience", () => {
       ["people/a.md", file("id: a\nname: A\nisSelf: true")],
       ["handshakes/a__ghost.md", file("people: [a, ghost]\nstrength: warm")],
     ));
-    expect(sb.adjacency.get("a")).toBeUndefined(); // edge skipped — ghost isn't real
+    expect(sb.adjacency.get("a")).toBeUndefined(); // edge skipped – ghost isn't real
     expect(sb.problems.some((p) => p.message.includes('unknown person "ghost"'))).toBe(true);
   });
 

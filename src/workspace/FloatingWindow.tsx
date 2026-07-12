@@ -15,7 +15,7 @@ const MIN_H = 200;
 type Drag = { mode: "move" | "resize"; downX: number; downY: number; ox: number; oy: number; ow: number; oh: number };
 
 /**
- * A draggable, resizable in-app window holding a View — the "float" note mode. The whole
+ * A draggable, resizable in-app window holding a View – the "float" note mode. The whole
  * header is the drag handle; a corner grip resizes; clicking anywhere raises it. Position and
  * size are clamped to the board area (`bounds`) so a window can never be lost off-screen.
  */

@@ -16,7 +16,7 @@ export function PersonCard({
   card: BoardCard;
   photoSrc?: string;
   highlighted?: boolean;
-  /** Multiplier on the base 144px width (#16 — popular cards, by backlink count, grow). */
+  /** Multiplier on the base 144px width (#16 – popular cards, by backlink count, grow). */
   sizeScale?: number;
 }) {
   // The card is small, so show only the headline affiliation here; "+N" hints at the rest.

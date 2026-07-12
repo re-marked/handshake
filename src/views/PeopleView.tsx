@@ -51,7 +51,7 @@ function pageWindow(current: number, total: number): (number | "…")[] {
   return out;
 }
 
-/** People — the calm, full-width index of everyone. Search, tag filters, density, pagination. */
+/** People – the calm, full-width index of everyone. Search, tag filters, density, pagination. */
 export function PeopleView() {
   const people = useApp((s) => s.switchboard.people);
   const handshakes = useApp((s) => s.switchboard.handshakes);
@@ -220,7 +220,7 @@ export function PeopleView() {
                   )}
                 >
                   <Plus className="size-4 shrink-0" />
-                  <span className="truncate text-[15px]">Create “{query.trim()}” — connected to you</span>
+                  <span className="truncate text-[15px]">Create “{query.trim()}” – connected to you</span>
                 </button>
               )}
               {pageItems.map((p) => {

@@ -1,6 +1,6 @@
 // Automatic Time Machine snapshots, in "auto" mode only. Triggers: a short quiet period after
 // edits settle, when leaving a network, and on app close. Rate-limited to the chosen cadence and
-// skipped when the repo is clean. An imperative singleton — reads useApp.getState() at fire time
+// skipped when the repo is clean. An imperative singleton – reads useApp.getState() at fire time
 // (no stale closures), so the store/UI never depend on it being a React component.
 
 import { useApp } from "@/app/store";
@@ -27,7 +27,7 @@ export function seedFromSettings(): void {
   lastSnapshotAt = useApp.getState().settings.timeMachine.lastSnapshotAt || 0;
 }
 
-/** A data mutation happened — in auto mode, snapshot once edits go quiet. */
+/** A data mutation happened – in auto mode, snapshot once edits go quiet. */
 export function noteDataMutation(): void {
   const tm = useApp.getState().settings.timeMachine;
   if (!tm.enabled || tm.mode !== "auto") return;
@@ -48,7 +48,7 @@ async function maybeSnapshot(message: string): Promise<void> {
 
   const remaining = tm.cadenceMin * 60_000 - (Date.now() - lastSnapshotAt);
   if (remaining > 0) {
-    clearTimer(); // too soon — try again once the cadence elapses
+    clearTimer(); // too soon – try again once the cadence elapses
     quietTimer = setTimeout(() => {
       quietTimer = null;
       void maybeSnapshot(message);
@@ -93,9 +93,9 @@ function markSnapshotted(): void {
   logEvent("snapshot", "auto");
 }
 
-// Used by flushOnLeave / snapshotOnClose — these operate on the OUTGOING/closing session, so they
+// Used by flushOnLeave / snapshotOnClose – these operate on the OUTGOING/closing session, so they
 // must NOT call markSnapshotted() (which reads useApp.getState() and would write the old vault's
-// timestamp into the just-swapped new network — see #30). Just snapshot the captured session.
+// timestamp into the just-swapped new network – see #30). Just snapshot the captured session.
 async function snapshotIfDirty(session: VaultSession, message: string): Promise<void> {
   try {
     const status = await session.tmStatus();

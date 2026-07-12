@@ -54,7 +54,7 @@ export function CommandPalette() {
     // right-click (recolor) and stop propagation, so this never fires for them.
     function onContext(e: MouseEvent) {
       const t = e.target as HTMLElement | null;
-      // Highlights own their right-click (recolor) — suppress the browser menu, let them handle it.
+      // Highlights own their right-click (recolor) – suppress the browser menu, let them handle it.
       if (t?.closest("mark.hl")) {
         e.preventDefault();
         return;
@@ -138,7 +138,7 @@ export function CommandPalette() {
             <CommandItem value={`create ${query}`} onSelect={() => create(query)}>
               <Plus />
               <span className="truncate">
-                Create “{query.trim()}”{self ? " — connected to you" : ""}
+                Create “{query.trim()}”{self ? " – connected to you" : ""}
               </span>
             </CommandItem>
           </CommandGroup>

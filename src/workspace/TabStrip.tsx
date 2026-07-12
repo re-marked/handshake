@@ -91,7 +91,7 @@ export function TabStrip({ leaf }: { leaf: Leaf }) {
   const closeTab = useApp((s) => s.closeTab);
   const tabDrag = useApp((s) => s.tabDrag);
   const tabDragOver = useApp((s) => s.tabDragOver);
-  // The network switcher rides the far right of the browser tab nav (after the +) — only on the
+  // The network switcher rides the far right of the browser tab nav (after the +) – only on the
   // last (rightmost) pane's strip, so it shows exactly once even when the workspace is split.
   const isLastLeaf = useApp((s) => {
     const ls = leaves(s.workspace.root);

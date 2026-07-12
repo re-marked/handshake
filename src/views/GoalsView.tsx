@@ -19,7 +19,7 @@ import { mintGoalId, type Goal, type GoalPatch, type GoalStatus } from "@/switch
 const STATUS_ORDER: Record<GoalStatus, number> = { active: 0, open: 1, done: 2, abandoned: 3 };
 const STATUSES: GoalStatus[] = ["open", "active", "abandoned"];
 
-/** Goals — short, standalone aspirations (people you want to meet). Not on the board. */
+/** Goals – short, standalone aspirations (people you want to meet). Not on the board. */
 export function GoalsView() {
   const goals = useApp((s) => s.switchboard.goals);
   const commit = useApp((s) => s.commit);
@@ -57,7 +57,7 @@ export function GoalsView() {
             onKeyDown={(e) => {
               if (e.key === "Enter") add();
             }}
-            placeholder="Add a goal — someone you want to meet…"
+            placeholder="Add a goal – someone you want to meet…"
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </div>
@@ -107,7 +107,7 @@ function GoalRow({ goal }: { goal: Goal }) {
     <div className="group flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-accent/40">
       <button
         type="button"
-        aria-label="Mark met — add as a connection"
+        aria-label="Mark met – add as a connection"
         title="Mark met → add to the board as a connection"
         onClick={() => void promote()}
         className="shrink-0 transition-transform hover:scale-110"

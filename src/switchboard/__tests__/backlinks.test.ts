@@ -39,7 +39,7 @@ describe("buildBacklinks (the derived index)", () => {
     const sb = buildSwitchboard(
       vault(
         person("alice", "Alice", "Met [[Bob]] via [[Sarah Chen]]. Note to self: [[Alice]]. Also [[Ghost]]."),
-        person("carol", "Carol", "[[bob]] is great — and [[sarah-chen]] too."),
+        person("carol", "Carol", "[[bob]] is great – and [[sarah-chen]] too."),
         person("bob", "Bob"),
         person("sarah-chen", "Sarah Chen"),
       ),
@@ -56,7 +56,7 @@ describe("buildBacklinks (the derived index)", () => {
   });
 });
 
-describe("buildBoardModel — backlink edges + card size", () => {
+describe("buildBoardModel – backlink edges + card size", () => {
   it("emits a backlink edge only where no tie already exists, and counts inbound mentions", () => {
     const sb = buildSwitchboard(
       vault(

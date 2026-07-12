@@ -1,4 +1,4 @@
-// Debug tooling — built primarily so Claude (who can't see the WebView2 runtime) can read the
+// Debug tooling – built primarily so Claude (who can't see the WebView2 runtime) can read the
 // app's real state from a file on disk. A cheap always-on flight recorder + error capture feed a
 // report written to `.handshake/debug/latest.md` (Markdown for humans + a JSON appendix that's
 // precise for machines). Triggered manually, by hotkey, or auto-on-error (a dev setting).
@@ -41,7 +41,7 @@ function recordError(source: string, message: string, stack?: string): void {
 }
 
 let installed = false;
-/** Install global error capture (once). Cheap + always on — reports are only written on demand. */
+/** Install global error capture (once). Cheap + always on – reports are only written on demand. */
 export function initDebug(): void {
   if (installed || typeof window === "undefined") return;
   installed = true;
@@ -103,7 +103,7 @@ function gatherState(reason: string): ReportData {
     build: buildLine(),
     platform: redact ? "<redacted>" : typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
     status: s.status,
-    vault: redact ? "<redacted>" : (s.vaultPath ?? "—"),
+    vault: redact ? "<redacted>" : (s.vaultPath ?? "–"),
     counts: {
       people: sb.people.size,
       handshakes: sb.handshakes.size,
@@ -142,9 +142,9 @@ export function renderReport(d: ReportData): string {
   out.push(`- status: \`${d.status}\``);
   out.push(`- vault: ${d.vault}`);
   out.push(
-    `- people **${d.counts.people}** · handshakes **${d.counts.handshakes}** · goals **${d.counts.goals}** · interactions **${d.counts.interactions}** · self \`${d.self ?? "—"}\``,
+    `- people **${d.counts.people}** · handshakes **${d.counts.handshakes}** · goals **${d.counts.goals}** · interactions **${d.counts.interactions}** · self \`${d.self ?? "–"}\``,
   );
-  out.push(`- openPersonId: \`${d.openPersonId ?? "—"}\` · deletingId: \`${d.deletingId ?? "—"}\``);
+  out.push(`- openPersonId: \`${d.openPersonId ?? "–"}\` · deletingId: \`${d.deletingId ?? "–"}\``);
   out.push(`- undo depth: ${d.undo.undo} · redo depth: ${d.undo.redo}`);
   out.push(
     `- last snapshot: ${d.lastSnapshot ? `${new Date(d.lastSnapshot.time * 1000).toLocaleString()} · \`${d.lastSnapshot.id}\`` : "none"}`,
@@ -152,15 +152,15 @@ export function renderReport(d: ReportData): string {
   if (d.tmError) out.push(`- ⚠️ **Time Machine error:** ${d.tmError}`);
   out.push("");
   out.push(`## Workspace (active \`${d.workspace.activeLeafId}\`, ${d.workspace.floats} floats)`);
-  for (const l of d.workspace.leaves) out.push(`- ${l.active ? "▶ " : "· "}\`${l.id}\`: ${l.tabs.join(", ") || "—"}`);
+  for (const l of d.workspace.leaves) out.push(`- ${l.active ? "▶ " : "· "}\`${l.id}\`: ${l.tabs.join(", ") || "–"}`);
   out.push("");
   if (d.problems.length) {
     out.push(`## Vault problems (${d.problems.length})`);
-    for (const p of d.problems.slice(0, 20)) out.push(`- **${p.severity}** ${p.relpath} — ${p.message}`);
+    for (const p of d.problems.slice(0, 20)) out.push(`- **${p.severity}** ${p.relpath} – ${p.message}`);
     out.push("");
   }
   out.push(`## Recent events (${d.events.length})`);
-  for (const e of d.events.slice(-40)) out.push(`- \`${clock(e.t)}\` **${e.kind}** — ${e.summary}`);
+  for (const e of d.events.slice(-40)) out.push(`- \`${clock(e.t)}\` **${e.kind}** – ${e.summary}`);
   out.push("");
   out.push(`## Errors (${d.errors.length})`);
   if (d.errors.length === 0) {
@@ -181,7 +181,7 @@ export function buildReport(reason: string): string {
   return renderReport(gatherState(reason));
 }
 
-/** Write the report to `.handshake/debug/` — a timestamped copy + the canonical latest.md.
+/** Write the report to `.handshake/debug/` – a timestamped copy + the canonical latest.md.
  *  Resolves to latest.md's absolute path (so the UI can show where it landed), or null. */
 export async function writeReport(reason = "manual"): Promise<string | null> {
   const session = useApp.getState().session;
@@ -199,7 +199,7 @@ export async function writeReport(reason = "manual"): Promise<string | null> {
 }
 
 function safeStr(v: unknown): string {
-  // Errors JSON.stringify to "{}" (message/stack are non-enumerable) — surface them properly so
+  // Errors JSON.stringify to "{}" (message/stack are non-enumerable) – surface them properly so
   // a caught render error reads as its real message + stack, not an empty object.
   if (v instanceof Error) return `${v.name}: ${v.message}${v.stack ? `\n${v.stack}` : ""}`;
   try {

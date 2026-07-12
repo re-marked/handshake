@@ -103,11 +103,11 @@ export function parseWorkspace(json: string): Workspace {
   const o = data as Record<string, unknown>;
 
   // The root tree. (Pre-rework files used a {tabs,layout,activePaneId} shape with no `root`;
-  // they fail validation here and fall back to a fresh workspace — a one-time reset.)
+  // they fail validation here and fall back to a fresh workspace – a one-time reset.)
   let root = validNode(o.root);
   if (!root) return emptyWorkspace();
 
-  // Always keep the home board reachable — inject it into the first leaf if it went missing.
+  // Always keep the home board reachable – inject it into the first leaf if it went missing.
   if (!findView(root, "board:main")) {
     const firstLeafId = leaves(root)[0].id;
     root = mapLeaf(root, firstLeafId, (l) => ({ ...l, tabs: [{ type: "board", id: "main" }, ...l.tabs] }));

@@ -10,7 +10,7 @@ export type BoardSnapshot = { positions: Map<string, Pos>; pan: Pos; zoom: numbe
 
 export const boardCache = new Map<string, BoardSnapshot>();
 
-/** Drop all cached board layouts — call when switching vaults (the old positions belong to a
+/** Drop all cached board layouts – call when switching vaults (the old positions belong to a
  *  different network's people and would mis-seed the new one). */
 export function clearBoardCache(): void {
   boardCache.clear();

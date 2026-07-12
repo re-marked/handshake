@@ -40,7 +40,7 @@ const mdHighlightStyle = HighlightStyle.define([
   { tag: t.monospace, fontFamily: MONO, fontSize: "0.9em", color: "var(--color-foreground)" },
   { tag: t.quote, color: "var(--color-muted-foreground)", fontStyle: "italic" },
   { tag: t.list, color: "var(--color-muted-foreground)" },
-  // The literal markdown syntax markers — dim them so the prose leads.
+  // The literal markdown syntax markers – dim them so the prose leads.
   { tag: [t.processingInstruction, t.meta], color: "var(--color-muted-foreground)", opacity: "0.6" },
 ]);
 
@@ -118,7 +118,7 @@ function backlinkCompletions(context: CompletionContext): CompletionResult | nul
 }
 
 // Borderless, transparent, prose-feeling editor that inherits the note's font / weight / size and
-// the rose caret + selection. No per-theme config — everything reads from the app's CSS vars.
+// the rose caret + selection. No per-theme config – everything reads from the app's CSS vars.
 const editorTheme = EditorView.theme({
   "&": { backgroundColor: "transparent", color: "inherit", fontSize: "15px", height: "auto" },
   "&.cm-focused": { outline: "none" },
@@ -131,7 +131,7 @@ const editorTheme = EditorView.theme({
     minHeight: "6rem",
   },
   ".cm-line": { padding: "0" },
-  // Dim line-number gutter — normal size, just faint, so it blends in.
+  // Dim line-number gutter – normal size, just faint, so it blends in.
   ".cm-gutters": { backgroundColor: "transparent", border: "none", color: "var(--color-muted-foreground)" },
   ".cm-lineNumbers .cm-gutterElement": { fontFamily: MONO, opacity: "0.4" },
   ".cm-cursor, .cm-dropCursor": { borderLeftColor: "var(--color-primary)" },
@@ -140,12 +140,12 @@ const editorTheme = EditorView.theme({
   },
   ".cm-scroller": { fontFamily: "inherit", lineHeight: "inherit" },
   ".cm-placeholder": { color: "var(--color-muted-foreground)", opacity: "0.55" },
-  // `[[backlinks]]` while editing — resolved tints rose, unresolved reads muted + dashed.
+  // `[[backlinks]]` while editing – resolved tints rose, unresolved reads muted + dashed.
   ".cm-backlink": { color: "var(--color-primary)", fontWeight: "500" },
   ".cm-backlink-unresolved": { color: "var(--color-muted-foreground)", textDecoration: "underline dashed" },
 });
 
-// Trim the "code editor" chrome — no gutters / line numbers / active-line — so it reads as prose.
+// Trim the "code editor" chrome – no gutters / line numbers / active-line – so it reads as prose.
 // Keep history (undo/redo), the default keymap, and drawn selection.
 const BASIC_SETUP = {
   lineNumbers: true, // compact + dimmed via the gutter styles in editorTheme
@@ -207,7 +207,7 @@ function NoteEditor({ value, onChange }: { value: string; onChange: (next: strin
     const view = cmRef.current?.view;
     if (view && recolor) {
       const span = view.state.sliceDoc(recolor.from, recolor.to);
-      // A minimal change on just the token — preserves the cursor and the undo history.
+      // A minimal change on just the token – preserves the cursor and the undo history.
       view.dispatch({ changes: { from: recolor.from, to: recolor.to, insert: recolorSpan(span, color) } });
     }
     setRecolor(null);
@@ -223,7 +223,7 @@ function NoteEditor({ value, onChange }: { value: string; onChange: (next: strin
         extensions={extensions}
         basicSetup={BASIC_SETUP}
         autoFocus
-        placeholder="Notes… (markdown supported — **bold**, - lists, ==highlights==)"
+        placeholder="Notes… (markdown supported – **bold**, - lists, ==highlights==)"
       />
       <HighlightPalette target={recolor} onPick={pick} onClose={() => setRecolor(null)} />
     </>

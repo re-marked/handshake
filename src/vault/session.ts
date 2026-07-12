@@ -109,7 +109,7 @@ export class VaultSession {
     await this.io.writeSettings(serializeSettings(settings));
   }
 
-  // ── Time Machine (git) — thin pass-throughs to the IO layer ──
+  // ── Time Machine (git) – thin pass-throughs to the IO layer ──
   /** Ensure the vault is a git repo (idempotent). */
   tmInit(): Promise<void> {
     return this.io.tmInit();

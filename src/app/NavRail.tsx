@@ -29,7 +29,7 @@ function RailButton({
   );
 }
 
-/** The thin left rail — navigation between Views (most are static until L6; see SHELL.md). */
+/** The thin left rail – navigation between Views (most are static until L6; see SHELL.md). */
 export function NavRail() {
   const activeType = useApp((s) => activeView(s.workspace)?.type);
   const openView = useApp((s) => s.openView);

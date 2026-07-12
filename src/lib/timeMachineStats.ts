@@ -20,7 +20,7 @@ const ACTIVE_WINDOW_MIN = 90;
 /**
  * Estimate monthly history growth from the aggregated past: how much you write per active day, how
  * often you're active, and how many snapshots a given cadence would capture. An estimate, not a
- * guarantee — git de-duplicates, so real growth is usually lower.
+ * guarantee – git de-duplicates, so real growth is usually lower.
  */
 export function estimateGrowth(stats: TmStats, cadenceMin: number): GrowthEstimate {
   const spanDays = Math.max(1, (stats.lastTime - stats.firstTime) / DAY);

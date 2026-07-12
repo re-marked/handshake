@@ -38,7 +38,7 @@ export function Shell() {
             <WorkspaceRenderer node={root} />
           </WorkspaceBoundary>
           <FloatingLayer />
-          {/* Ambient status line (last snapshot, board corner). Off by default — too busy for
+          {/* Ambient status line (last snapshot, board corner). Off by default – too busy for
               everyday use; toggled on via Developer Settings. */}
           {showStatusLine && (
             <div className="pointer-events-none absolute bottom-1.5 left-2.5 z-10 max-w-[min(60%,32rem)] truncate">
