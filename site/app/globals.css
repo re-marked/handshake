@@ -7,8 +7,9 @@
 :root {
   --radius: 0.5rem;
 
-  /* Between the app's own background and near-black — a touch darker than the screenshots. */
-  --background: oklch(0.17 0.008 75);
+  /* Matched verbatim to the app's .dark --background so screenshots, the demo video, and the
+     page chrome are one continuous surface. Keep in sync with src/index.css .dark. */
+  --background: oklch(0.24 0.009 75);
   --foreground: oklch(0.9 0.005 75);
   --card: oklch(0.275 0.009 75);
   --card-foreground: oklch(0.9 0.005 75);
