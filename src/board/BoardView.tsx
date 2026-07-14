@@ -61,6 +61,7 @@ export function BoardView({ boardId }: { boardId: string }) {
   const sizeCardsByBacklinks = useApp((s) => s.settings.sizeCardsByBacklinks);
   const fadeStaleCards = useApp((s) => s.settings.fadeStaleCards);
   const fadeStrength = useApp((s) => s.settings.fadeStrength);
+  const reduceMotion = useApp((s) => s.settings.reduceMotion);
   const cardSpacing = useApp((s) => s.settings.cardSpacing);
   const zoomRange = useApp((s) => s.settings.zoomRange);
   const locateFlash = useApp((s) => s.settings.locateFlash);
@@ -692,13 +693,17 @@ export function BoardView({ boardId }: { boardId: string }) {
               )}
               style={{ left: p.x, top: p.y, transform: "translate(-50%, -50%)" }}
             >
-              <motion.div
-                initial={card.id === justCreated ? { scale: 0.5, opacity: 0 } : false}
-                animate={{
-                  scale: card.id === deletingId ? 0.4 : 1,
+              {/* Opacity + delete-shrink via cheap CSS transitions (not per-card JS springs) — the
+                  filter/fade dims every card at once, and JS opacity springs choke the WebKit
+                  compositor. A one-shot keyframe keeps the create pop; reduce-motion skips it. */}
+              <div
+                className="transition-[opacity,transform] duration-300 ease-out"
+                style={{
                   opacity,
+                  transform: card.id === deletingId ? "scale(0.4)" : undefined,
+                  animation:
+                    card.id === justCreated && !reduceMotion ? "cardPop 0.3s ease-out" : undefined,
                 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
               >
                 {card.isGoal ? (
                   <GoalCard title={card.name} />
@@ -710,7 +715,7 @@ export function BoardView({ boardId }: { boardId: string }) {
                     sizeScale={sizeCardsByBacklinks ? cardSizeScale(card.backlinkCount) : 1}
                   />
                 )}
-              </motion.div>
+              </div>
               {card.isGoal ? (
                 <button
                   type="button"

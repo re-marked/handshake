@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { affiliationLabel } from "@/switchboard";
@@ -7,7 +8,7 @@ import type { BoardCard } from "@/board/tree";
  * A polaroid-style person card: a square photo (or a silhouette placeholder) on top,
  * name + role on the caption strip below. Solid/opaque. Self carries the rose accent.
  */
-export function PersonCard({
+export const PersonCard = memo(function PersonCard({
   card,
   photoSrc,
   highlighted,
@@ -48,4 +49,4 @@ export function PersonCard({
       </div>
     </div>
   );
-}
+});

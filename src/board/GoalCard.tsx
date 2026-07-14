@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Target, User } from "lucide-react";
 
 /**
@@ -5,7 +6,7 @@ import { Target, User } from "lucide-react";
  * you want to meet but haven't), tagged as a goal in the caption. A dashed tie to you is
  * drawn by the board. Ticking it promotes it into a real connected person.
  */
-export function GoalCard({ title }: { title: string }) {
+export const GoalCard = memo(function GoalCard({ title }: { title: string }) {
   return (
     <div className="w-36 select-none overflow-hidden rounded-md border border-dashed border-primary/50 bg-card/50 opacity-85 shadow-sm">
       <div className="flex aspect-square w-full items-center justify-center bg-muted/40">
@@ -20,4 +21,4 @@ export function GoalCard({ title }: { title: string }) {
       </div>
     </div>
   );
-}
+});
