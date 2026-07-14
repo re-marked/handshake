@@ -11,7 +11,7 @@ plain markdown underneath, a calm rose-on-monochrome canvas on top.
 
 <sub>A local-first desktop app · 100% on your machine · 0% in the cloud</sub>
 
-[![Latest release](https://img.shields.io/badge/release-v0.9.4-b24a6d?style=flat-square&labelColor=2b2b2b)](https://github.com/re-marked/handshake/releases/latest)
+[![Latest release](https://img.shields.io/badge/release-v0.9.5-b24a6d?style=flat-square&labelColor=2b2b2b)](https://github.com/re-marked/handshake/releases/latest)
 [![Status](https://img.shields.io/badge/status-public%20beta-b24a6d?style=flat-square&labelColor=2b2b2b)](https://github.com/re-marked/handshake/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-b24a6d?style=flat-square&labelColor=2b2b2b)](LICENSE)
 ![Platforms](https://img.shields.io/badge/macOS%20·%20Windows%20·%20Linux-2b2b2b?style=flat-square)
