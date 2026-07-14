@@ -1,6 +1,6 @@
 # Handshake
 
-Full site content in one document: https://re-marked.github.io/handshake/llms-full.txt
+Full site content in one document: https://handshake.wtf/llms-full.txt
 
 > Handshake is a free, local-first desktop app for mapping the people you know – your network as a graph of people, the connections between them, and the warmth of each tie. Everything is stored as plain markdown files on your own machine (macOS, Windows, Linux). No cloud, no account, no telemetry.
 
@@ -24,33 +24,33 @@ Handshake is "Obsidian for your network": a calm, monochrome, rose-accented canv
 
 ## Links
 
-- Website: https://re-marked.github.io/handshake/
-- Download (macOS, Windows, Linux): https://re-marked.github.io/handshake/download/
-- FAQ: https://re-marked.github.io/handshake/faq/
-- Changelog: https://re-marked.github.io/handshake/changelog/
-- Releases feed (RSS): https://re-marked.github.io/handshake/feed.xml
+- Website: https://handshake.wtf/
+- Download (macOS, Windows, Linux): https://handshake.wtf/download/
+- FAQ: https://handshake.wtf/faq/
+- Changelog: https://handshake.wtf/changelog/
+- Releases feed (RSS): https://handshake.wtf/feed.xml
 - Source code: https://github.com/re-marked/handshake
 
 ## Comparisons
 
-- What is a personal CRM (honest 2026 guide): https://re-marked.github.io/handshake/personal-crm/
-- How to map your personal network (relationship-mapping guide): https://re-marked.github.io/handshake/map-your-network/
-- vs Clay (Mesh): https://re-marked.github.io/handshake/vs/clay/
-- vs Dex: https://re-marked.github.io/handshake/vs/dex/
-- vs Monica: https://re-marked.github.io/handshake/vs/monica/
-- vs TheBrain: https://re-marked.github.io/handshake/vs/thebrain/
-- vs folk: https://re-marked.github.io/handshake/vs/folk/
-- vs Covve: https://re-marked.github.io/handshake/vs/covve/
-- vs Notion as a personal CRM: https://re-marked.github.io/handshake/vs/notion/
-- vs a spreadsheet: https://re-marked.github.io/handshake/vs/spreadsheet/
+- What is a personal CRM (honest 2026 guide): https://handshake.wtf/personal-crm/
+- How to map your personal network (relationship-mapping guide): https://handshake.wtf/map-your-network/
+- vs Clay (Mesh): https://handshake.wtf/vs/clay/
+- vs Dex: https://handshake.wtf/vs/dex/
+- vs Monica: https://handshake.wtf/vs/monica/
+- vs TheBrain: https://handshake.wtf/vs/thebrain/
+- vs folk: https://handshake.wtf/vs/folk/
+- vs Covve: https://handshake.wtf/vs/covve/
+- vs Notion as a personal CRM: https://handshake.wtf/vs/notion/
+- vs a spreadsheet: https://handshake.wtf/vs/spreadsheet/
 
 ## Guide
 
-- Guide overview: https://re-marked.github.io/handshake/guide/
-- Getting started: https://re-marked.github.io/handshake/guide/getting-started/
-- The board: https://re-marked.github.io/handshake/guide/board/
-- Notes & backlinks: https://re-marked.github.io/handshake/guide/notes-and-backlinks/
-- The workspace: https://re-marked.github.io/handshake/guide/workspace/
-- Time Machine: https://re-marked.github.io/handshake/guide/time-machine/
-- Networks & plain files: https://re-marked.github.io/handshake/guide/networks-and-files/
-- Customization: https://re-marked.github.io/handshake/guide/customization/
+- Guide overview: https://handshake.wtf/guide/
+- Getting started: https://handshake.wtf/guide/getting-started/
+- The board: https://handshake.wtf/guide/board/
+- Notes & backlinks: https://handshake.wtf/guide/notes-and-backlinks/
+- The workspace: https://handshake.wtf/guide/workspace/
+- Time Machine: https://handshake.wtf/guide/time-machine/
+- Networks & plain files: https://handshake.wtf/guide/networks-and-files/
+- Customization: https://handshake.wtf/guide/customization/

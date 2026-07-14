@@ -1,6 +1,6 @@
 # Build the marketing landing (Next.js static export in site/) and deploy it to GitHub Pages.
-# The site serves at https://re-marked.github.io/handshake (basePath /handshake, set in
-# site/next.config.mjs). Requires Pages to be enabled with "Source: GitHub Actions" once.
+# The site serves at the custom domain https://handshake.wtf (apex domain via site/public/CNAME;
+# no basePath). Requires Pages enabled with "Source: GitHub Actions" + the DNS A records set once.
 name: deploy-site
 
 on:
@@ -59,19 +59,18 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4
       # Tell IndexNow-capable engines (Bing → Copilot/ChatGPT browsing) that our URLs changed, so
-      # re-crawls happen in minutes instead of weeks. The key file lives in site/public/; the
-      # keyLocation under /handshake/ scopes the key to exactly our URLs. Best-effort — never
-      # fails the deploy.
+      # re-crawls happen in minutes instead of weeks. The key file lives in site/public/ and is
+      # served at the domain root. Best-effort — never fails the deploy.
       - name: Ping IndexNow
         continue-on-error: true
         run: |
           sleep 20 # let the CDN start serving the fresh sitemap + key file
-          urls=$(curl -s https://re-marked.github.io/handshake/sitemap.xml | grep -oP '(?<=<loc>)[^<]+')
+          urls=$(curl -s https://handshake.wtf/sitemap.xml | grep -oP '(?<=<loc>)[^<]+')
           [ -z "$urls" ] && { echo "no sitemap URLs — skipping"; exit 0; }
           json=$(printf '%s\n' $urls | jq -R . | jq -s '{
-            host: "re-marked.github.io",
+            host: "handshake.wtf",
             key: "31cce94983b7ae642fe7dc12b476cc78",
-            keyLocation: "https://re-marked.github.io/handshake/31cce94983b7ae642fe7dc12b476cc78.txt",
+            keyLocation: "https://handshake.wtf/31cce94983b7ae642fe7dc12b476cc78.txt",
             urlList: .
           }')
           curl -s -X POST "https://api.indexnow.org/indexnow" \

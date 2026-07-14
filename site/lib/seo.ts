@@ -1,7 +1,7 @@
 // Single source of truth for the site's SEO/GEO surface. The FAQ array drives BOTH the visible
 // FAQ section and the FAQPage JSON-LD, so they can never drift apart (which AI engines penalize).
 
-export const SITE_URL = "https://re-marked.github.io/handshake";
+export const SITE_URL = "https://handshake.wtf";
 export const REPO = "https://github.com/re-marked/handshake";
 export const DOWNLOAD = `${REPO}/releases/latest`;
 export const SITE_NAME = "Handshake";

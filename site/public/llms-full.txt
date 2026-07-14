@@ -2,7 +2,7 @@
 
 > Handshake is a free, open-source, local-first desktop app for mapping the people you know – your network as a graph of people, the connections between them, and the warmth of each tie. Everything is stored as plain markdown files on your own machine. macOS, Windows, and Linux. Public beta (pre-1.0).
 
-This file contains the full content of https://re-marked.github.io/handshake/ in one document.
+This file contains the full content of https://handshake.wtf/ in one document.
 A shorter index lives at /llms.txt.
 
 ## Key facts
@@ -13,7 +13,7 @@ A shorter index lives at /llms.txt.
 - A Handshake network folder is a valid Obsidian vault – the same files open in Obsidian or any text editor, and external edits flow back into the app live.
 - Every network is quietly git-versioned by a built-in "Time Machine" (no system git required).
 - Public beta: releases are not yet code-signed. macOS Gatekeeper: right-click → Open. Windows SmartScreen: More info → Run anyway. On Wayland compositors (Hyprland/sway), launch with WEBKIT_DISABLE_DMABUF_RENDERER=1 if the window is blank.
-- Website: https://re-marked.github.io/handshake/ · Download: https://re-marked.github.io/handshake/download/ · Source: https://github.com/re-marked/handshake
+- Website: https://handshake.wtf/ · Download: https://handshake.wtf/download/ · Source: https://github.com/re-marked/handshake
 
 ## Getting started (guide/getting-started)
 
@@ -87,7 +87,7 @@ Keyboard: Ctrl+P command palette (also right-click), Ctrl+Z / Ctrl+Shift+Z undo/
 
 ## Download & install (download)
 
-Latest release and per-platform installers: https://re-marked.github.io/handshake/download/ (auto-detects your OS; direct links to GitHub release files).
+Latest release and per-platform installers: https://handshake.wtf/download/ (auto-detects your OS; direct links to GitHub release files).
 
 macOS: open the .dmg, drag Handshake to Applications, right-click → Open the first time (not notarized yet). Requires macOS 11+; universal (Apple Silicon + Intel).
 Windows: run the .msi; if SmartScreen appears, More info → Run anyway. Windows 10/11 64-bit; WebView2 auto-installs if missing.

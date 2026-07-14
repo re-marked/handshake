@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
-// Static export for GitHub Pages. The project site lives at re-marked.github.io/handshake, so in
-// production we prefix everything with /handshake; in dev it's served at the root. Point a custom
-// domain at Pages later → set BASE_PATH="" and it all collapses to root.
-const basePath = process.env.NODE_ENV === "production" ? "/handshake" : "";
+// Static export for GitHub Pages, served at the custom domain handshake.wtf (apex → Pages via the
+// public/CNAME file), so everything lives at the root — no basePath. (History: it used to sit at
+// re-marked.github.io/handshake with a /handshake prefix.)
+const basePath = "";
 
 const nextConfig = {
   output: "export",
