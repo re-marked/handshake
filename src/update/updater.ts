@@ -15,7 +15,7 @@ import { CheckCircle2 } from "lucide-react";
 import { appVersion } from "@/lib/buildInfo";
 import { notify } from "@/app/toast";
 
-const DOWNLOAD_URL = "https://re-marked.github.io/handshake/download/";
+const DOWNLOAD_URL = "https://handshake.wtf/download/";
 const LATEST_API = "https://api.github.com/repos/re-marked/handshake/releases/latest";
 
 type UpdateState =

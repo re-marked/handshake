@@ -16,7 +16,7 @@ plain markdown underneath, a calm rose-on-monochrome canvas on top.
 [![License: MIT](https://img.shields.io/badge/license-MIT-b24a6d?style=flat-square&labelColor=2b2b2b)](LICENSE)
 ![Platforms](https://img.shields.io/badge/macOS%20·%20Windows%20·%20Linux-2b2b2b?style=flat-square)
 
-**[⬇ Download](#download) · [Website](https://re-marked.github.io/handshake/)**
+**[⬇ Download](#download) · [Website](https://handshake.wtf/)**
 
 <br>
 
@@ -41,11 +41,11 @@ It's a tool for remembering that the best introductions are usually one or two h
 
 ## Download
 
-**[Get Handshake for macOS, Windows, or Linux →](https://re-marked.github.io/handshake/download/)**
+**[Get Handshake for macOS, Windows, or Linux →](https://handshake.wtf/download/)**
 
 Every release ships native installers – a `.dmg` for macOS (Apple Silicon + Intel), a
 `.msi` for Windows, and `.AppImage` / `.deb` / `.rpm` for Linux. Grab yours from the
-[download page](https://re-marked.github.io/handshake/download/) or straight from
+[download page](https://handshake.wtf/download/) or straight from
 [GitHub Releases](https://github.com/re-marked/handshake/releases/latest).
 
 > **Heads up – it's not code-signed yet.** On first launch, macOS (Gatekeeper) and Windows
