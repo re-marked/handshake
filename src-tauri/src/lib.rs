@@ -160,8 +160,14 @@ fn write_workspace(vault: String, content: String) -> Result<(), String> {
     write_atomic(&dir.join("workspace.json"), &content).map_err(|e| e.to_string())
 }
 
-/// Copy an external image into the vault's attachments/ folder, named after `name` (+ the
-/// source extension). Overwrites an existing same-named file. Returns the vault-relative path.
+/// Longest edge (px) a card photo is downscaled to on import. Cards render ~144–300px, so 512 is
+/// crisp on HiDPI while keeping the board cheap to composite (a full-res phone photo would otherwise
+/// be resampled every repaint — brutal on WebKitGTK).
+const PHOTO_MAX_EDGE: u32 = 512;
+
+/// Import an external image into the vault's attachments/ folder, named after `name`. Oversized
+/// photos are downscaled (longest edge → PHOTO_MAX_EDGE, aspect preserved); anything the decoder
+/// can't handle, or already-small images, are copied byte-for-byte. Returns the vault-relative path.
 #[tauri::command]
 fn import_attachment(vault: String, src: String, name: String) -> Result<String, String> {
     let src_path = PathBuf::from(&src);
@@ -172,9 +178,23 @@ fn import_attachment(vault: String, src: String, name: String) -> Result<String,
         .to_lowercase();
     let safe: String = name.chars().filter(|c| c.is_alphanumeric() || *c == '-' || *c == '_').collect();
     let safe = if safe.is_empty() { "photo".to_string() } else { safe };
-    let rel = format!("attachments/{safe}.{ext}");
     let dir = PathBuf::from(&vault).join("attachments");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+
+    // Downscale if it decodes AND is oversized; otherwise fall back to a plain copy so we never
+    // fail an import over a format the `image` crate doesn't support (svg, gif, …).
+    if let Ok(img) = image::open(&src_path) {
+        if img.width() > PHOTO_MAX_EDGE || img.height() > PHOTO_MAX_EDGE {
+            // Re-encode into a format `image` can write; keep jp/webp, else normalize to png.
+            let out_ext = if matches!(ext.as_str(), "jpg" | "jpeg" | "webp") { ext.as_str() } else { "png" };
+            let rel = format!("attachments/{safe}.{out_ext}");
+            let resized = img.resize(PHOTO_MAX_EDGE, PHOTO_MAX_EDGE, image::imageops::FilterType::Lanczos3);
+            resized.save(PathBuf::from(&vault).join(&rel)).map_err(|e| e.to_string())?;
+            return Ok(rel);
+        }
+    }
+
+    let rel = format!("attachments/{safe}.{ext}");
     fs::copy(&src_path, PathBuf::from(&vault).join(&rel)).map_err(|e| e.to_string())?;
     Ok(rel)
 }
