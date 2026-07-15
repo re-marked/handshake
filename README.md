@@ -2,7 +2,7 @@
 
 <img src="public/handshake-logo.png" alt="Handshake" width="128" />
 
-# Handshake
+# Handshake [ʙᴇᴛᴀ]
 
 **Obsidian for your network.**
 
