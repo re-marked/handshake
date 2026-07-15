@@ -805,6 +805,7 @@ export function SettingsDialog() {
     <Dialog open={open} onOpenChange={(o) => useApp.getState().setSettingsOpen(o)}>
       <DialogContent
         showCloseButton
+        fade
         className="flex h-[85vh] w-[92vw] !max-w-5xl flex-col gap-0 overflow-hidden p-0"
       >
         <DialogHeader className="border-b px-5 py-3">
