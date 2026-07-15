@@ -86,13 +86,19 @@ not a toy you admire.
 you. Each card carries a face, a name, and a role; the ties between them are weighted by
 warmth – close, warm, cold, dormant. Drag a card and its whole branch follows.
 
+<div align="center"><img src="site/public/screenshot-hero.png" alt="The Handshake board – a founder's network connected by warmth-weighted ties, with a person's note slid in" width="820" /></div>
+
 **Notes – the Obsidian soul.** Click anyone and their note slides in: structured fields up
 top, a free-form markdown scratchpad below, rendered live with tables, task lists, and
 links. The deeper thinking about a person lives here.
 
+<div align="center"><img src="site/public/screenshot-note.webp" alt="A person's note open beside the board – markdown with rose [[backlink]] chips that connect people" width="820" /></div>
+
 **A real workspace.** Tabs, resizable splits, and pop-out floating notes in a true
 Obsidian-style layout. Put a note beside the board, drag a tab into its own pane – and the
 whole arrangement is right where you left it next time.
+
+<div align="center"><img src="site/public/screenshot-split.webp" alt="A split Handshake workspace – a goals list with a floating note on the left, the board on the right" width="820" /></div>
 
 **Networks.** Keep separate worlds separate. Work and personal each get their own vault,
 their own layout, their own settings – switch between them in a keystroke.
@@ -100,6 +106,8 @@ their own layout, their own settings – switch between them in a keystroke.
 **Goals and people.** Pin aspirations as cards on the board or work them in a dedicated
 view; tick one off and it grows into a real, connected person. A dense, searchable people
 list rounds out the spatial view with a tabular one.
+
+<div align="center"><img src="site/public/screenshot-people.webp" alt="The People view – a searchable, sortable list of everyone in the network with roles, tags, and warmth" width="820" /></div>
 
 **Photos and themes.** Drop a photo onto anyone and it's theirs, on the card and the note.
 Dial in density, motion, and theme to taste.
