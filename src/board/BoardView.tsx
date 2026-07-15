@@ -703,6 +703,10 @@ export function BoardView({ boardId }: { boardId: string }) {
                   transform: card.id === deletingId ? "scale(0.4)" : undefined,
                   animation:
                     card.id === justCreated && !reduceMotion ? "cardPop 0.3s ease-out" : undefined,
+                  // Promote each card to its own compositing layer so the filter/fade animates the
+                  // layer's alpha (cheap) instead of re-rasterizing the card+photo every frame —
+                  // that repaint is what tanks framerate at mid-zoom on WebKitGTK/NVIDIA.
+                  willChange: "opacity",
                 }}
               >
                 {card.isGoal ? (

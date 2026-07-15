@@ -49,7 +49,9 @@ function DialogContent({
   fade?: boolean;
 }) {
   const enterExit = fade
-    ? "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+    ? // will-change promotes the (large) panel to its own layer so the fade animates the layer's
+      // alpha instead of repainting 89%-of-screen of content every frame (brutal on WebKitGTK).
+      "[will-change:opacity] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
     : "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95";
   return (
     <DialogPortal data-slot="dialog-portal">
