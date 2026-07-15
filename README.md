@@ -20,7 +20,7 @@ plain markdown underneath, a calm rose-on-monochrome canvas on top.
 
 <br>
 
-<img src="site/public/screenshot-hero.png" alt="The Handshake board – a network of people connected by warmth-weighted ties" width="840" />
+<img src="public/demo.gif" alt="Handshake in motion – adding people, drawing warmth-weighted ties, and writing [[names]] that connect the board into a map" width="840" />
 
 </div>
 
